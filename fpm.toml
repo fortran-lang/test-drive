@@ -1,0 +1,8 @@
+name = "test-drive"
+version = "0.3.0"
+license = "Apache-2.0"
+maintainer = ["@awvwgk"]
+author = ["Sebastian Ehlert"]
+copyright = "2020-2021 Sebastian Ehlert"
+description = "The non-fancy testing framework"
+keywords = ["testing-framework", "unit-testing"]
