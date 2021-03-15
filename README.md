@@ -1,4 +1,4 @@
-# The non-fancy testing framework
+# The simple testing framework
 
 This project offers a lightweight, procedural unit testing framework
 based on nothing but standard Fortran.

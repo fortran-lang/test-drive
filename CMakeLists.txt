@@ -20,7 +20,7 @@ project(
   "test-drive"
   LANGUAGES "Fortran"
   VERSION "0.3.0"
-  DESCRIPTION "The non-fancy testing framework"
+  DESCRIPTION "The simple testing framework"
 )
 
 # Follow GNU conventions for installing directories

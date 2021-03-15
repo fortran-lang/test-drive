@@ -66,7 +66,7 @@ if install
   pkg = import('pkgconfig')
   pkg.generate(
     testdrive_lib,
-    description: 'The non-fancy testing framework',
+    description: 'The simple testing framework',
   )
 endif
 

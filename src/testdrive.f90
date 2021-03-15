@@ -227,7 +227,6 @@ module testdrive
 
    character(len=*), parameter :: fmt = '(1x, *(1x, a))'
    character(len=*), parameter :: indent = repeat(" ", 5) // repeat(".", 3)
-   character(len=*), parameter :: skip = repeat(" ", 11)
 
 
 contains
@@ -526,13 +525,13 @@ subroutine check_float_dp(error, actual, expected, message, more, thr, rel)
       else
          if (relative) then
             call test_failed(error, &
-               "Floating point value missmatch"//new_line("a")//skip//&
+               "Floating point value missmatch", &
                "expected "//ch(expected)//" but got "//ch(actual)//" "//&
                "(difference: "//ch(int(diff*100))//"%)", &
                more)
          else
             call test_failed(error, &
-               "Floating point value missmatch"//new_line("a")//skip//&
+               "Floating point value missmatch", &
                "expected "//ch(expected)//" but got "//ch(actual)//" "//&
                "(difference: "//ch(diff)//")", &
                more)
@@ -593,13 +592,13 @@ subroutine check_float_sp(error, actual, expected, message, more, thr, rel)
       else
          if (relative) then
             call test_failed(error, &
-               "Floating point value missmatch"//new_line("a")//skip//&
+               "Floating point value missmatch", &
                "expected "//ch(expected)//" but got "//ch(actual)//" "//&
                "(difference: "//ch(int(diff*100))//"%)", &
                more)
          else
             call test_failed(error, &
-               "Floating point value missmatch"//new_line("a")//skip//&
+               "Floating point value missmatch", &
                "expected "//ch(expected)//" but got "//ch(actual)//" "//&
                "(difference: "//ch(diff)//")", &
                more)
@@ -632,7 +631,7 @@ subroutine check_int_i1(error, actual, expected, message, more)
          call test_failed(error, message, more)
       else
          call test_failed(error, &
-            "Integer value missmatch"//new_line("a")//skip//&
+            "Integer value missmatch", &
             "expected "//ch(expected)//" but got "//ch(actual), &
             more)
       end if
@@ -663,7 +662,7 @@ subroutine check_int_i2(error, actual, expected, message, more)
          call test_failed(error, message, more)
       else
          call test_failed(error, &
-            "Integer value missmatch"//new_line("a")//skip//&
+            "Integer value missmatch", &
             "expected "//ch(expected)//" but got "//ch(actual), &
             more)
       end if
@@ -694,7 +693,7 @@ subroutine check_int_i4(error, actual, expected, message, more)
          call test_failed(error, message, more)
       else
          call test_failed(error, &
-            "Integer value missmatch"//new_line("a")//skip//&
+            "Integer value missmatch", &
             "expected "//ch(expected)//" but got "//ch(actual), &
             more)
       end if
@@ -725,7 +724,7 @@ subroutine check_int_i8(error, actual, expected, message, more)
          call test_failed(error, message, more)
       else
          call test_failed(error, &
-            "Integer value missmatch"//new_line("a")//skip//&
+            "Integer value missmatch", &
             "expected "//ch(expected)//" but got "//ch(actual), &
             more)
       end if
@@ -756,7 +755,7 @@ subroutine check_bool(error, actual, expected, message, more)
          call test_failed(error, message, more)
       else
          call test_failed(error, &
-            "Logical value missmatch"//new_line("a")//skip//&
+            "Logical value missmatch", &
             "expected "//merge("T", "F", expected)//" but got "//merge("T", "F", actual), &
             more)
       end if
@@ -787,7 +786,7 @@ subroutine check_string(error, actual, expected, message, more)
          call test_failed(error, message, more)
       else
          call test_failed(error, &
-            "Character value missmatch"//new_line("a")//skip//&
+            "Character value missmatch", &
             "expected '"//expected//"' but got '"//actual//"'", &
             more)
       end if
@@ -796,7 +795,7 @@ subroutine check_string(error, actual, expected, message, more)
 end subroutine check_string
 
 
-subroutine test_failed(error, message, more)
+subroutine test_failed(error, message, more, and_more)
 
    !> Error handling
    type(error_type), allocatable, intent(out) :: error
@@ -807,13 +806,20 @@ subroutine test_failed(error, message, more)
    !> Another line of error message
    character(len=*), intent(in), optional :: more
 
+   !> Another line of error message
+   character(len=*), intent(in), optional :: and_more
+
+   character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
+
    allocate(error)
    error%stat = fatal
 
+   error%message = message
    if (present(more)) then
-      error%message = message // new_line("a") // skip // more
-   else
-      error%message = message
+      error%message = error%message // skip // more
+   end if
+   if (present(and_more)) then
+      error%message = error%message // skip // and_more
    end if
 
 end subroutine test_failed

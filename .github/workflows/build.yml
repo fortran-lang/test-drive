@@ -1,0 +1,205 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  M_BUILD_DIR: _build_meson
+  C_BUILD_DIR: _build_cmake
+  PIP_PACKAGES: >-
+    meson
+    cmake
+    ninja
+    gcovr
+
+jobs:
+  gcc-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    env:
+      FC: gfortran
+      GCC_V: 9
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+
+    - name: Install GCC (OSX)
+      if: contains(matrix.os, 'macos')
+      run: |
+          ln -s /usr/local/bin/gfortran-${GCC_V} /usr/local/bin/gfortran
+          which gfortran-${GCC_V}
+          which gfortran
+
+    - name: Install GCC (Linux)
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_V} 100 \
+        --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_V} \
+        --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_V}
+
+    - name: Install meson/cmake
+      run: pip3 install ${{ env.PIP_PACKAGES }}
+
+    - name: Configure meson build
+      run: >-
+        meson setup ${{ env.M_BUILD_DIR }}
+        --buildtype=debug
+        --prefix=$PWD/_mdist
+        --libdir=lib
+        -Db_coverage=true
+
+    - name: Build project (meson)
+      run: meson compile -C ${{ env.M_BUILD_DIR }}
+
+    - name: Run unit tests (meson)
+      run: meson test -C ${{ env.M_BUILD_DIR }} --print-errorlogs --no-rebuild
+
+    - name: Install project (meson)
+      run: meson install -C ${{ env.M_BUILD_DIR }} --no-rebuild
+
+    - name: Create coverage report (meson)
+      run: ninja -C ${{ env.M_BUILD_DIR }} coverage
+
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v1
+
+    - name: Configure CMake build
+      run: >-
+        cmake
+        -B ${{ env.C_BUILD_DIR }}
+        -G Ninja
+        -DCMAKE_INSTALL_PREFIX=$PWD/_cdist
+
+    - name: Build project (CMake)
+      run: cmake --build ${{ env.C_BUILD_DIR }}
+
+    - name: Run unit tests (CTest)
+      run: ctest
+      working-directory: ${{ env.C_BUILD_DIR }}
+
+    - name: Install project (CMake)
+      run: cmake --install ${{ env.C_BUILD_DIR }}
+
+
+  # Test native MinGW Windows build
+  mingw-build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { msystem: MINGW64, arch: x86_64 },
+        # { msystem: MINGW32, arch: i686   }
+        ]
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup MSYS2 toolchain
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: false
+        install: >-
+          git
+          mingw-w64-${{ matrix.arch }}-gcc-fortran
+          mingw-w64-${{ matrix.arch }}-cmake
+          mingw-w64-${{ matrix.arch }}-python
+          mingw-w64-${{ matrix.arch }}-python-pip
+          mingw-w64-${{ matrix.arch }}-ninja
+
+    - name: Install meson/cmake
+      run: pip3 install meson==0.56.2
+
+    - name: Configure meson build
+      run: meson setup ${{ env.M_BUILD_DIR }}
+      env:
+        FC: gfortran
+        CC: gcc
+
+    - name: Build project (meson)
+      run: meson compile -C ${{ env.M_BUILD_DIR }}
+
+    - name: Run unit tests (meson)
+      run: meson test -C ${{ env.M_BUILD_DIR }} --print-errorlogs --no-rebuild
+      env:
+        OMP_NUM_THREADS: 2,1
+
+    - name: Configure cmake build
+      run: cmake -B ${{ env.C_BUILD_DIR }} -G Ninja
+
+    - name: Build project (CMake)
+      run: cmake --build ${{ env.C_BUILD_DIR }}
+
+    - name: Run unit tests (CTest)
+      run: ctest
+      working-directory: ${{ env.C_BUILD_DIR }}
+      env:
+        OMP_NUM_THREADS: 2,1
+
+
+  intel-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+
+    env:
+      FC: ifort
+      OMP_NUM_THREADS: 2,1
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+
+    - name: Add Intel repository
+      run: |
+        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo apt-get update
+
+    - name: Install Intel oneAPI compiler
+      run: |
+        sudo apt-get install intel-oneapi-compiler-fortran
+        source /opt/intel/oneapi/setvars.sh
+        printenv >> $GITHUB_ENV
+
+    - name: Install meson/cmake
+      run: pip3 install ${{ env.PIP_PACKAGES }}
+
+    - name: Configure meson build
+      run: meson setup ${{ env.M_BUILD_DIR }}
+
+    - name: Build library (meson)
+      run: meson compile -C ${{ env.M_BUILD_DIR }}
+
+    - name: Run unit tests (meson)
+      run: meson test -C ${{ env.M_BUILD_DIR }} --print-errorlogs --no-rebuild
+
+    - name: Configure cmake build
+      run: cmake -B ${{ env.C_BUILD_DIR }} -G Ninja
+
+    - name: Build library (CMake)
+      run: cmake --build ${{ env.C_BUILD_DIR }}
+
+    - name: Run unit tests (CTest)
+      run: ctest
+      working-directory: ${{ env.C_BUILD_DIR }}
