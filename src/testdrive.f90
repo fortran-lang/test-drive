@@ -97,6 +97,7 @@
 !> For an example setup checkout the ``test/`` directory in this project.
 module testdrive
    use, intrinsic :: iso_fortran_env, only : error_unit
+   use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
    implicit none
    private
 
@@ -155,6 +156,8 @@ module testdrive
       module procedure :: check_logical
       module procedure :: check_float_sp
       module procedure :: check_float_dp
+      module procedure :: check_exceptional_sp
+      module procedure :: check_exceptional_dp
       module procedure :: check_int_i1
       module procedure :: check_int_i2
       module procedure :: check_int_i4
@@ -501,6 +504,9 @@ subroutine check_float_dp(error, actual, expected, message, more, thr, rel)
    logical :: relative
    real(dp) :: diff, threshold
 
+   call check(error, actual, message, more)
+   if (allocated(error)) return
+
    if (present(thr)) then
       threshold = thr
    else
@@ -542,6 +548,31 @@ subroutine check_float_dp(error, actual, expected, message, more, thr, rel)
 end subroutine check_float_dp
 
 
+subroutine check_exceptional_dp(error, actual, message, more)
+
+   !> Error handling
+   type(error_type), allocatable, intent(out) :: error
+
+   !> Found floating point value
+   real(dp), intent(in) :: actual
+
+   !> A detailed message describing the error
+   character(len=*), intent(in), optional :: message
+
+   !> Another line of error message
+   character(len=*), intent(in), optional :: more
+
+   if (ieee_is_nan(actual)) then
+      if (present(message)) then
+         call test_failed(error, message, more)
+      else
+         call test_failed(error, "Exceptional value 'not a number' found", more)
+      end if
+   end if
+
+end subroutine check_exceptional_dp
+
+
 subroutine check_float_sp(error, actual, expected, message, more, thr, rel)
 
    !> Error handling
@@ -567,6 +598,9 @@ subroutine check_float_sp(error, actual, expected, message, more, thr, rel)
 
    logical :: relative
    real(sp) :: diff, threshold
+
+   call check(error, actual, message, more)
+   if (allocated(error)) return
 
    if (present(thr)) then
       threshold = thr
@@ -607,6 +641,31 @@ subroutine check_float_sp(error, actual, expected, message, more, thr, rel)
    end if
 
 end subroutine check_float_sp
+
+
+subroutine check_exceptional_sp(error, actual, message, more)
+
+   !> Error handling
+   type(error_type), allocatable, intent(out) :: error
+
+   !> Found floating point value
+   real(sp), intent(in) :: actual
+
+   !> A detailed message describing the error
+   character(len=*), intent(in), optional :: message
+
+   !> Another line of error message
+   character(len=*), intent(in), optional :: more
+
+   if (ieee_is_nan(actual)) then
+      if (present(message)) then
+         call test_failed(error, message, more)
+      else
+         call test_failed(error, "Exceptional value 'not a number' found", more)
+      end if
+   end if
+
+end subroutine check_exceptional_sp
 
 
 subroutine check_int_i1(error, actual, expected, message, more)

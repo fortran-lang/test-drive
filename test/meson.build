@@ -14,7 +14,8 @@
 # limitations under the License.
 
 tests = [
-  'check'
+  'check',
+  'select',
 ]
 
 test_srcs = files(

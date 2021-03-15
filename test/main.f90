@@ -19,6 +19,7 @@ program tester
    use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
       & select_suite, run_selected, get_argument
    use test_check, only : collect_check
+   use test_select, only : collect_select
    implicit none
    integer :: stat, is
    character(len=:), allocatable :: suite_name, test_name
@@ -28,7 +29,8 @@ program tester
    stat = 0
 
    testsuites = [ &
-      new_testsuite("check", collect_check) &
+      new_testsuite("check", collect_check), &
+      new_testsuite("select", collect_select) &
       ]
 
    call get_argument(1, suite_name)

@@ -17,6 +17,7 @@
 set(
   tests
   "check"
+  "select"
 )
 set(
   test-srcs

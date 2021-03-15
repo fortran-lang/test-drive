@@ -1,5 +1,9 @@
 # The simple testing framework
 
+[![Apache-2.0](https://img.shields.io/github/license/awvwgk/test-drive)](LICENSE)
+[![CI](https://github.com/awvwgk/test-drive/workflows/CI/badge.svg)](https://github.com/awvwgk/test-drive/actions)
+[![codecov](https://codecov.io/gh/awvwgk/test-drive/branch/main/graph/badge.svg)](https://codecov.io/gh/awvwgk/test-drive)
+
 This project offers a lightweight, procedural unit testing framework
 based on nothing but standard Fortran.
 
