@@ -38,6 +38,8 @@ target_link_libraries(
   "${PROJECT_NAME}-lib"
 )
 
+add_test("all-tests" tester)
+
 foreach(t IN LISTS tests)
   add_test("${t}" tester "${t}")
 endforeach()

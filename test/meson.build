@@ -31,6 +31,8 @@ tester = executable(
   dependencies: testdrive_dep,
 )
 
+test('all tests', tester)
+
 foreach t : tests
   test(t, tester, args: t)
 endforeach

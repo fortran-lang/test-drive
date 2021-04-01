@@ -229,7 +229,6 @@ module testdrive
 
 
    character(len=*), parameter :: fmt = '(1x, *(1x, a))'
-   character(len=*), parameter :: indent = repeat(" ", 5) // repeat(".", 3)
 
 
 contains
@@ -252,7 +251,7 @@ subroutine run_testsuite(collect, unit, stat)
 
    call collect(testsuite)
 
-   !$omp parallel do shared(testsuite, unit) reduction(+:stat)
+   !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat)
    do it = 1, size(testsuite)
       !$omp critical(testdrive_testsuite)
       write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
@@ -312,30 +311,54 @@ subroutine run_unittest(test, unit, stat)
    integer, intent(inout) :: stat
 
    type(error_type), allocatable :: error
+   character(len=:), allocatable :: message
 
    call test%test(error)
+   if (allocated(error) .neqv. test%should_fail) stat = stat + 1
+   call make_output(message, test, error)
    !$omp critical(testdrive_testsuite)
-   if (allocated(error) .neqv. test%should_fail) then
-      if (test%should_fail) then
-         write(unit, fmt) indent, test%name, "[UNEXPECTED PASS]"
-      else
-         write(unit, fmt) indent, test%name, "[FAILED]"
-      end if
-      stat = stat + 1
-   else
-      if (test%should_fail) then
-         write(unit, fmt) indent, test%name, "[EXPECTED FAIL]"
-      else
-         write(unit, fmt) indent, test%name, "[PASSED]"
-      end if
-   end if
+   write(unit, '(a)') message
+   !$omp end critical(testdrive_testsuite)
    if (allocated(error)) then
-      write(unit, fmt) "Message:", error%message
       call clear_error(error)
    end if
-   !$omp end critical(testdrive_testsuite)
 
 end subroutine run_unittest
+
+
+!> Create output message for test (this procedure is pure and therefore cannot launch tests)
+pure subroutine make_output(output, test, error)
+
+   !> Output message for display
+   character(len=:), allocatable, intent(out) :: output
+
+   !> Unit test
+   type(unittest_type), intent(in) :: test
+
+   !> Error handling
+   type(error_type), intent(in), optional :: error
+
+   character(len=:), allocatable :: label
+   character(len=*), parameter :: indent = repeat(" ", 7) // repeat(".", 3) // " "
+
+   if (present(error) .neqv. test%should_fail) then
+      if (test%should_fail) then
+         label = " [UNEXPECTED PASS]"
+      else
+         label = " [FAILED]"
+      end if
+   else
+      if (test%should_fail) then
+         label = " [EXPECTED FAIL]"
+      else
+         label = " [PASSED]"
+      end if
+   end if
+   output = indent // test%name // label
+   if (present(error)) then
+      output = output // new_line("a") // "  Message: " // error%message
+   end if
+end subroutine make_output
 
 
 !> Select a unit test from all available tests
