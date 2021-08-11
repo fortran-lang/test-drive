@@ -45,55 +45,45 @@ set_target_properties(
   OUTPUT_NAME "${PROJECT_NAME}"
   VERSION "${PROJECT_VERSION}"
   SOVERSION "${PROJECT_VERSION_MAJOR}"
-  Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include"
+  Fortran_MODULE_DIRECTORY "${PROJECT_BINARY_DIR}/include"
 )
 target_include_directories(
   "${PROJECT_NAME}-lib"
-  INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${module-dir}>
 )
 
-if(NOT is-subproject OR BUILD_SHARED_LIBS)
-  # Export targets for other projects
-  add_library("${PROJECT_NAME}" INTERFACE)
-  target_link_libraries("${PROJECT_NAME}" INTERFACE "${PROJECT_NAME}-lib")
-  install(
-    TARGETS
-    "${PROJECT_NAME}"
-    "${PROJECT_NAME}-lib"
-    EXPORT
-    "${PROJECT_NAME}-targets"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  )
-  install(
-    EXPORT
-    "${PROJECT_NAME}-targets"
-    NAMESPACE
-    "${PROJECT_NAME}::"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-  )
-  install(
-    DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}/include/"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-  )
-  # Package license files
-  install(
-    FILES
-    "LICENSE"
-    DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}"
-  )
-else()
-  # Expose license files to parent project
-  set(
-    "${PROJECT_NAME}-lic"
-    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE-Apache"
-    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE-MIT"
-    PARENT_SCOPE
-  )
-endif()
+# Export targets for other projects
+add_library("${PROJECT_NAME}" INTERFACE)
+target_link_libraries("${PROJECT_NAME}" INTERFACE "${PROJECT_NAME}-lib")
+install(
+  TARGETS
+  "${PROJECT_NAME}"
+  "${PROJECT_NAME}-lib"
+  EXPORT
+  "${PROJECT_NAME}-targets"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+)
+install(
+  EXPORT
+  "${PROJECT_NAME}-targets"
+  NAMESPACE
+  "${PROJECT_NAME}::"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+)
+install(
+  DIRECTORY
+  "${PROJECT_BINARY_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${module-dir}"
+)
+# Package license files
+install(
+  FILES
+  "LICENSE"
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}"
+)
 
 # add the testsuite
 enable_testing()

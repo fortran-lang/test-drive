@@ -29,17 +29,17 @@ foreach(t IN LISTS tests)
 endforeach()
 
 add_executable(
-  tester
+  "${PROJECT_NAME}-tester"
   "${test-srcs}"
 )
 target_link_libraries(
-  tester
+  "${PROJECT_NAME}-tester"
   PRIVATE
   "${PROJECT_NAME}-lib"
 )
 
-add_test("all-tests" tester)
+add_test("all-tests" "${PROJECT_NAME}-tester")
 
 foreach(t IN LISTS tests)
-  add_test("${t}" tester "${t}")
+  add_test("${t}" "${PROJECT_NAME}-tester" "${t}")
 endforeach()

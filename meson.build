@@ -63,10 +63,17 @@ if install
     install_dir: get_option('datadir')/'licenses'/meson.project_name()
   )
 
+  module_id = meson.project_name() / fc_id + '-' + fc.version()
+  meson.add_install_script(
+    'config'/'install-mod.py',
+    get_option('includedir') / module_id,
+  )
+
   pkg = import('pkgconfig')
   pkg.generate(
     testdrive_lib,
     description: 'The simple testing framework',
+    subdirs: ['', module_id],
   )
 endif
 
