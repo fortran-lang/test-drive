@@ -31,7 +31,12 @@ add_subdirectory("config")
 set(srcs)
 add_subdirectory("src")
 
-# MCTC library target
+# We need the module directory before we finish the configure stage
+if(NOT EXISTS "${PROJECT_BINARY_DIR}/include")
+  make_directory("${PROJECT_BINARY_DIR}/include")
+endif()
+
+# Testing library target
 add_library(
   "${PROJECT_NAME}-lib"
   "${srcs}"

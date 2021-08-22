@@ -109,7 +109,7 @@ contains
       new_unittest("character", test_char), &
       new_unittest("character-fail", test_char_fail, should_fail=.true.), &
       new_unittest("character-message", test_char_message, should_fail=.true.), &
-      new_unittest("character-with_more", test_char_with_more, should_fail=.true.) &
+      new_unittest("character-with-more", test_char_with_more, should_fail=.true.) &
       ]
 
   end subroutine collect_check
@@ -867,7 +867,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    call check(error, .true., .false., more="with an additional discriptive message")
+    call check(error, .true., .false., more="with an additional descriptive message")
 
   end subroutine test_l4_with_more
 
