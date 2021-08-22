@@ -1,2 +1,5 @@
 fixes:
-  - "/home/runner/work/fortran-lang/test-drive::"
+  - "/home/runner/work/test-drive/test-drive::"
+
+ignore:
+  - "test/**"

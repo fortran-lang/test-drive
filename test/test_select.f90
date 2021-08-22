@@ -14,25 +14,25 @@
 ! limitations under the License.
 
 module test_select
-   use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan
-   use testdrive, only : new_unittest, unittest_type, error_type, check, &
-      & run_testsuite, new_testsuite, testsuite_type, select_suite, run_selected
-   implicit none
-   private
+  use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan
+  use testdrive, only : new_unittest, unittest_type, error_type, check, &
+    & run_testsuite, new_testsuite, testsuite_type, select_suite, run_selected
+  implicit none
+  private
 
-   public :: collect_select
+  public :: collect_select
 
 
 contains
 
 
-!> Collect all exported unit tests
-subroutine collect_select(testsuite)
+  !> Collect all exported unit tests
+  subroutine collect_select(testsuite)
 
-   !> Collection of tests
-   type(unittest_type), allocatable, intent(out) :: testsuite(:)
+    !> Collection of tests
+    type(unittest_type), allocatable, intent(out) :: testsuite(:)
 
-   testsuite = [ &
+    testsuite = [ &
       new_unittest("always-pass", always_pass), &
       new_unittest("always-fail", always_fail, should_fail=.true.), &
       new_unittest("run-good-suite", test_run_good_suite), &
@@ -41,126 +41,126 @@ subroutine collect_select(testsuite)
       new_unittest("select-missing", test_select_missing) &
       ]
 
-end subroutine collect_select
+  end subroutine collect_select
 
 
-subroutine always_pass(error)
+  subroutine always_pass(error)
 
-   !> Error handling
-   type(error_type), allocatable, intent(out) :: error
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
 
-   call check(error, 0)
+    call check(error, 0)
 
-end subroutine always_pass
-
-
-subroutine always_fail(error)
-
-   !> Error handling
-   type(error_type), allocatable, intent(out) :: error
-
-   call check(error, 1, "Always failing test")
-
-end subroutine always_fail
+  end subroutine always_pass
 
 
-!> Stub test suite collector defining passing unit tests
-subroutine stub_collect(testsuite)
+  subroutine always_fail(error)
 
-   !> Collection of tests
-   type(unittest_type), allocatable, intent(out) :: testsuite(:)
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
 
-   testsuite = [ &
+    call check(error, 1, "Always failing test")
+
+  end subroutine always_fail
+
+
+  !> Stub test suite collector defining passing unit tests
+  subroutine stub_collect(testsuite)
+
+    !> Collection of tests
+    type(unittest_type), allocatable, intent(out) :: testsuite(:)
+
+    testsuite = [ &
       new_unittest("always-pass", always_pass), &
       new_unittest("always-fail", always_fail, should_fail=.true.) &
       ]
 
-end subroutine stub_collect
+  end subroutine stub_collect
 
 
-!> Bad test suite collector defining flaky unit tests
-subroutine stub_collect_bad(testsuite)
+  !> Bad test suite collector defining flaky unit tests
+  subroutine stub_collect_bad(testsuite)
 
-   !> Collection of tests
-   type(unittest_type), allocatable, intent(out) :: testsuite(:)
+    !> Collection of tests
+    type(unittest_type), allocatable, intent(out) :: testsuite(:)
 
-   testsuite = [ &
+    testsuite = [ &
       new_unittest("always-pass", always_pass, should_fail=.true.), &
       new_unittest("always-fail", always_fail) &
       ]
 
-end subroutine stub_collect_bad
+  end subroutine stub_collect_bad
 
 
-subroutine test_run_good_suite(error)
+  subroutine test_run_good_suite(error)
 
-   !> Error handling
-   type(error_type), allocatable, intent(out) :: error
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
 
-   integer :: unit, stat
+    integer :: unit, stat
 
-   open(status='scratch', newunit=unit)
+    open(status='scratch', newunit=unit)
 
-   stat = 7
-   call run_testsuite(stub_collect, unit, stat)
-   call check(error, stat, 7)
+    stat = 7
+    call run_testsuite(stub_collect, unit, stat)
+    call check(error, stat, 7)
 
-   close(unit)
+    close(unit)
 
-end subroutine test_run_good_suite
-
-
-subroutine test_run_bad_suite(error)
-
-   !> Error handling
-   type(error_type), allocatable, intent(out) :: error
-
-   integer :: unit, stat
-
-   open(status='scratch', newunit=unit)
-
-   stat = 3
-   call run_testsuite(stub_collect_bad, unit, stat)
-   call check(error, stat, 5)
-
-   close(unit)
-
-end subroutine test_run_bad_suite
+  end subroutine test_run_good_suite
 
 
-subroutine test_run_selected(error)
+  subroutine test_run_bad_suite(error)
 
-   !> Error handling
-   type(error_type), allocatable, intent(out) :: error
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
 
-   integer :: unit, stat
+    integer :: unit, stat
 
-   open(status='scratch', newunit=unit)
+    open(status='scratch', newunit=unit)
 
-   stat = 1
-   call run_selected(stub_collect, "always-fail", unit, stat)
-   call check(error, stat, 1)
+    stat = 3
+    call run_testsuite(stub_collect_bad, unit, stat)
+    call check(error, stat, 5)
 
-   close(unit)
+    close(unit)
 
-end subroutine test_run_selected
+  end subroutine test_run_bad_suite
 
 
-subroutine test_select_missing(error)
+  subroutine test_run_selected(error)
 
-   !> Error handling
-   type(error_type), allocatable, intent(out) :: error
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
 
-   integer :: unit, stat
+    integer :: unit, stat
 
-   open(status='scratch', newunit=unit)
+    open(status='scratch', newunit=unit)
 
-   call run_selected(stub_collect, "not-available", unit, stat)
-   call check(error, stat < 0)
+    stat = 1
+    call run_selected(stub_collect, "always-fail", unit, stat)
+    call check(error, stat, 1)
 
-   close(unit)
+    close(unit)
 
-end subroutine test_select_missing
+  end subroutine test_run_selected
+
+
+  subroutine test_select_missing(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    integer :: unit, stat
+
+    open(status='scratch', newunit=unit)
+
+    call run_selected(stub_collect, "not-available", unit, stat)
+    call check(error, stat < 0)
+
+    close(unit)
+
+  end subroutine test_select_missing
 
 
 end module test_select
