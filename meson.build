@@ -1,11 +1,9 @@
 # This file is part of test-drive.
-# SPDX-Identifier: Apache-2.0
+# SPDX-Identifier: Apache-2.0 OR MIT
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under either of Apache License, Version 2.0 or MIT license
+# at your option; you may not use this file except in compliance with
+# the License.
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +15,7 @@ project(
   'test-drive',
   'fortran',
   version: '0.3.0',
-  license: 'Apache-2.0',
+  license: 'Apache-2.0 OR MIT',
   meson_version: '>=0.53',
   default_options: [
     'buildtype=debugoptimized',
@@ -53,7 +51,8 @@ testdrive_dep = declare_dependency(
 
 # Package the license files
 testdrive_lic = files(
-  'LICENSE',
+  'LICENSE-Apache',
+  'LICENSE-MIT',
 )
 
 if install
