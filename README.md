@@ -1,8 +1,8 @@
 # The simple testing framework
 
 [![License](https://img.shields.io/badge/license-MIT%7CApache%202.0-blue)](LICENSE-Apache)
-[![CI](https://github.com/awvwgk/test-drive/workflows/CI/badge.svg)](https://github.com/awvwgk/test-drive/actions)
-[![codecov](https://codecov.io/gh/awvwgk/test-drive/branch/main/graph/badge.svg)](https://codecov.io/gh/awvwgk/test-drive)
+[![CI](https://github.com/fortran-lang/test-drive/workflows/CI/badge.svg)](https://github.com/fortran-lang/test-drive/actions)
+[![codecov](https://codecov.io/gh/fortran-lang/test-drive/branch/main/graph/badge.svg)](https://codecov.io/gh/fortran-lang/test-drive)
 
 This project offers a lightweight, procedural unit testing framework based on nothing but standard Fortran.
 Integration with [meson](https://mesonbuild.com), [cmake](https://cmake.org) and [Fortran package manager (fpm)](https://github.com/fortran-lang/fpm) is available.
@@ -325,7 +325,7 @@ The following module allows to find or fetch an installation of this project in 
 ```cmake
 set(_lib "test-drive")
 set(_pkg "TEST_DRIVE")
-set(_url "https://github.com/awvwgk/test-drive")
+set(_url "https://github.com/fortran-lang/test-drive")
 
 if(NOT DEFINED "${_pkg}_FIND_METHOD")
   if(DEFINED "${PROJECT_NAME}-dependency-method")
