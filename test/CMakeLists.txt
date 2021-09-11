@@ -36,8 +36,8 @@ target_link_libraries(
   "${PROJECT_NAME}-lib"
 )
 
-add_test("all-tests" "${PROJECT_NAME}-tester")
+add_test("${PROJECT_NAME}/all-tests" "${PROJECT_NAME}-tester")
 
 foreach(t IN LISTS tests)
-  add_test("${t}" "${PROJECT_NAME}-tester" "${t}")
+  add_test("${PROJECT_NAME}/${t}" "${PROJECT_NAME}-tester" "${t}")
 endforeach()
