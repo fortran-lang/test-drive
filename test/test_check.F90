@@ -11,6 +11,16 @@
 ! See the License for the specific language governing permissions and
 ! limitations under the License.
 
+!# Enable support for quadruple precision
+#ifndef WITH_QP
+#define WITH_QP 1
+#endif
+
+!# Enable support for extended double precision
+#ifndef WITH_XDP
+#define WITH_XDP 0
+#endif
+
 module test_check
   use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan
   use testdrive, only : new_unittest, unittest_type, error_type, check, skip_test
@@ -25,6 +35,16 @@ module test_check
 
   !> Double precision real numbers
   integer, parameter :: dp = selected_real_kind(15)
+
+#if WITH_XDP
+  !> Extended double precision real numbers
+  integer, parameter :: xdp = selected_real_kind(18)
+#endif
+
+#if WITH_QP
+  !> Quadruple precision real numbers
+  integer, parameter :: qp = selected_real_kind(33)
+#endif
 
   !> Char length for integers
   integer, parameter :: i1 = selected_int_kind(2)
@@ -71,6 +91,20 @@ contains
       new_unittest("real-double-rel-fail", test_rdp_rel_fail, should_fail=.true.), &
       new_unittest("real-double-abs-message", test_rdp_abs_message, should_fail=.true.), &
       new_unittest("real-double-nan-message", test_rdp_nan_message, should_fail=.true.), &
+      new_unittest("real-xdouble-abs", test_rxdp_abs), &
+      new_unittest("real-xdouble-rel", test_rxdp_rel), &
+      new_unittest("real-xdouble-nan", test_rxdp_nan, should_fail=.true.), &
+      new_unittest("real-xdouble-abs-fail", test_rxdp_abs_fail, should_fail=.true.), &
+      new_unittest("real-xdouble-rel-fail", test_rxdp_rel_fail, should_fail=.true.), &
+      new_unittest("real-xdouble-abs-message", test_rxdp_abs_message, should_fail=.true.), &
+      new_unittest("real-xdouble-nan-message", test_rxdp_nan_message, should_fail=.true.), &
+      new_unittest("real-quadruple-abs", test_rqp_abs), &
+      new_unittest("real-quadruple-rel", test_rqp_rel), &
+      new_unittest("real-quadruple-nan", test_rqp_nan, should_fail=.true.), &
+      new_unittest("real-quadruple-abs-fail", test_rqp_abs_fail, should_fail=.true.), &
+      new_unittest("real-quadruple-rel-fail", test_rqp_rel_fail, should_fail=.true.), &
+      new_unittest("real-quadruple-abs-message", test_rqp_abs_message, should_fail=.true.), &
+      new_unittest("real-quadruple-nan-message", test_rqp_nan_message, should_fail=.true.), &
       new_unittest("complex-single-abs", test_csp_abs), &
       new_unittest("complex-single-rel", test_csp_rel), &
       new_unittest("complex-single-nan", test_csp_nan, should_fail=.true.), &
@@ -85,6 +119,20 @@ contains
       new_unittest("complex-double-rel-fail", test_cdp_rel_fail, should_fail=.true.), &
       new_unittest("complex-double-abs-message", test_cdp_abs_message, should_fail=.true.), &
       new_unittest("complex-double-nan-message", test_cdp_nan_message, should_fail=.true.), &
+      new_unittest("complex-xdouble-abs", test_cxdp_abs), &
+      new_unittest("complex-xdouble-rel", test_cxdp_rel), &
+      new_unittest("complex-xdouble-nan", test_cxdp_nan, should_fail=.true.), &
+      new_unittest("complex-xdouble-abs-fail", test_cxdp_abs_fail, should_fail=.true.), &
+      new_unittest("complex-xdouble-rel-fail", test_cxdp_rel_fail, should_fail=.true.), &
+      new_unittest("complex-xdouble-abs-message", test_cxdp_abs_message, should_fail=.true.), &
+      new_unittest("complex-xdouble-nan-message", test_cxdp_nan_message, should_fail=.true.), &
+      new_unittest("complex-quadruple-abs", test_cqp_abs), &
+      new_unittest("complex-quadruple-rel", test_cqp_rel), &
+      new_unittest("complex-quadruple-nan", test_cqp_nan, should_fail=.true.), &
+      new_unittest("complex-quadruple-abs-fail", test_cqp_abs_fail, should_fail=.true.), &
+      new_unittest("complex-quadruple-rel-fail", test_cqp_rel_fail, should_fail=.true.), &
+      new_unittest("complex-quadruple-abs-message", test_cqp_abs_message, should_fail=.true.), &
+      new_unittest("complex-quadruple-nan-message", test_cqp_nan_message, should_fail=.true.), &
       new_unittest("integer-char", test_i1), &
       new_unittest("integer-char-fail", test_i1_fail, should_fail=.true.), &
       new_unittest("integer-char-message", test_i1_message, should_fail=.true.), &
@@ -401,6 +449,258 @@ contains
   end subroutine test_rdp_nan_message
 
 
+  subroutine test_rxdp_abs(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 3.3_xdp
+
+    call check(error, val, 3.3_xdp, thr=sqrt(epsilon(val)))
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_abs
+
+
+  subroutine test_rxdp_rel(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 3.3_xdp
+
+    call check(error, val, 3.3_xdp, rel=.true.)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_rel
+
+
+  subroutine test_rxdp_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = ieee_value(val, ieee_quiet_nan)
+
+    call check(error, val, 3.3_xdp, rel=.true.)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_nan
+
+
+  subroutine test_rxdp_abs_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.0_xdp
+
+    call check(error, val, 2.0_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_abs_fail
+
+
+  subroutine test_rxdp_rel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.0_xdp
+
+    call check(error, val, 1.5_xdp, rel=.true.)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_rel_fail
+
+
+  subroutine test_rxdp_abs_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.0_xdp
+
+    call check(error, val, 1.5_xdp, message="Actual value is not 1.5")
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_abs_message
+
+
+  subroutine test_rxdp_nan_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = ieee_value(val, ieee_quiet_nan)
+
+    call check(error, val, message="Actual value is not a number")
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_nan_message
+
+
+  subroutine test_rqp_abs(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 3.3_qp
+
+    call check(error, val, 3.3_qp, thr=sqrt(epsilon(val)))
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_abs
+
+
+  subroutine test_rqp_rel(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 3.3_qp
+
+    call check(error, val, 3.3_qp, rel=.true.)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_rel
+
+
+  subroutine test_rqp_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = ieee_value(val, ieee_quiet_nan)
+
+    call check(error, val, 3.3_qp, rel=.true.)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_nan
+
+
+  subroutine test_rqp_abs_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.0_qp
+
+    call check(error, val, 2.0_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_abs_fail
+
+
+  subroutine test_rqp_rel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.0_qp
+
+    call check(error, val, 1.5_qp, rel=.true.)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_rel_fail
+
+
+  subroutine test_rqp_abs_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.0_qp
+
+    call check(error, val, 1.5_qp, message="Actual value is not 1.5")
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_abs_message
+
+
+  subroutine test_rqp_nan_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = ieee_value(val, ieee_quiet_nan)
+
+    call check(error, val, message="Actual value is not a number")
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_nan_message
+
+
   subroutine test_csp_abs(error)
 
     !> Error handling
@@ -422,8 +722,8 @@ contains
 
     complex(sp) :: val
 
-    val = cmplx(ieee_value(real(val), ieee_quiet_nan), &
-      & ieee_value(aimag(val), ieee_quiet_nan), sp)
+    val = cmplx(ieee_value(0.0_sp, ieee_quiet_nan), &
+      & ieee_value(0.0_sp, ieee_quiet_nan), sp)
 
     call check(error, val, cmplx(3.3_sp, 1.0_sp, sp), rel=.true.)
 
@@ -493,7 +793,7 @@ contains
 
     complex(sp) :: val
 
-    val = cmplx(ieee_value(real(val), ieee_quiet_nan), 0.0_sp, sp)
+    val = cmplx(ieee_value(0.0_sp, ieee_quiet_nan), 0.0_sp, sp)
 
     call check(error, val, message="Actual value is not a number")
 
@@ -535,7 +835,7 @@ contains
 
     complex(dp) :: val
 
-    val = cmplx(ieee_value(real(val), ieee_quiet_nan), 0.0_dp, dp)
+    val = cmplx(ieee_value(0.0_dp, ieee_quiet_nan), 0.0_dp, dp)
 
     call check(error, val, cmplx(3.3_dp, 1.0_dp, dp), rel=.true.)
 
@@ -591,11 +891,263 @@ contains
 
     complex(dp) :: val
 
-    val = cmplx(ieee_value(real(val), ieee_quiet_nan), 0.0_dp, dp)
+    val = cmplx(ieee_value(0.0_dp, ieee_quiet_nan), 0.0_dp, dp)
 
     call check(error, val, message="Actual value is not a number")
 
   end subroutine test_cdp_nan_message
+
+
+  subroutine test_cxdp_abs(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(3.3_xdp, 1.0_xdp, xdp)
+
+    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), thr=sqrt(epsilon(real(val))))
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_abs
+
+
+  subroutine test_cxdp_rel(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(3.3_xdp, 1.0_xdp, xdp)
+
+    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), rel=.true.)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_rel
+
+
+  subroutine test_cxdp_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(ieee_value(0.0_xdp, ieee_quiet_nan), 0.0_xdp, xdp)
+
+    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), rel=.true.)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_nan
+
+
+  subroutine test_cxdp_abs_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(1.0_xdp, 2.0_xdp, xdp)
+
+    call check(error, val, cmplx(2.0_xdp, 1.0_xdp, xdp))
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_abs_fail
+
+
+  subroutine test_cxdp_rel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(1.0_xdp, 1.5_xdp, xdp)
+
+    call check(error, val, cmplx(1.5_xdp, 1.0_xdp, xdp), rel=.true.)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_rel_fail
+
+
+  subroutine test_cxdp_abs_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(1.0_xdp, 1.5_xdp, xdp)
+
+    call check(error, val, cmplx(1.5_xdp, 1.0_xdp, xdp), message="Actual value is not 1.5+1.0i")
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_abs_message
+
+
+  subroutine test_cxdp_nan_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(ieee_value(0.0_xdp, ieee_quiet_nan), 0.0_xdp, xdp)
+
+    call check(error, val, message="Actual value is not a number")
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_nan_message
+
+
+  subroutine test_cqp_abs(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(3.3_qp, 1.0_qp, qp)
+
+    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), thr=sqrt(epsilon(real(val))))
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_abs
+
+
+  subroutine test_cqp_rel(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(3.3_qp, 1.0_qp, qp)
+
+    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), rel=.true.)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_rel
+
+
+  subroutine test_cqp_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(ieee_value(0.0_qp, ieee_quiet_nan), 0.0_qp, qp)
+
+    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), rel=.true.)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_nan
+
+
+  subroutine test_cqp_abs_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(1.0_qp, 2.0_qp, qp)
+
+    call check(error, val, cmplx(2.0_qp, 1.0_qp, qp))
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_abs_fail
+
+
+  subroutine test_cqp_rel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(1.0_qp, 1.5_qp, qp)
+
+    call check(error, val, cmplx(1.5_qp, 1.0_qp, qp), rel=.true.)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_rel_fail
+
+
+  subroutine test_cqp_abs_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(1.0_qp, 1.5_qp, qp)
+
+    call check(error, val, cmplx(1.5_qp, 1.0_qp, qp), message="Actual value is not 1.5+1.0i")
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_abs_message
+
+
+  subroutine test_cqp_nan_message(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(ieee_value(0.0_qp, ieee_quiet_nan), 0.0_qp, qp)
+
+    call check(error, val, message="Actual value is not a number")
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_nan_message
 
 
   subroutine test_i1(error)

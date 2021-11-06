@@ -23,7 +23,7 @@ set(
 )
 foreach(t IN LISTS tests)
   string(MAKE_C_IDENTIFIER ${t} t) 
-  list(APPEND test-srcs "test_${t}.f90")
+  list(APPEND test-srcs "test_${t}.F90")
 endforeach()
 
 add_executable(
@@ -34,6 +34,12 @@ target_link_libraries(
   "${PROJECT_NAME}-tester"
   PRIVATE
   "${PROJECT_NAME}-lib"
+)
+target_compile_definitions(
+  "${PROJECT_NAME}-tester"
+  PRIVATE
+  "WITH_QP=$<BOOL:${WITH_QP}>"
+  "WITH_XDP=$<BOOL:${WITH_XDP}>"
 )
 
 add_test("${PROJECT_NAME}/all-tests" "${PROJECT_NAME}-tester")

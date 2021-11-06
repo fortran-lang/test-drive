@@ -32,6 +32,18 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   )
 endif()
 
+include(CheckFortranSourceRuns)
+check_fortran_source_runs(
+  "if (selected_real_kind(33) == -1) stop 1; end"
+  WITH_QP
+)
+set(WITH_QP ${WITH_QP} PARENT_SCOPE)
+check_fortran_source_runs(
+  "if (any(selected_real_kind(18) == [-1, selected_real_kind(33)])) stop 1; end"
+  WITH_XDP
+)
+set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
+
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/template.cmake"

@@ -15,7 +15,7 @@ set(dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
 list(
   APPEND srcs
-  "${dir}/testdrive.f90"
+  "${dir}/testdrive.F90"
   "${dir}/testdrive_version.f90"
 )
 

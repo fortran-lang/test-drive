@@ -56,6 +56,12 @@ target_include_directories(
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${module-dir}>
 )
+target_compile_definitions(
+  "${PROJECT_NAME}-lib"
+  PRIVATE
+  "WITH_QP=$<BOOL:${WITH_QP}>"
+  "WITH_XDP=$<BOOL:${WITH_XDP}>"
+)
 
 # Export targets for other projects
 add_library("${PROJECT_NAME}" INTERFACE)
