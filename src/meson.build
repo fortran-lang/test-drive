@@ -12,6 +12,6 @@
 # limitations under the License.
 
 srcs += files(
-  'testdrive.f90',
+  'testdrive.F90',
   'testdrive_version.f90',
 )

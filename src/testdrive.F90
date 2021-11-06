@@ -11,6 +11,16 @@
 ! See the License for the specific language governing permissions and
 ! limitations under the License.
 
+!# Enable support for quadruple precision
+#ifndef WITH_QP
+#define WITH_QP 1
+#endif
+
+!# Enable support for extended double precision
+#ifndef WITH_XDP
+#define WITH_XDP 0
+#endif
+
 !> Provides a light-weight procedural testing framework for Fortran projects.
 !>
 !> Testsuites are defined by a [[collect_interface]] returning a set of
@@ -95,7 +105,6 @@
 !> For an example setup checkout the ``test/`` directory in this project.
 module testdrive
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
   implicit none
   private
 
@@ -112,6 +121,16 @@ module testdrive
 
   !> Double precision real numbers
   integer, parameter :: dp = selected_real_kind(15)
+
+#if WITH_XDP
+  !> Extended double precision real numbers
+  integer, parameter :: xdp = selected_real_kind(18)
+#endif
+
+#if WITH_QP
+  !> Quadruple precision real numbers
+  integer, parameter :: qp = selected_real_kind(33)
+#endif
 
   !> Char length for integers
   integer, parameter :: i1 = selected_int_kind(2)
@@ -157,12 +176,36 @@ module testdrive
     module procedure :: check_logical
     module procedure :: check_float_sp
     module procedure :: check_float_dp
+#if WITH_XDP
+    module procedure :: check_float_xdp
+#endif
+#if WITH_QP
+    module procedure :: check_float_qp
+#endif
     module procedure :: check_float_exceptional_sp
     module procedure :: check_float_exceptional_dp
+#if WITH_XDP
+    module procedure :: check_float_exceptional_xdp
+#endif
+#if WITH_QP
+    module procedure :: check_float_exceptional_qp
+#endif
     module procedure :: check_complex_sp
     module procedure :: check_complex_dp
+#if WITH_XDP
+    module procedure :: check_complex_xdp
+#endif
+#if WITH_QP
+    module procedure :: check_complex_qp
+#endif
     module procedure :: check_complex_exceptional_sp
     module procedure :: check_complex_exceptional_dp
+#if WITH_XDP
+    module procedure :: check_complex_exceptional_xdp
+#endif
+#if WITH_QP
+    module procedure :: check_complex_exceptional_qp
+#endif
     module procedure :: check_int_i1
     module procedure :: check_int_i2
     module procedure :: check_int_i4
@@ -179,9 +222,35 @@ module testdrive
     module procedure :: integer_i8_to_char
     module procedure :: real_sp_to_char
     module procedure :: real_dp_to_char
+#if WITH_XDP
+    module procedure :: real_xdp_to_char
+#endif
+#if WITH_QP
+    module procedure :: real_qp_to_char
+#endif
     module procedure :: complex_sp_to_char
     module procedure :: complex_dp_to_char
+#if WITH_XDP
+    module procedure :: complex_xdp_to_char
+#endif
+#if WITH_QP
+    module procedure :: complex_qp_to_char
+#endif
   end interface ch
+
+
+  !> Implementation of check for not a number value, in case a compiler does not
+  !> provide the IEEE intrinsic ``ieee_is_nan`` (currently this is Intel oneAPI on MacOS)
+  interface is_nan
+    module procedure :: is_nan_sp
+    module procedure :: is_nan_dp
+#if WITH_XDP
+    module procedure :: is_nan_xdp
+#endif
+#if WITH_QP
+    module procedure :: is_nan_qp
+#endif
+  end interface is_nan
 
 
   abstract interface
@@ -242,7 +311,7 @@ contains
 
 
   !> Driver for testsuite
-  subroutine run_testsuite(collect, unit, stat)
+  recursive subroutine run_testsuite(collect, unit, stat)
 
     !> Collect tests
     procedure(collect_interface) :: collect
@@ -271,7 +340,7 @@ contains
 
 
   !> Driver for selective testing
-  subroutine run_selected(collect, name, unit, stat)
+  recursive subroutine run_selected(collect, name, unit, stat)
 
     !> Collect tests
     procedure(collect_interface) :: collect
@@ -306,7 +375,7 @@ contains
 
 
   !> Run a selected unit test
-  subroutine run_unittest(test, unit, stat)
+  recursive subroutine run_unittest(test, unit, stat)
 
     !> Unit test
     type(unittest_type), intent(in) :: test
@@ -321,8 +390,8 @@ contains
     character(len=:), allocatable :: message
 
     call test%test(error)
-    if (.not.test_skipped(error) .and. allocated(error) .neqv. test%should_fail) then
-      stat = stat + 1
+    if (.not.test_skipped(error)) then
+      if (allocated(error) .neqv. test%should_fail) stat = stat + 1
     end if
     call make_output(message, test, error)
     !$omp critical(testdrive_testsuite)
@@ -616,7 +685,7 @@ contains
     !> Another line of error message
     character(len=*), intent(in), optional :: more
 
-    if (ieee_is_nan(actual)) then
+    if (is_nan(actual)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -711,7 +780,7 @@ contains
     !> Another line of error message
     character(len=*), intent(in), optional :: more
 
-    if (ieee_is_nan(actual)) then
+    if (is_nan(actual)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -720,6 +789,200 @@ contains
     end if
 
   end subroutine check_float_exceptional_sp
+
+
+#if WITH_XDP
+  subroutine check_float_xdp(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(xdp), intent(in) :: actual
+
+    !> Expected floating point value
+    real(xdp), intent(in) :: expected
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(xdp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    logical :: relative
+    real(xdp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    if (present(thr)) then
+      threshold = thr
+    else
+      threshold = epsilon(expected)
+    end if
+
+    if (present(rel)) then
+      relative = rel
+    else
+      relative = .false.
+    end if
+
+    if (relative) then
+      diff = abs(actual - expected) / abs(expected)
+    else
+      diff = abs(actual - expected)
+    end if
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        if (relative) then
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(int(diff*100))//"%)", &
+            more)
+        else
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(diff)//")", &
+            more)
+        end if
+      end if
+    end if
+
+  end subroutine check_float_xdp
+
+
+  subroutine check_float_exceptional_xdp(error, actual, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(xdp), intent(in) :: actual
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    if (is_nan(actual)) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, "Exceptional value 'not a number' found", more)
+      end if
+    end if
+
+  end subroutine check_float_exceptional_xdp
+#endif
+
+
+#if WITH_QP
+  subroutine check_float_qp(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(qp), intent(in) :: actual
+
+    !> Expected floating point value
+    real(qp), intent(in) :: expected
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(qp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    logical :: relative
+    real(qp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    if (present(thr)) then
+      threshold = thr
+    else
+      threshold = epsilon(expected)
+    end if
+
+    if (present(rel)) then
+      relative = rel
+    else
+      relative = .false.
+    end if
+
+    if (relative) then
+      diff = abs(actual - expected) / abs(expected)
+    else
+      diff = abs(actual - expected)
+    end if
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        if (relative) then
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(int(diff*100))//"%)", &
+            more)
+        else
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(diff)//")", &
+            more)
+        end if
+      end if
+    end if
+
+  end subroutine check_float_qp
+
+
+  subroutine check_float_exceptional_qp(error, actual, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(qp), intent(in) :: actual
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    if (is_nan(actual)) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, "Exceptional value 'not a number' found", more)
+      end if
+    end if
+
+  end subroutine check_float_exceptional_qp
+#endif
 
 
   subroutine check_complex_dp(error, actual, expected, message, more, thr, rel)
@@ -806,7 +1069,7 @@ contains
     !> Another line of error message
     character(len=*), intent(in), optional :: more
 
-    if (ieee_is_nan(real(actual)) .or. ieee_is_nan(aimag(actual))) then
+    if (is_nan(real(actual)) .or. is_nan(aimag(actual))) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -901,7 +1164,7 @@ contains
     !> Another line of error message
     character(len=*), intent(in), optional :: more
 
-    if (ieee_is_nan(real(actual)) .or. ieee_is_nan(aimag(actual))) then
+    if (is_nan(real(actual)) .or. is_nan(aimag(actual))) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -910,6 +1173,200 @@ contains
     end if
 
   end subroutine check_complex_exceptional_sp
+
+
+#if WITH_XDP
+  subroutine check_complex_xdp(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(xdp), intent(in) :: actual
+
+    !> Expected floating point value
+    complex(xdp), intent(in) :: expected
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(xdp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    logical :: relative
+    real(xdp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    if (present(thr)) then
+      threshold = thr
+    else
+      threshold = epsilon(abs(expected))
+    end if
+
+    if (present(rel)) then
+      relative = rel
+    else
+      relative = .false.
+    end if
+
+    if (relative) then
+      diff = abs(actual - expected) / abs(expected)
+    else
+      diff = abs(actual - expected)
+    end if
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        if (relative) then
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(int(diff*100))//"%)", &
+            more)
+        else
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(diff)//")", &
+            more)
+        end if
+      end if
+    end if
+
+  end subroutine check_complex_xdp
+
+
+  subroutine check_complex_exceptional_xdp(error, actual, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(xdp), intent(in) :: actual
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    if (is_nan(real(actual)) .or. is_nan(aimag(actual))) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, "Exceptional value 'not a number' found", more)
+      end if
+    end if
+
+  end subroutine check_complex_exceptional_xdp
+#endif
+
+
+#if WITH_QP
+  subroutine check_complex_qp(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(qp), intent(in) :: actual
+
+    !> Expected floating point value
+    complex(qp), intent(in) :: expected
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(qp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    logical :: relative
+    real(qp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    if (present(thr)) then
+      threshold = thr
+    else
+      threshold = epsilon(abs(expected))
+    end if
+
+    if (present(rel)) then
+      relative = rel
+    else
+      relative = .false.
+    end if
+
+    if (relative) then
+      diff = abs(actual - expected) / abs(expected)
+    else
+      diff = abs(actual - expected)
+    end if
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        if (relative) then
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(int(diff*100))//"%)", &
+            more)
+        else
+          call test_failed(error, &
+            "Floating point value missmatch", &
+            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
+            "(difference: "//ch(diff)//")", &
+            more)
+        end if
+      end if
+    end if
+
+  end subroutine check_complex_qp
+
+
+  subroutine check_complex_exceptional_qp(error, actual, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(qp), intent(in) :: actual
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    if (is_nan(real(actual)) .or. is_nan(aimag(actual))) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, "Exceptional value 'not a number' found", more)
+      end if
+    end if
+
+  end subroutine check_complex_exceptional_qp
+#endif
 
 
   subroutine check_int_i1(error, actual, expected, message, more)
@@ -1253,7 +1710,7 @@ contains
     pos = buffer_len + 1
     do while (n > 0_i2)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i1))
+      buffer(pos:pos) = numbers(mod(n, 10_i2))
       n = n/10_i2
     end do
     if (val < 0_i2) then
@@ -1286,7 +1743,7 @@ contains
     pos = buffer_len + 1
     do while (n > 0_i4)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i1))
+      buffer(pos:pos) = numbers(mod(n, 10_i4))
       n = n/10_i4
     end do
     if (val < 0_i4) then
@@ -1319,7 +1776,7 @@ contains
     pos = buffer_len + 1
     do while (n > 0_i8)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i1))
+      buffer(pos:pos) = numbers(mod(n, 10_i8))
       n = n/10_i8
     end do
     if (val < 0_i8) then
@@ -1355,6 +1812,34 @@ contains
   end function real_dp_to_char
 
 
+#if WITH_XDP
+  pure function real_xdp_to_char(val) result(string)
+    real(xdp), intent(in) :: val
+    character(len=:), allocatable :: string
+    integer, parameter :: buffer_len = 128
+    character(len=buffer_len) :: buffer
+
+    write(buffer, '(g0)') val
+    string = trim(buffer)
+
+  end function real_xdp_to_char
+#endif
+
+
+#if WITH_QP
+  pure function real_qp_to_char(val) result(string)
+    real(qp), intent(in) :: val
+    character(len=:), allocatable :: string
+    integer, parameter :: buffer_len = 128
+    character(len=buffer_len) :: buffer
+
+    write(buffer, '(g0)') val
+    string = trim(buffer)
+
+  end function real_qp_to_char
+#endif
+
+
   pure function complex_sp_to_char(val) result(string)
     complex(sp), intent(in) :: val
     character(len=:), allocatable :: string
@@ -1371,6 +1856,28 @@ contains
     string = "("//ch(real(val))//", "//ch(aimag(val))//")"
 
   end function complex_dp_to_char
+
+
+#if WITH_XDP
+  pure function complex_xdp_to_char(val) result(string)
+    complex(xdp), intent(in) :: val
+    character(len=:), allocatable :: string
+
+    string = "("//ch(real(val))//", "//ch(aimag(val))//")"
+
+  end function complex_xdp_to_char
+#endif
+
+
+#if WITH_QP
+  pure function complex_qp_to_char(val) result(string)
+    complex(qp), intent(in) :: val
+    character(len=:), allocatable :: string
+
+    string = "("//ch(real(val))//", "//ch(aimag(val))//")"
+
+  end function complex_qp_to_char
+#endif
 
 
   !> Clear error type after it has been handled.
@@ -1407,6 +1914,51 @@ contains
     end if
 
   end subroutine escalate_error
+
+
+  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  elemental function is_nan_sp(val) result(is_nan)
+    !> Value to check
+    real(sp), intent(in) :: val
+    !> Value is not a number
+    logical :: is_nan
+
+    is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+  end function is_nan_sp
+
+  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  elemental function is_nan_dp(val) result(is_nan)
+    !> Value to check
+    real(dp), intent(in) :: val
+    !> Value is not a number
+    logical :: is_nan
+
+    is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+  end function is_nan_dp
+
+#if WITH_XDP
+  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  elemental function is_nan_xdp(val) result(is_nan)
+    !> Value to check
+    real(xdp), intent(in) :: val
+    !> Value is not a number
+    logical :: is_nan
+
+    is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+  end function is_nan_xdp
+#endif
+
+#if WITH_QP
+  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  elemental function is_nan_qp(val) result(is_nan)
+    !> Value to check
+    real(qp), intent(in) :: val
+    !> Value is not a number
+    logical :: is_nan
+
+    is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+  end function is_nan_qp
+#endif
 
 
 end module testdrive

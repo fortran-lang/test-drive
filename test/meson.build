@@ -20,7 +20,7 @@ test_srcs = files(
   'main.f90',
 )
 foreach t : tests
-  test_srcs += files('test_@0@.f90'.format(t.underscorify()))
+  test_srcs += files('test_@0@.F90'.format(t.underscorify()))
 endforeach
 
 tester = executable(
