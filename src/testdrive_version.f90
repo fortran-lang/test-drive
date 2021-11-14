@@ -20,10 +20,10 @@ module testdrive_version
 
 
    !> String representation of the test-drive version
-   character(len=*), parameter :: testdrive_version_string = "0.3.0"
+   character(len=*), parameter :: testdrive_version_string = "0.4.0"
 
    !> Numeric representation of the test-drive version
-   integer, parameter :: testdrive_version_compact(3) = [0, 3, 0]
+   integer, parameter :: testdrive_version_compact(3) = [0, 4, 0]
 
 
 contains
