@@ -14,7 +14,7 @@
 project(
   'test-drive',
   'fortran',
-  version: '0.3.0',
+  version: '0.4.0',
   license: 'Apache-2.0 OR MIT',
   meson_version: '>=0.53',
   default_options: [

@@ -1,6 +1,7 @@
 # The simple testing framework
 
 [![License](https://img.shields.io/badge/license-MIT%7CApache%202.0-blue)](LICENSE-Apache)
+[![Latest Version](https://img.shields.io/github/v/release/fortran-lang/test-drive)](https://github.com/fortran-lang/test-drive/releases/latest)
 [![CI](https://github.com/fortran-lang/test-drive/workflows/CI/badge.svg)](https://github.com/fortran-lang/test-drive/actions)
 [![codecov](https://codecov.io/gh/fortran-lang/test-drive/branch/main/graph/badge.svg)](https://codecov.io/gh/fortran-lang/test-drive)
 
