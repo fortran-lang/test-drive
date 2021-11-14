@@ -13,7 +13,7 @@
 
 !# Enable support for quadruple precision
 #ifndef WITH_QP
-#define WITH_QP 1
+#define WITH_QP 0
 #endif
 
 !# Enable support for extended double precision
