@@ -311,7 +311,7 @@ contains
 
 
   !> Driver for testsuite
-  recursive subroutine run_testsuite(collect, unit, stat)
+  recursive subroutine run_testsuite(collect, unit, stat, parallel)
 
     !> Collect tests
     procedure(collect_interface) :: collect
@@ -322,12 +322,20 @@ contains
     !> Number of failed tests
     integer, intent(inout) :: stat
 
+    !> Run the tests in parallel
+    logical, intent(in), optional :: parallel
+
     type(unittest_type), allocatable :: testsuite(:)
     integer :: it
+    logical :: parallel_
+
+    parallel_ = .true.
+    if(present(parallel)) parallel_ = parallel
 
     call collect(testsuite)
 
-    !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat)
+    !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat) &
+    !$ if (parallel_)
     do it = 1, size(testsuite)
       !$omp critical(testdrive_testsuite)
       write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
