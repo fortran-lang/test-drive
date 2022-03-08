@@ -114,7 +114,7 @@ module testdrive
   public :: check, test_failed, skip_test
   public :: test_interface, collect_interface
   public :: get_argument, get_variable
-
+  public :: COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_RESET
 
   !> Single precision real numbers
   integer, parameter :: sp = selected_real_kind(6)
@@ -152,6 +152,32 @@ module testdrive
 
   !> Error code for skipped test
   integer, parameter :: skipped = 77
+
+
+
+  character(len=*), parameter :: ESC = char(27)
+
+  !> Escape code for erasing current line
+  character(len=*), parameter :: LINE_RESET = ESC//"[2K"//ESC//"[1G"
+
+  !> Escape code for moving up one line
+  character(len=*), parameter :: LINE_UP = ESC//"[1A"
+
+  !> Escape code for moving down one line
+  character(len=*), parameter :: LINE_DOWN = ESC//"[1B"
+
+  !> Escape code for red foreground color
+  character(len=*), parameter :: COLOR_RED = ESC//"[31m"
+
+  !> Escape code for green foreground color
+  character(len=*), parameter :: COLOR_GREEN = ESC//"[32m"
+
+  !> Escape code for yellow foreground color
+  character(len=*), parameter :: COLOR_YELLOW = ESC//"[93m"
+
+  !> Escape code to reset foreground color
+  character(len=*), parameter :: COLOR_RESET = ESC//"[0m"
+
 
 
   !> Error message
@@ -451,15 +477,15 @@ contains
 
     if (present(error) .neqv. test%should_fail) then
       if (test%should_fail) then
-        label = " [UNEXPECTED PASS]"
+        label = " [" // COLOR_YELLOW // "UNEXPECTED PASS" // COLOR_RESET // "]"
       else
-        label = " [FAILED]"
+        label = " [" // COLOR_RED // "FAILED" // COLOR_RESET // "]"
       end if
     else
       if (test%should_fail) then
-        label = " [EXPECTED FAIL]"
+        label = " [" // COLOR_YELLOW // "EXPECTED FAIL" // COLOR_RESET // "]"
       else
-        label = " [PASSED]"
+        label = " [" // COLOR_GREEN // "PASSED" // COLOR_RESET // "]"
       end if
     end if
     output = indent // test%name // label
