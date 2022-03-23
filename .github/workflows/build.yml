@@ -36,6 +36,12 @@ jobs:
           version: 10
 
         - os: ubuntu-latest
+          build: fpm
+          build-type: debug
+          compiler: intel
+          version: 2021
+
+        - os: ubuntu-latest
           build: meson
           build-type: coverage
           compiler: gnu
@@ -226,17 +232,26 @@ jobs:
         -DCMAKE_INSTALL_PREFIX=$PWD/_dist
         -DCMAKE_INSTALL_LIBDIR=lib
 
-    - name: Build library (fpm)
-      if: ${{ matrix.build == 'fpm' }}
+    - name: Build library (fpm, gnu)
+      if: ${{ matrix.build == 'fpm' &&  matrix.compiler == 'gnu' }}
       run: fpm build
+
+    - name: Build library (fpm, intel)
+      if: ${{ matrix.build == 'fpm' &&  matrix.compiler == 'intel' }}
+      run: |
+        fpm build --compiler ifort
 
     - name: Build library
       if: ${{ matrix.build != 'fpm' }}
       run: ninja -C ${{ env.BUILD_DIR }}
 
-    - name: Run unit tests (fpm)
-      if: ${{ matrix.build == 'fpm' }}
+    - name: Run unit tests (fpm, gnu)
+      if: ${{ matrix.build == 'fpm' &&  matrix.compiler == 'gnu' }}
       run: fpm test
+
+    - name: Run unit tests (fpm, intel)
+      if: ${{ matrix.build == 'fpm' &&  matrix.compiler == 'intel' }}
+      run: fpm test --compiler ifort
 
     - name: Run unit tests (meson)
       if: ${{ matrix.build == 'meson' }}
