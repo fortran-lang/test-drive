@@ -32,14 +32,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   )
 endif()
 
-include(CheckFortranSourceRuns)
-check_fortran_source_runs(
-  "if (selected_real_kind(33) == -1) stop 1; end"
+include(CheckFortranSourceCompiles)
+check_fortran_source_compiles(
+  "integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end"
   WITH_QP
 )
 set(WITH_QP ${WITH_QP} PARENT_SCOPE)
-check_fortran_source_runs(
-  "if (any(selected_real_kind(18) == [-1, selected_real_kind(33)])) stop 1; end"
+check_fortran_source_compiles(
+  "integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33)); complex(xdp) :: x; end"
   WITH_XDP
 )
 set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
