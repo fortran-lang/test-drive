@@ -39,7 +39,11 @@ check_fortran_source_compiles(
 )
 set(WITH_QP ${WITH_QP} PARENT_SCOPE)
 check_fortran_source_compiles(
-  "integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33)); complex(xdp) :: x; end"
+  "
+  integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33))
+  complex(xdp) :: x
+  end
+  "
   WITH_XDP
 )
 set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
