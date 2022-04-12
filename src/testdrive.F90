@@ -335,7 +335,7 @@ contains
     call collect(testsuite)
 
     !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat) &
-    !$ if (parallel_)
+    !$omp if (parallel_)
     do it = 1, size(testsuite)
       !$omp critical(testdrive_testsuite)
       write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
