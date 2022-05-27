@@ -21,6 +21,8 @@ project(
   DESCRIPTION "The simple testing framework"
 )
 
+option(TEST_DRIVE_BUILD_TESTING "Enable tests for test-drive framework" ON)
+
 # Follow GNU conventions for installing directories
 include(GNUInstallDirs)
 
@@ -96,5 +98,7 @@ install(
 )
 
 # add the testsuite
-enable_testing()
-add_subdirectory("test")
+if (TEST_DRIVE_BUILD_TESTING)
+  enable_testing()
+  add_subdirectory("test")
+endif()
