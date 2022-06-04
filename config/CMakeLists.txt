@@ -12,6 +12,7 @@
 # limitations under the License.
 
 option(BUILD_SHARED_LIBS "Whether the libraries built should be shared" FALSE)
+option(TEST_DRIVE_BUILD_TESTING "Enable testing for this project" ON)
 
 set(
   module-dir
