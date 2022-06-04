@@ -96,5 +96,7 @@ install(
 )
 
 # add the testsuite
-enable_testing()
-add_subdirectory("test")
+include(CTest)
+if(BUILD_TESTING AND TEST_DRIVE_BUILD_TESTING)
+  add_subdirectory("test")
+endif()
