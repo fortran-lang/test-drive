@@ -212,6 +212,8 @@ module testdrive
     module procedure :: check_int_i8
     module procedure :: check_bool
     module procedure :: check_string
+    module procedure :: check_single_array
+    module procedure :: check_double_array
   end interface check
 
 
@@ -1968,5 +1970,241 @@ contains
   end function is_nan_qp
 #endif
 
+
+  subroutine error_wrap(error, more)
+    !> Error handling
+    type(error_type), intent(inout) :: error
+    !> Error message
+    character(len=*), intent(in) :: more
+
+    character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
+
+    error%message = error%message // skip // more
+
+  end subroutine error_wrap
+
+
+  subroutine check_single_array(error, array, message, more)
+
+    !> Error handing
+    type(error_type), allocatable, intent(out) :: error
+
+    !> The array to be checked
+    class(*), intent(in), target :: array(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+    class(*), pointer :: item(:) ! @note gfortran <=10 does not support syntax: associate(item => array(i))
+
+    item => array
+    do i = 1, size(array)
+      select type (item)
+      type is (integer)
+        call check(error, item(i), message, more)
+      type is (logical)
+        call check(error, item(i), message, more)
+      type is (real(sp))
+        call check(error, item(i), message, more)
+      type is (real(dp))
+        call check(error, item(i), message, more)
+      type is (complex(sp))
+        call check(error, item(i), message, more)
+      type is (complex(dp))
+        call check(error, item(i), message, more)
+#if WITH_XDP
+      type is (real(xdp))
+        call check(error, item(i), message, more)
+      type is (complex(xdp))
+        call check(error, item(i), message, more)
+#endif
+#if WITH_QP
+      type is (real(qp))
+        call check(error, item(i), message, more)
+      type is (complex(qp))
+        call check(error, item(i), message, more)
+#endif
+      end select
+      if (allocated(error)) then
+        call error_wrap(error, "Array check failed at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_single_array
+
+
+  subroutine check_double_array(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found values
+    class(*), intent(in), target :: actual(:)
+
+    !> Expected values
+    class(*), intent(in), target :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    class(*), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+    class(*), pointer :: item1(:), item2(:)
+
+    item1 => actual
+    item2 => expected
+    do i = 1, size(expected)
+      select type (item1)
+      type is (integer(i1))
+        select type (item2)
+        type is (integer(i1))
+          call check(error, item1(i), item2(i), message, more)
+        end select
+      type is (integer(i2))
+        select type (item2)
+        type is (integer(i2))
+          call check(error, item1(i), item2(i), message, more)
+        end select
+      type is (integer(i4))
+        select type (item2)
+        type is (integer(i4))
+          call check(error, item1(i), item2(i), message, more)
+        end select
+      type is (integer(i8))
+        select type (item2)
+        type is (integer(i8))
+          call check(error, item1(i), item2(i), message, more)
+        end select
+      type is (logical)
+        select type (item2)
+        type is (logical)
+          call check(error, item1(i), item2(i), message, more)
+        end select
+      type is (character(*))
+        select type (item2)
+        type is (character(*))
+          call check(error, item1(i), item2(i), message, more)
+        end select
+      type is (real(sp))
+        select type (item2)
+        type is (real(sp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(sp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+      type is (real(dp))
+        select type (item2)
+        type is (real(dp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(dp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+      type is (complex(sp))
+        select type (item2)
+        type is (complex(sp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(sp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+      type is (complex(dp))
+        select type (item2)
+        type is (complex(dp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(dp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+#if WITH_XDP
+      type is (real(xdp))
+        select type (item2)
+        type is (real(xdp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(xdp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+      type is (complex(xdp))
+        select type (item2)
+        type is (complex(xdp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(xdp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+#endif
+#if WITH_QP
+      type is (real(qp))
+        select type (item2)
+        type is (real(qp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(qp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+      type is (complex(qp))
+        select type (item2)
+        type is (complex(qp))
+          if (present(thr)) then
+            select type (thr)
+            type is (real(qp))
+              call check(error, item1(i), item2(i), message, more, thr, rel)
+            end select
+          else
+            call check(error, item1(i), item2(i), message, more, rel=rel)
+          end if
+        end select
+#endif
+      end select
+      if (allocated(error)) then
+        call error_wrap(error, "Array check failed at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_double_array
 
 end module testdrive
