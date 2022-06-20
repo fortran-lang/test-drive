@@ -1427,7 +1427,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    character(len=:), allocatable :: val(:)
+    character(len=8) :: val(1)
 
     val = ["positive"]
 
@@ -1441,7 +1441,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    character(len=:), allocatable :: val(:)
+    character(len=8) :: val(1)
 
     val = ["positive"]
 
@@ -1455,7 +1455,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    character(len=:), allocatable :: val(:)
+    character(len=8) :: val(1)
 
     val = ["positive"]
 
@@ -1469,7 +1469,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    character(len=:), allocatable :: val(:)
+    character(len=8) :: val(1)
 
     val = ["positive"]
 

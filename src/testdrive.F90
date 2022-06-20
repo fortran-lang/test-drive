@@ -152,6 +152,9 @@ module testdrive
 
   !> Error code for skipped test
   integer, parameter :: skipped = 77
+  
+  !> Goto next line
+  character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
 
 
   !> Error message
@@ -212,8 +215,32 @@ module testdrive
     module procedure :: check_int_i8
     module procedure :: check_bool
     module procedure :: check_string
+  end interface check
+  
+  interface check     ! check for rank-1 array
     module procedure :: check_single_array
-    module procedure :: check_double_array
+    module procedure :: check_float_sp_r1
+    module procedure :: check_float_dp_r1
+#if WITH_XDP
+    module procedure :: check_float_xdp_r1
+#endif
+#if WITH_QP
+    module procedure :: check_float_qp_r1
+#endif
+    module procedure :: check_complex_sp_r1
+    module procedure :: check_complex_dp_r1
+#if WITH_XDP
+    module procedure :: check_complex_xdp_r1
+#endif
+#if WITH_QP
+    module procedure :: check_complex_qp_r1
+#endif
+    module procedure :: check_int_i1_r1
+    module procedure :: check_int_i2_r1
+    module procedure :: check_int_i4_r1
+    module procedure :: check_int_i8_r1
+    module procedure :: check_bool_r1
+    module procedure :: check_string_r1
   end interface check
 
 
@@ -1579,8 +1606,6 @@ contains
     !> Another line of error message
     character(len=*), intent(in), optional :: and_more
 
-    character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
-
     allocate(error)
     error%stat = fatal
 
@@ -1971,17 +1996,16 @@ contains
 #endif
 
 
-  subroutine error_wrap(error, more)
+  subroutine error_index(error, i)
     !> Error handling
-    type(error_type), intent(inout) :: error
-    !> Error message
-    character(len=*), intent(in) :: more
+    type(error_type), intent(inout), allocatable :: error
+    !> Error index
+    integer, intent(in) :: i
 
-    character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
+    error%message = error%message // skip // &
+      "Array check failed at element index "//trim(ch(i))
 
-    error%message = error%message // skip // more
-
-  end subroutine error_wrap
+  end subroutine error_index
 
 
   subroutine check_single_array(error, array, message, more)
@@ -2030,7 +2054,7 @@ contains
 #endif
       end select
       if (allocated(error)) then
-        call error_wrap(error, "Array check failed at element index "//trim(ch(i)))
+        call error_index(error, i)
         return
       end if
     end do
@@ -2038,16 +2062,16 @@ contains
   end subroutine check_single_array
 
 
-  subroutine check_double_array(error, actual, expected, message, more, thr, rel)
+  subroutine check_float_sp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    !> Found values
-    class(*), intent(in), target :: actual(:)
+    !> Found floating point value
+    real(sp), intent(in) :: actual(:)
 
-    !> Expected values
-    class(*), intent(in), target :: expected(:)
+    !> Expected floating point value
+    real(sp), intent(in) :: expected(:)
 
     !> A detailed message describing the error
     character(len=*), intent(in), optional :: message
@@ -2056,155 +2080,462 @@ contains
     character(len=*), intent(in), optional :: more
 
     !> Allowed threshold for matching floating point values
-    class(*), intent(in), optional :: thr
+    real(sp), intent(in), optional :: thr
 
     !> Check for relative errors instead
     logical, intent(in), optional :: rel
 
     integer :: i
-    class(*), pointer :: item1(:), item2(:)
 
-    item1 => actual
-    item2 => expected
     do i = 1, size(expected)
-      select type (item1)
-      type is (integer(i1))
-        select type (item2)
-        type is (integer(i1))
-          call check(error, item1(i), item2(i), message, more)
-        end select
-      type is (integer(i2))
-        select type (item2)
-        type is (integer(i2))
-          call check(error, item1(i), item2(i), message, more)
-        end select
-      type is (integer(i4))
-        select type (item2)
-        type is (integer(i4))
-          call check(error, item1(i), item2(i), message, more)
-        end select
-      type is (integer(i8))
-        select type (item2)
-        type is (integer(i8))
-          call check(error, item1(i), item2(i), message, more)
-        end select
-      type is (logical)
-        select type (item2)
-        type is (logical)
-          call check(error, item1(i), item2(i), message, more)
-        end select
-      type is (character(*))
-        select type (item2)
-        type is (character(*))
-          call check(error, item1(i), item2(i), message, more)
-        end select
-      type is (real(sp))
-        select type (item2)
-        type is (real(sp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(sp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-      type is (real(dp))
-        select type (item2)
-        type is (real(dp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(dp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-      type is (complex(sp))
-        select type (item2)
-        type is (complex(sp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(sp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-      type is (complex(dp))
-        select type (item2)
-        type is (complex(dp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(dp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-#if WITH_XDP
-      type is (real(xdp))
-        select type (item2)
-        type is (real(xdp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(xdp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-      type is (complex(xdp))
-        select type (item2)
-        type is (complex(xdp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(xdp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-#endif
-#if WITH_QP
-      type is (real(qp))
-        select type (item2)
-        type is (real(qp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(qp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-      type is (complex(qp))
-        select type (item2)
-        type is (complex(qp))
-          if (present(thr)) then
-            select type (thr)
-            type is (real(qp))
-              call check(error, item1(i), item2(i), message, more, thr, rel)
-            end select
-          else
-            call check(error, item1(i), item2(i), message, more, rel=rel)
-          end if
-        end select
-#endif
-      end select
+      call check(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call error_wrap(error, "Array check failed at element index "//trim(ch(i)))
+        call error_index(error, i)
         return
       end if
     end do
 
-  end subroutine check_double_array
+  end subroutine check_float_sp_r1
+
+
+  subroutine check_float_dp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(dp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(dp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(dp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_float_dp_r1
+
+
+#if WITH_XDP
+  subroutine check_float_xdp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(xdp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(xdp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(xdp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_float_xdp_r1
+#endif
+
+
+#if WITH_QP
+  subroutine check_float_qp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(qp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(qp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(qp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_float_qp_r1
+#endif
+
+
+  subroutine check_complex_sp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(sp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(sp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(sp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_complex_sp_r1
+
+
+  subroutine check_complex_dp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(dp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(dp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(dp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_complex_dp_r1
+
+
+#if WITH_XDP
+  subroutine check_complex_xdp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(xdp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(xdp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(xdp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_complex_xdp_r1
+#endif
+
+
+#if WITH_QP
+  subroutine check_complex_qp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(qp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(qp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(qp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_complex_qp_r1
+#endif
+
+
+  subroutine check_int_i1_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i1), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i1), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_int_i1_r1
+
+
+  subroutine check_int_i2_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i2), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i2), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_int_i2_r1
+
+
+  subroutine check_int_i4_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i4), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i4), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_int_i4_r1
+
+
+  subroutine check_int_i8_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i8), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i8), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_int_i8_r1
+
+
+  subroutine check_bool_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found boolean value
+    logical, intent(in) :: actual(:)
+
+    !> Expected boolean value
+    logical, intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_bool_r1
+
+
+  subroutine check_string_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found string value
+    character(len=*), intent(in) :: actual(:)
+
+    !> Expected string value
+    character(len=*), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call error_index(error, i)
+        return
+      end if
+    end do
+
+  end subroutine check_string_r1
+
 
 end module testdrive
