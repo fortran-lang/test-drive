@@ -83,6 +83,7 @@ contains
       new_unittest("real-single-rel-fail", test_rsp_rel_fail, should_fail=.true.), &
       new_unittest("real-single-abs-message", test_rsp_abs_message, should_fail=.true.), &
       new_unittest("real-single-nan-message", test_rsp_nan_message, should_fail=.true.), &
+      new_unittest("real-single-inconsistent-size", test_rsp_inconsistent_size, should_fail=.true.), &
       new_unittest("real-double-abs", test_rdp_abs), &
       new_unittest("real-double-rel", test_rdp_rel), &
       new_unittest("real-double-nan", test_rdp_nan, should_fail=.true.), &
@@ -90,6 +91,7 @@ contains
       new_unittest("real-double-rel-fail", test_rdp_rel_fail, should_fail=.true.), &
       new_unittest("real-double-abs-message", test_rdp_abs_message, should_fail=.true.), &
       new_unittest("real-double-nan-message", test_rdp_nan_message, should_fail=.true.), &
+      new_unittest("real-double-inconsistent-size", test_rdp_inconsistent_size, should_fail=.true.), &
       new_unittest("real-xdouble-abs", test_rxdp_abs), &
       new_unittest("real-xdouble-rel", test_rxdp_rel), &
       new_unittest("real-xdouble-nan", test_rxdp_nan, should_fail=.true.), &
@@ -97,6 +99,7 @@ contains
       new_unittest("real-xdouble-rel-fail", test_rxdp_rel_fail, should_fail=.true.), &
       new_unittest("real-xdouble-abs-message", test_rxdp_abs_message, should_fail=.true.), &
       new_unittest("real-xdouble-nan-message", test_rxdp_nan_message, should_fail=.true.), &
+      new_unittest("real-xdouble-inconsistent-size", test_rxdp_inconsistent_size, should_fail=.true.), &
       new_unittest("real-quadruple-abs", test_rqp_abs), &
       new_unittest("real-quadruple-rel", test_rqp_rel), &
       new_unittest("real-quadruple-nan", test_rqp_nan, should_fail=.true.), &
@@ -104,6 +107,7 @@ contains
       new_unittest("real-quadruple-rel-fail", test_rqp_rel_fail, should_fail=.true.), &
       new_unittest("real-quadruple-abs-message", test_rqp_abs_message, should_fail=.true.), &
       new_unittest("real-quadruple-nan-message", test_rqp_nan_message, should_fail=.true.), &
+      new_unittest("real-quadruple-inconsistent-size", test_rqp_inconsistent_size, should_fail=.true.), &
       new_unittest("complex-single-abs", test_csp_abs), &
       new_unittest("complex-single-rel", test_csp_rel), &
       new_unittest("complex-single-nan", test_csp_nan, should_fail=.true.), &
@@ -111,6 +115,7 @@ contains
       new_unittest("complex-single-rel-fail", test_csp_rel_fail, should_fail=.true.), &
       new_unittest("complex-single-abs-message", test_csp_abs_message, should_fail=.true.), &
       new_unittest("complex-single-nan-message", test_csp_nan_message, should_fail=.true.), &
+      new_unittest("complex-single-inconsistent-size", test_csp_inconsistent_size, should_fail=.true.), &
       new_unittest("complex-double-abs", test_cdp_abs), &
       new_unittest("complex-double-rel", test_cdp_rel), &
       new_unittest("complex-double-nan", test_cdp_nan, should_fail=.true.), &
@@ -118,6 +123,7 @@ contains
       new_unittest("complex-double-rel-fail", test_cdp_rel_fail, should_fail=.true.), &
       new_unittest("complex-double-abs-message", test_cdp_abs_message, should_fail=.true.), &
       new_unittest("complex-double-nan-message", test_cdp_nan_message, should_fail=.true.), &
+      new_unittest("complex-double-inconsistent-size", test_cdp_inconsistent_size, should_fail=.true.), &
       new_unittest("complex-xdouble-abs", test_cxdp_abs), &
       new_unittest("complex-xdouble-rel", test_cxdp_rel), &
       new_unittest("complex-xdouble-nan", test_cxdp_nan, should_fail=.true.), &
@@ -125,6 +131,7 @@ contains
       new_unittest("complex-xdouble-rel-fail", test_cxdp_rel_fail, should_fail=.true.), &
       new_unittest("complex-xdouble-abs-message", test_cxdp_abs_message, should_fail=.true.), &
       new_unittest("complex-xdouble-nan-message", test_cxdp_nan_message, should_fail=.true.), &
+      new_unittest("complex-xdouble-inconsistent-size", test_cxdp_inconsistent_size, should_fail=.true.), &
       new_unittest("complex-quadruple-abs", test_cqp_abs), &
       new_unittest("complex-quadruple-rel", test_cqp_rel), &
       new_unittest("complex-quadruple-nan", test_cqp_nan, should_fail=.true.), &
@@ -132,31 +139,38 @@ contains
       new_unittest("complex-quadruple-rel-fail", test_cqp_rel_fail, should_fail=.true.), &
       new_unittest("complex-quadruple-abs-message", test_cqp_abs_message, should_fail=.true.), &
       new_unittest("complex-quadruple-nan-message", test_cqp_nan_message, should_fail=.true.), &
+      new_unittest("complex-quadruple-inconsistent-size", test_cqp_inconsistent_size, should_fail=.true.), &
       new_unittest("integer-char", test_i1), &
       new_unittest("integer-char-fail", test_i1_fail, should_fail=.true.), &
       new_unittest("integer-char-message", test_i1_message, should_fail=.true.), &
       new_unittest("integer-char-with-more", test_i1_with_more, should_fail=.true.), &
+      new_unittest("integer-char-inconsistent-size", test_i1_inconsistent_size, should_fail=.true.), &
       new_unittest("integer-short", test_i2), &
       new_unittest("integer-short-fail", test_i2_fail, should_fail=.true.), &
       new_unittest("integer-short-message", test_i2_message, should_fail=.true.), &
       new_unittest("integer-short-with-more", test_i2_with_more, should_fail=.true.), &
+      new_unittest("integer-short-inconsistent-size", test_i2_inconsistent_size, should_fail=.true.), &
       new_unittest("integer-default", test_i4), &
       new_unittest("integer-default-fail", test_i4_fail, should_fail=.true.), &
       new_unittest("integer-default-message", test_i4_message, should_fail=.true.), &
       new_unittest("integer-default-with-more", test_i4_with_more, should_fail=.true.), &
+      new_unittest("integer-default-inconsistent-size", test_i4_inconsistent_size, should_fail=.true.), &
       new_unittest("integer-long", test_i8), &
       new_unittest("integer-long-fail", test_i8_fail, should_fail=.true.), &
       new_unittest("integer-long-message", test_i8_message, should_fail=.true.), &
       new_unittest("integer-long-with-more", test_i8_with_more, should_fail=.true.), &
+      new_unittest("integer-long-inconsistent-size", test_i8_inconsistent_size, should_fail=.true.), &
       new_unittest("logical-default-true", test_l4_true), &
       new_unittest("logical-default-false", test_l4_false), &
       new_unittest("logical-default-fail", test_l4_fail, should_fail=.true.), &
       new_unittest("logical-default-message", test_l4_message, should_fail=.true.), &
       new_unittest("logical-default-with-more", test_l4_with_more, should_fail=.true.), &
+      new_unittest("logical-default-inconsistent-size", test_l4_inconsistent_size, should_fail=.true.), &
       new_unittest("character", test_char), &
       new_unittest("character-fail", test_char_fail, should_fail=.true.), &
       new_unittest("character-message", test_char_message, should_fail=.true.), &
-      new_unittest("character-with-more", test_char_with_more, should_fail=.true.) &
+      new_unittest("character-with-more", test_char_with_more, should_fail=.true.), &
+      new_unittest("character-inconsistent-size", test_char_inconsistent_size, should_fail=.true.) &
       ]
 
   end subroutine collect_check_array
@@ -342,6 +356,19 @@ contains
   end subroutine test_rsp_nan_message
 
 
+  subroutine test_rsp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(sp) :: val(2)
+
+    val = 1.0_sp
+
+    call check(error, val, [1.5_sp])
+
+  end subroutine test_rsp_inconsistent_size
+
   subroutine test_rdp_abs(error)
 
     !> Error handling
@@ -438,6 +465,20 @@ contains
     call check(error, val, message="Actual value is not a number")
 
   end subroutine test_rdp_nan_message
+
+
+  subroutine test_rdp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(dp) :: val(2)
+
+    val = 1.0_dp
+
+    call check(error, val, [1.5_dp])
+
+  end subroutine test_rdp_inconsistent_size
 
 
   subroutine test_rxdp_abs(error)
@@ -566,6 +607,24 @@ contains
   end subroutine test_rxdp_nan_message
 
 
+  subroutine test_rxdp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val(2)
+
+    val = 1.0_xdp
+
+    call check(error, val, [1.5_xdp])
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_inconsistent_size
+
+
   subroutine test_rqp_abs(error)
 
     !> Error handling
@@ -692,6 +751,24 @@ contains
   end subroutine test_rqp_nan_message
 
 
+  subroutine test_rqp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val(2)
+
+    val = 1.0_qp
+
+    call check(error, val, [1.5_qp])
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_inconsistent_size
+
+
   subroutine test_csp_abs(error)
 
     !> Error handling
@@ -792,6 +869,20 @@ contains
   end subroutine test_csp_nan_message
 
 
+  subroutine test_csp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(sp) :: val(2)
+
+    val = cmplx(1.0_sp, 2.0_sp, sp)
+
+    call check(error, val, [cmplx(2.0_sp, 1.0_sp, sp)])
+
+    end subroutine test_csp_inconsistent_size
+
+
   subroutine test_cdp_abs(error)
 
     !> Error handling
@@ -890,6 +981,20 @@ contains
     call check(error, val, message="Actual value is not a number")
 
   end subroutine test_cdp_nan_message
+
+
+  subroutine test_cdp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(dp) :: val(2)
+
+    val = cmplx(1.0_dp, 2.0_dp, dp)
+
+    call check(error, val, [cmplx(2.0_dp, 1.0_dp, dp)])
+
+  end subroutine test_cdp_inconsistent_size
 
 
   subroutine test_cxdp_abs(error)
@@ -1020,6 +1125,24 @@ contains
   end subroutine test_cxdp_nan_message
 
 
+  subroutine test_cxdp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val(2)
+
+    val = cmplx(1.0_xdp, 2.0_xdp, xdp)
+
+    call check(error, val, [cmplx(2.0_xdp, 1.0_xdp, xdp)])
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_inconsistent_size
+
+
   subroutine test_cqp_abs(error)
 
     !> Error handling
@@ -1148,6 +1271,24 @@ contains
   end subroutine test_cqp_nan_message
 
 
+  subroutine test_cqp_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val(2)
+
+    val = cmplx(1.0_qp, 2.0_qp, qp)
+
+    call check(error, val, [cmplx(2.0_qp, 1.0_qp, qp)])
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+    end subroutine test_cqp_inconsistent_size
+
+
   subroutine test_i1(error)
 
     !> Error handling
@@ -1202,6 +1343,20 @@ contains
     call check(error, val, [3_i1, 3_i1], more="with an additional descriptive message here")
 
   end subroutine test_i1_with_more
+
+
+  subroutine test_i1_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    integer(i1) :: val(2)
+
+    val = 3_i1
+
+    call check(error, val, [4_i1])
+
+  end subroutine test_i1_inconsistent_size
 
 
   subroutine test_i2(error)
@@ -1260,6 +1415,20 @@ contains
   end subroutine test_i2_with_more
 
 
+  subroutine test_i2_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    integer(i2) :: val(2)
+
+    val = 3_i2
+
+    call check(error, val, [4_i2])
+
+  end subroutine test_i2_inconsistent_size
+
+
   subroutine test_i4(error)
 
     !> Error handling
@@ -1314,6 +1483,20 @@ contains
     call check(error, val, [3_i4, 3_i4], more="with an additional descriptive message here")
 
   end subroutine test_i4_with_more
+
+
+  subroutine test_i4_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    integer(i4) :: val(2)
+
+    val = 3_i4
+
+    call check(error, val, [4_i4])
+
+  end subroutine test_i4_inconsistent_size
 
 
   subroutine test_i8(error)
@@ -1372,6 +1555,20 @@ contains
   end subroutine test_i8_with_more
 
 
+  subroutine test_i8_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    integer(i8) :: val(2)
+
+    val = 3_i8
+
+    call check(error, val, [4_i8])
+
+  end subroutine test_i8_inconsistent_size
+
+
   subroutine test_l4_true(error)
 
     !> Error handling
@@ -1420,6 +1617,16 @@ contains
     call check(error, [.true.], [.false.], more="with an additional descriptive message")
 
   end subroutine test_l4_with_more
+
+
+  subroutine test_l4_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, [.true.], [.false., .false.])
+
+  end subroutine test_l4_inconsistent_size
 
 
   subroutine test_char(error)
@@ -1476,6 +1683,20 @@ contains
     call check(error, val, ["negative"], more="with an additional descriptive message")
 
   end subroutine test_char_with_more
+
+
+  subroutine test_char_inconsistent_size(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    character(len=8) :: val(1)
+
+    val = ["positive"]
+
+    call check(error, val, ["negative", "negative"])
+
+  end subroutine test_char_inconsistent_size
 
 
 end module test_check_array

@@ -103,6 +103,10 @@ subroutine test_valid(error)
   ! equivalent to the above
   call check(error, 1 + 2, 3)
   if (allocated(error)) return
+
+  ! array check
+  call check(error, [1 + 2, 6], [3, 6])
+  if (allocated(error)) return
 end subroutine test_valid
 ```
 
