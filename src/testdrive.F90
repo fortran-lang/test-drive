@@ -153,6 +153,9 @@ module testdrive
   !> Error code for skipped test
   integer, parameter :: skipped = 77
 
+  !> Goto next line
+  character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
+
 
   !> Error message
   type :: error_type
@@ -212,6 +215,33 @@ module testdrive
     module procedure :: check_int_i8
     module procedure :: check_bool
     module procedure :: check_string
+  end interface check
+
+
+  interface check     ! check for rank-1 array
+    module procedure :: check_single_array
+    module procedure :: check_float_sp_r1
+    module procedure :: check_float_dp_r1
+#if WITH_XDP
+    module procedure :: check_float_xdp_r1
+#endif
+#if WITH_QP
+    module procedure :: check_float_qp_r1
+#endif
+    module procedure :: check_complex_sp_r1
+    module procedure :: check_complex_dp_r1
+#if WITH_XDP
+    module procedure :: check_complex_xdp_r1
+#endif
+#if WITH_QP
+    module procedure :: check_complex_qp_r1
+#endif
+    module procedure :: check_int_i1_r1
+    module procedure :: check_int_i2_r1
+    module procedure :: check_int_i4_r1
+    module procedure :: check_int_i8_r1
+    module procedure :: check_bool_r1
+    module procedure :: check_string_r1
   end interface check
 
 
@@ -662,13 +692,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -757,13 +787,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -853,13 +883,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -950,13 +980,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -1046,13 +1076,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -1141,13 +1171,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -1237,13 +1267,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -1334,13 +1364,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//ch(expected)//" but got "//ch(actual)//" "//&
             "(difference: "//ch(diff)//")", &
             more)
@@ -1399,7 +1429,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//ch(expected)//" but got "//ch(actual), &
           more)
       end if
@@ -1430,7 +1460,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//ch(expected)//" but got "//ch(actual), &
           more)
       end if
@@ -1461,7 +1491,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//ch(expected)//" but got "//ch(actual), &
           more)
       end if
@@ -1492,7 +1522,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//ch(expected)//" but got "//ch(actual), &
           more)
       end if
@@ -1523,7 +1553,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Logical value missmatch", &
+          "Logical value mismatch", &
           "expected "//merge("T", "F", expected)//" but got "//merge("T", "F", actual), &
           more)
       end if
@@ -1554,7 +1584,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Character value missmatch", &
+          "Character value mismatch", &
           "expected '"//expected//"' but got '"//actual//"'", &
           more)
       end if
@@ -1576,8 +1606,6 @@ contains
 
     !> Another line of error message
     character(len=*), intent(in), optional :: and_more
-
-    character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
 
     allocate(error)
     error%stat = fatal
@@ -1967,6 +1995,631 @@ contains
     is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
   end function is_nan_qp
 #endif
+
+
+  subroutine wrap_error(error, and_more)
+    !> Error handling
+    type(error_type), intent(inout), allocatable :: error
+    !> Another line of error message
+    character(*), intent(in) :: and_more
+
+    error%message = error%message // skip // and_more
+
+  end subroutine wrap_error
+
+
+  subroutine check_single_array(error, array, message, more)
+
+    !> Error handing
+    type(error_type), allocatable, intent(out) :: error
+
+    !> The array to be checked
+    class(*), intent(in), target :: array(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+    class(*), pointer :: item(:) ! @note gfortran <=10 does not support syntax: associate(item => array(i))
+
+    item => array
+    do i = 1, size(array)
+      select type (item)
+      type is (integer)
+        call check(error, item(i), message, more)
+      type is (logical)
+        call check(error, item(i), message, more)
+      type is (real(sp))
+        call check(error, item(i), message, more)
+      type is (real(dp))
+        call check(error, item(i), message, more)
+      type is (complex(sp))
+        call check(error, item(i), message, more)
+      type is (complex(dp))
+        call check(error, item(i), message, more)
+#if WITH_XDP
+      type is (real(xdp))
+        call check(error, item(i), message, more)
+      type is (complex(xdp))
+        call check(error, item(i), message, more)
+#endif
+#if WITH_QP
+      type is (real(qp))
+        call check(error, item(i), message, more)
+      type is (complex(qp))
+        call check(error, item(i), message, more)
+#endif
+      end select
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_single_array
+
+
+  subroutine check_float_sp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(sp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(sp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(sp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_float_sp_r1
+
+
+  subroutine check_float_dp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(dp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(dp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(dp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_float_dp_r1
+
+
+#if WITH_XDP
+  subroutine check_float_xdp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(xdp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(xdp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(xdp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_float_xdp_r1
+#endif
+
+
+#if WITH_QP
+  subroutine check_float_qp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(qp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    real(qp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(qp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_float_qp_r1
+#endif
+
+
+  subroutine check_complex_sp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(sp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(sp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(sp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_complex_sp_r1
+
+
+  subroutine check_complex_dp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(dp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(dp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(dp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_complex_dp_r1
+
+
+#if WITH_XDP
+  subroutine check_complex_xdp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(xdp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(xdp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(xdp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_complex_xdp_r1
+#endif
+
+
+#if WITH_QP
+  subroutine check_complex_qp_r1(error, actual, expected, message, more, thr, rel)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(qp), intent(in) :: actual(:)
+
+    !> Expected floating point value
+    complex(qp), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    !> Allowed threshold for matching floating point values
+    real(qp), intent(in), optional :: thr
+
+    !> Check for relative errors instead
+    logical, intent(in), optional :: rel
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more, thr, rel)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_complex_qp_r1
+#endif
+
+
+  subroutine check_int_i1_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i1), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i1), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_int_i1_r1
+
+
+  subroutine check_int_i2_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i2), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i2), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_int_i2_r1
+
+
+  subroutine check_int_i4_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i4), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i4), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_int_i4_r1
+
+
+  subroutine check_int_i8_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found integer value
+    integer(i8), intent(in) :: actual(:)
+
+    !> Expected integer value
+    integer(i8), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_int_i8_r1
+
+
+  subroutine check_bool_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found boolean value
+    logical, intent(in) :: actual(:)
+
+    !> Expected boolean value
+    logical, intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_bool_r1
+
+
+  subroutine check_string_r1(error, actual, expected, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found string value
+    character(len=*), intent(in) :: actual(:)
+
+    !> Expected string value
+    character(len=*), intent(in) :: expected(:)
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    integer :: i
+
+    call check(error, size(actual), size(expected), message, more)
+    if (allocated(error)) then
+      call wrap_error(error, "array mismatch with inconsistent size")
+      return
+    end if
+
+    do i = 1, size(expected)
+      call check(error, actual(i), expected(i), message, more)
+      if (allocated(error)) then
+        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        return
+      end if
+    end do
+
+  end subroutine check_string_r1
 
 
 end module testdrive
