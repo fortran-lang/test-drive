@@ -1490,7 +1490,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    call check(error, to_string(-128_i1), "-128")
+    call check(error, to_string(-huge(1_i1) - 1_i1), "-128")
   end subroutine test_string_i1
 
 
@@ -1499,7 +1499,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    call check(error, to_string(-32768_i2), "-32768")
+    call check(error, to_string(-huge(1_i2) - 1_i2), "-32768")
   end subroutine test_string_i2
 
 
@@ -1508,7 +1508,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    call check(error, to_string(-2147483648_i4), "-2147483648")
+    call check(error, to_string(-huge(1_i4) - 1_i4), "-2147483648")
   end subroutine test_string_i4
 
 
@@ -1517,7 +1517,7 @@ contains
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
 
-    call check(error, to_string(-9223372036854775808_i8), "-9223372036854775808")
+    call check(error, to_string(-huge(1_i8) - 1_i8), "-9223372036854775808")
   end subroutine test_string_i8
 
 
