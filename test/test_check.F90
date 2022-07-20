@@ -23,7 +23,7 @@
 
 module test_check
   use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan
-  use testdrive, only : new_unittest, unittest_type, error_type, check, skip_test
+  use testdrive, only : new_unittest, unittest_type, error_type, check, skip_test, to_string
   implicit none
   private
 
@@ -157,7 +157,12 @@ contains
       new_unittest("character", test_char), &
       new_unittest("character-fail", test_char_fail, should_fail=.true.), &
       new_unittest("character-message", test_char_message, should_fail=.true.), &
-      new_unittest("character-with-more", test_char_with_more, should_fail=.true.) &
+      new_unittest("character-with-more", test_char_with_more, should_fail=.true.), &
+      new_unittest("character-with-more", test_char_with_more, should_fail=.true.), &
+      new_unittest("string-i1", test_string_i1), &
+      new_unittest("string-i2", test_string_i2), &
+      new_unittest("string-i4", test_string_i4), &
+      new_unittest("string-i8", test_string_i8) &
       ]
 
   end subroutine collect_check
@@ -1478,6 +1483,42 @@ contains
     call check(error, val, "negative", more="with an additional descriptive message")
 
   end subroutine test_char_with_more
+
+
+  subroutine test_string_i1(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, to_string(-128_i1), "-128")
+  end subroutine test_string_i1
+
+
+  subroutine test_string_i2(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, to_string(-32768_i2), "-32768")
+  end subroutine test_string_i2
+
+
+  subroutine test_string_i4(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, to_string(-2147483648_i4), "-2147483648")
+  end subroutine test_string_i4
+
+
+  subroutine test_string_i8(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, to_string(-9223372036854775808_i8), "-9223372036854775808")
+  end subroutine test_string_i8
 
 
 end module test_check
