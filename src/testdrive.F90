@@ -115,7 +115,6 @@ module testdrive
   public :: test_interface, collect_interface
   public :: get_argument, get_variable, to_string
 
-
   !> Single precision real numbers
   integer, parameter :: sp = selected_real_kind(6)
 
@@ -153,6 +152,34 @@ module testdrive
   !> Error code for skipped test
   integer, parameter :: skipped = 77
 
+
+  !> ANSI codes for color support
+  character(len=*), parameter :: ESC = char(27)
+
+  !> Escape code for erasing current line
+  ! character(len=*), parameter :: LINE_RESET = ESC//"[2K"//ESC//"[1G"
+
+  !> Escape code for moving up one line
+  ! character(len=*), parameter :: LINE_UP = ESC//"[1A"
+
+  !> Escape code for moving down one line
+  ! character(len=*), parameter :: LINE_DOWN = ESC//"[1B"
+
+  !> Escape code for red foreground color
+  character(len=*), parameter :: COLOR_RED = ESC//"[31m"
+
+  !> Escape code for green foreground color
+  character(len=*), parameter :: COLOR_GREEN = ESC//"[32m"
+
+  !> Escape code for yellow foreground color
+  ! character(len=*), parameter :: COLOR_YELLOW = ESC//"[93m"
+
+  !> Escape code to reset foreground color
+  character(len=*), parameter :: COLOR_RESET = ESC//"[0m"
+
+  !> color flags
+  logical :: NO_COLOR = .true.
+  logical :: run_once = .false.
 
   !> Error message
   type :: error_type
@@ -303,7 +330,6 @@ module testdrive
 
   end type testsuite_type
 
-
   character(len=*), parameter :: fmt = '(1x, *(1x, a))'
 
 
@@ -451,15 +477,31 @@ contains
 
     if (present(error) .neqv. test%should_fail) then
       if (test%should_fail) then
-        label = " [UNEXPECTED PASS]"
+        if (NO_COLOR) then
+          label = " [UNEXPECTED PASS]"
+        else
+          label = " [" // COLOR_RED // "UNEXPECTED PASS" // COLOR_RESET // "]"
+        end if
       else
-        label = " [FAILED]"
+        if (NO_COLOR) then
+          label = " [FAILED]"
+        else
+          label = " [" // COLOR_RED // "FAILED" // COLOR_RESET // "]"
+        end if
       end if
     else
       if (test%should_fail) then
-        label = " [EXPECTED FAIL]"
+        if (NO_COLOR) then
+          label = " [EXPECTED FAIL]"
+        else
+          label = " [" // COLOR_GREEN // "EXPECTED FAIL" // COLOR_RESET // "]"
+        end if
       else
-        label = " [PASSED]"
+        if (NO_COLOR) then
+          label = " [PASSED]"
+        else
+          label = " [" // COLOR_GREEN // "PASSED" // COLOR_RESET // "]"
+        end if
       end if
     end if
     output = indent // test%name // label
@@ -552,6 +594,21 @@ contains
 
     !> Newly registered testsuite
     type(testsuite_type) :: self
+
+    integer :: color_status
+    character(len=255) :: color_value
+
+    !> flag NO_COLOR from environmental variable - run this once when testsuite created
+
+    if (.not.run_once) then
+      call get_environment_variable("NO_COLOR", color_value, STATUS=color_status)
+      if (color_status.eq.0) then
+        NO_COLOR = .true.
+      else
+        NO_COLOR = .false.
+      end if
+      run_once = .true.
+    end if
 
     self%name = name
     self%collect => collect
