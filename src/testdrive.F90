@@ -1997,7 +1997,7 @@ contains
 #endif
 
 
-  subroutine wrap_error(error, and_more)
+  pure subroutine wrap_error(error, and_more)
     !> Error handling
     type(error_type), intent(inout), allocatable :: error
     !> Another line of error message
@@ -2029,28 +2029,28 @@ contains
     do i = 1, size(array)
       select type (item)
       type is (integer)
-        call check(error, item(i), message, more)
+        call check_stat(error, item(i), message, more)
       type is (logical)
-        call check(error, item(i), message, more)
+        call check_logical(error, item(i), message, more)
       type is (real(sp))
-        call check(error, item(i), message, more)
+        call check_float_exceptional_sp(error, item(i), message, more)
       type is (real(dp))
-        call check(error, item(i), message, more)
+        call check_float_exceptional_dp(error, item(i), message, more)
       type is (complex(sp))
-        call check(error, item(i), message, more)
+        call check_complex_exceptional_sp(error, item(i), message, more)
       type is (complex(dp))
-        call check(error, item(i), message, more)
+        call check_complex_exceptional_dp(error, item(i), message, more)
 #if WITH_XDP
       type is (real(xdp))
-        call check(error, item(i), message, more)
+        call check_float_exceptional_xdp(error, item(i), message, more)
       type is (complex(xdp))
-        call check(error, item(i), message, more)
+        call check_complex_exceptional_xdp(error, item(i), message, more)
 #endif
 #if WITH_QP
       type is (real(qp))
-        call check(error, item(i), message, more)
+        call check_float_qp(error, item(i), message, more)
       type is (complex(qp))
-        call check(error, item(i), message, more)
+        call check_complex_qp(error, item(i), message, more)
 #endif
       end select
       if (allocated(error)) then
@@ -2087,14 +2087,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_float_sp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2129,14 +2129,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_float_dp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2172,14 +2172,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_float_xdp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2216,14 +2216,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_float_qp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2259,14 +2259,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_complex_sp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2301,14 +2301,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_complex_dp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2344,14 +2344,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_complex_xdp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2388,14 +2388,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more, thr, rel)
+      call check_complex_qp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2425,14 +2425,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more)
+      call check_int_i1(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2461,14 +2461,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more)
+      call check_int_i2(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2497,14 +2497,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more)
+      call check_int_i4(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2533,14 +2533,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more)
+      call check_int_i8(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2569,14 +2569,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more)
+      call check_bool(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
@@ -2605,14 +2605,14 @@ contains
 
     integer :: i
 
-    call check(error, size(actual), size(expected), message, more)
+    call check_int_i4(error, size(actual), size(expected), message, more)
     if (allocated(error)) then
       call wrap_error(error, "array mismatch with inconsistent size")
       return
     end if
 
     do i = 1, size(expected)
-      call check(error, actual(i), expected(i), message, more)
+      call check_string(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
         call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
         return
