@@ -2064,9 +2064,9 @@ contains
 #endif
 #if WITH_QP
       type is (real(qp))
-        call check_float_qp(error, item(i), message, more)
+        call check_float_exceptional_qp(error, item(i), message, more)
       type is (complex(qp))
-        call check_complex_qp(error, item(i), message, more)
+        call check_complex_exceptional_qp(error, item(i), message, more)
 #endif
       end select
       if (allocated(error)) then
