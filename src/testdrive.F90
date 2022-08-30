@@ -113,7 +113,7 @@ module testdrive
   public :: unittest_type, testsuite_type, error_type
   public :: check, test_failed, skip_test
   public :: test_interface, collect_interface
-  public :: get_argument, get_variable
+  public :: get_argument, get_variable, to_string
 
 
   !> Single precision real numbers
@@ -245,28 +245,28 @@ module testdrive
   end interface check
 
 
-  interface ch
-    module procedure :: integer_i1_to_char
-    module procedure :: integer_i2_to_char
-    module procedure :: integer_i4_to_char
-    module procedure :: integer_i8_to_char
-    module procedure :: real_sp_to_char
-    module procedure :: real_dp_to_char
+  interface to_string
+    module procedure :: integer_i1_to_string
+    module procedure :: integer_i2_to_string
+    module procedure :: integer_i4_to_string
+    module procedure :: integer_i8_to_string
+    module procedure :: real_sp_to_string
+    module procedure :: real_dp_to_string
 #if WITH_XDP
-    module procedure :: real_xdp_to_char
+    module procedure :: real_xdp_to_string
 #endif
 #if WITH_QP
-    module procedure :: real_qp_to_char
+    module procedure :: real_qp_to_string
 #endif
-    module procedure :: complex_sp_to_char
-    module procedure :: complex_dp_to_char
+    module procedure :: complex_sp_to_string
+    module procedure :: complex_dp_to_string
 #if WITH_XDP
-    module procedure :: complex_xdp_to_char
+    module procedure :: complex_xdp_to_string
 #endif
 #if WITH_QP
-    module procedure :: complex_qp_to_char
+    module procedure :: complex_qp_to_string
 #endif
-  end interface ch
+  end interface to_string
 
 
   !> Implementation of check for not a number value, in case a compiler does not
@@ -692,15 +692,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -787,15 +787,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -883,15 +883,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -980,15 +980,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -1076,15 +1076,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -1171,15 +1171,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -1267,15 +1267,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -1364,15 +1364,15 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(int(diff*100))//"%)", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value mismatch", &
-            "expected "//ch(expected)//" but got "//ch(actual)//" "//&
-            "(difference: "//ch(diff)//")", &
+            "Floating point value missmatch", &
+            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+            "(difference: "//to_string(diff)//")", &
             more)
         end if
       end if
@@ -1429,8 +1429,8 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value mismatch", &
-          "expected "//ch(expected)//" but got "//ch(actual), &
+          "Integer value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
     end if
@@ -1460,8 +1460,8 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value mismatch", &
-          "expected "//ch(expected)//" but got "//ch(actual), &
+          "Integer value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
     end if
@@ -1491,8 +1491,8 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value mismatch", &
-          "expected "//ch(expected)//" but got "//ch(actual), &
+          "Integer value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
     end if
@@ -1522,8 +1522,8 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value mismatch", &
-          "expected "//ch(expected)//" but got "//ch(actual), &
+          "Integer value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
     end if
@@ -1692,139 +1692,155 @@ contains
   end subroutine get_variable
 
 
-  pure function integer_i1_to_char(val) result(string)
-    integer(i1), intent(in) :: val
+  pure function integer_i1_to_string(val) result(string)
+    integer, parameter :: ik = i1
+    !> Integer value to create string from
+    integer(ik), intent(in) :: val
+    !> String representation of integer
     character(len=:), allocatable :: string
+
     integer, parameter :: buffer_len = range(val)+2
     character(len=buffer_len) :: buffer
     integer :: pos
-    integer(i1) :: n
-    character(len=1), parameter :: numbers(0:9) = &
-      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    integer(ik) :: n
+    character(len=1), parameter :: numbers(-9:0) = &
+      ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"]
 
-    if (val == 0_i1) then
+    if (val == 0_ik) then
       string = numbers(0)
       return
     end if
 
-    n = abs(val)
+    n = sign(val, -1_ik)
     buffer = ""
-
     pos = buffer_len + 1
-    do while (n > 0_i1)
+    do while (n < 0_ik)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i1))
-      n = n/10_i1
+      buffer(pos:pos) = numbers(mod(n, 10_ik))
+      n = n/10_ik
     end do
-    if (val < 0_i1) then
+
+    if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = "-"
+      buffer(pos:pos) = '-'
     end if
 
     string = buffer(pos:)
-  end function integer_i1_to_char
+  end function integer_i1_to_string
 
 
-  pure function integer_i2_to_char(val) result(string)
-    integer(i2), intent(in) :: val
+  pure function integer_i2_to_string(val) result(string)
+    integer, parameter :: ik = i2
+    !> Integer value to create string from
+    integer(ik), intent(in) :: val
+    !> String representation of integer
     character(len=:), allocatable :: string
+
     integer, parameter :: buffer_len = range(val)+2
     character(len=buffer_len) :: buffer
     integer :: pos
-    integer(i2) :: n
-    character(len=1), parameter :: numbers(0:9) = &
-      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    integer(ik) :: n
+    character(len=1), parameter :: numbers(-9:0) = &
+      ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"]
 
-    if (val == 0_i2) then
+    if (val == 0_ik) then
       string = numbers(0)
       return
     end if
 
-    n = abs(val)
+    n = sign(val, -1_ik)
     buffer = ""
-
     pos = buffer_len + 1
-    do while (n > 0_i2)
+    do while (n < 0_ik)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i2))
-      n = n/10_i2
+      buffer(pos:pos) = numbers(mod(n, 10_ik))
+      n = n/10_ik
     end do
-    if (val < 0_i2) then
+
+    if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = "-"
+      buffer(pos:pos) = '-'
     end if
 
     string = buffer(pos:)
-  end function integer_i2_to_char
+  end function integer_i2_to_string
 
 
-  pure function integer_i4_to_char(val) result(string)
-    integer(i4), intent(in) :: val
+  pure function integer_i4_to_string(val) result(string)
+    integer, parameter :: ik = i4
+    !> Integer value to create string from
+    integer(ik), intent(in) :: val
+    !> String representation of integer
     character(len=:), allocatable :: string
+
     integer, parameter :: buffer_len = range(val)+2
     character(len=buffer_len) :: buffer
     integer :: pos
-    integer(i4) :: n
-    character(len=1), parameter :: numbers(0:9) = &
-      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    integer(ik) :: n
+    character(len=1), parameter :: numbers(-9:0) = &
+      ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"]
 
-    if (val == 0_i4) then
+    if (val == 0_ik) then
       string = numbers(0)
       return
     end if
 
-    n = abs(val)
+    n = sign(val, -1_ik)
     buffer = ""
-
     pos = buffer_len + 1
-    do while (n > 0_i4)
+    do while (n < 0_ik)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i4))
-      n = n/10_i4
+      buffer(pos:pos) = numbers(mod(n, 10_ik))
+      n = n/10_ik
     end do
-    if (val < 0_i4) then
+
+    if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = "-"
+      buffer(pos:pos) = '-'
     end if
 
     string = buffer(pos:)
-  end function integer_i4_to_char
+  end function integer_i4_to_string
 
 
-  pure function integer_i8_to_char(val) result(string)
-    integer(i8), intent(in) :: val
+  pure function integer_i8_to_string(val) result(string)
+    integer, parameter :: ik = i8
+    !> Integer value to create string from
+    integer(ik), intent(in) :: val
+    !> String representation of integer
     character(len=:), allocatable :: string
+
     integer, parameter :: buffer_len = range(val)+2
     character(len=buffer_len) :: buffer
     integer :: pos
-    integer(i8) :: n
-    character(len=1), parameter :: numbers(0:9) = &
-      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    integer(ik) :: n
+    character(len=1), parameter :: numbers(-9:0) = &
+      ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"]
 
-    if (val == 0_i8) then
+    if (val == 0_ik) then
       string = numbers(0)
       return
     end if
 
-    n = abs(val)
+    n = sign(val, -1_ik)
     buffer = ""
-
     pos = buffer_len + 1
-    do while (n > 0_i8)
+    do while (n < 0_ik)
       pos = pos - 1
-      buffer(pos:pos) = numbers(mod(n, 10_i8))
-      n = n/10_i8
+      buffer(pos:pos) = numbers(mod(n, 10_ik))
+      n = n/10_ik
     end do
-    if (val < 0_i8) then
+
+    if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = "-"
+      buffer(pos:pos) = '-'
     end if
 
     string = buffer(pos:)
-  end function integer_i8_to_char
+  end function integer_i8_to_string
 
 
-  pure function real_sp_to_char(val) result(string)
+  pure function real_sp_to_string(val) result(string)
     real(sp), intent(in) :: val
     character(len=:), allocatable :: string
     integer, parameter :: buffer_len = 128
@@ -1833,10 +1849,10 @@ contains
     write(buffer, '(g0)') val
     string = trim(buffer)
 
-  end function real_sp_to_char
+  end function real_sp_to_string
 
 
-  pure function real_dp_to_char(val) result(string)
+  pure function real_dp_to_string(val) result(string)
     real(dp), intent(in) :: val
     character(len=:), allocatable :: string
     integer, parameter :: buffer_len = 128
@@ -1845,11 +1861,11 @@ contains
     write(buffer, '(g0)') val
     string = trim(buffer)
 
-  end function real_dp_to_char
+  end function real_dp_to_string
 
 
 #if WITH_XDP
-  pure function real_xdp_to_char(val) result(string)
+  pure function real_xdp_to_string(val) result(string)
     real(xdp), intent(in) :: val
     character(len=:), allocatable :: string
     integer, parameter :: buffer_len = 128
@@ -1858,12 +1874,12 @@ contains
     write(buffer, '(g0)') val
     string = trim(buffer)
 
-  end function real_xdp_to_char
+  end function real_xdp_to_string
 #endif
 
 
 #if WITH_QP
-  pure function real_qp_to_char(val) result(string)
+  pure function real_qp_to_string(val) result(string)
     real(qp), intent(in) :: val
     character(len=:), allocatable :: string
     integer, parameter :: buffer_len = 128
@@ -1872,47 +1888,47 @@ contains
     write(buffer, '(g0)') val
     string = trim(buffer)
 
-  end function real_qp_to_char
+  end function real_qp_to_string
 #endif
 
 
-  pure function complex_sp_to_char(val) result(string)
+  pure function complex_sp_to_string(val) result(string)
     complex(sp), intent(in) :: val
     character(len=:), allocatable :: string
 
-    string = "("//ch(real(val))//", "//ch(aimag(val))//")"
+    string = "("//to_string(real(val))//", "//to_string(aimag(val))//")"
 
-  end function complex_sp_to_char
+  end function complex_sp_to_string
 
 
-  pure function complex_dp_to_char(val) result(string)
+  pure function complex_dp_to_string(val) result(string)
     complex(dp), intent(in) :: val
     character(len=:), allocatable :: string
 
-    string = "("//ch(real(val))//", "//ch(aimag(val))//")"
+    string = "("//to_string(real(val))//", "//to_string(aimag(val))//")"
 
-  end function complex_dp_to_char
+  end function complex_dp_to_string
 
 
 #if WITH_XDP
-  pure function complex_xdp_to_char(val) result(string)
+  pure function complex_xdp_to_string(val) result(string)
     complex(xdp), intent(in) :: val
     character(len=:), allocatable :: string
 
-    string = "("//ch(real(val))//", "//ch(aimag(val))//")"
+    string = "("//to_string(real(val))//", "//to_string(aimag(val))//")"
 
-  end function complex_xdp_to_char
+  end function complex_xdp_to_string
 #endif
 
 
 #if WITH_QP
-  pure function complex_qp_to_char(val) result(string)
+  pure function complex_qp_to_string(val) result(string)
     complex(qp), intent(in) :: val
     character(len=:), allocatable :: string
 
-    string = "("//ch(real(val))//", "//ch(aimag(val))//")"
+    string = "("//to_string(real(val))//", "//to_string(aimag(val))//")"
 
-  end function complex_qp_to_char
+  end function complex_qp_to_string
 #endif
 
 
@@ -2054,7 +2070,7 @@ contains
 #endif
       end select
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2096,7 +2112,7 @@ contains
     do i = 1, size(expected)
       call check_float_sp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2138,7 +2154,7 @@ contains
     do i = 1, size(expected)
       call check_float_dp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2181,7 +2197,7 @@ contains
     do i = 1, size(expected)
       call check_float_xdp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2225,7 +2241,7 @@ contains
     do i = 1, size(expected)
       call check_float_qp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2268,7 +2284,7 @@ contains
     do i = 1, size(expected)
       call check_complex_sp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2310,7 +2326,7 @@ contains
     do i = 1, size(expected)
       call check_complex_dp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2353,7 +2369,7 @@ contains
     do i = 1, size(expected)
       call check_complex_xdp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2397,7 +2413,7 @@ contains
     do i = 1, size(expected)
       call check_complex_qp(error, actual(i), expected(i), message, more, thr, rel)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2434,7 +2450,7 @@ contains
     do i = 1, size(expected)
       call check_int_i1(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2470,7 +2486,7 @@ contains
     do i = 1, size(expected)
       call check_int_i2(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2506,7 +2522,7 @@ contains
     do i = 1, size(expected)
       call check_int_i4(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2542,7 +2558,7 @@ contains
     do i = 1, size(expected)
       call check_int_i8(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2578,7 +2594,7 @@ contains
     do i = 1, size(expected)
       call check_bool(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
@@ -2614,7 +2630,7 @@ contains
     do i = 1, size(expected)
       call check_string(error, actual(i), expected(i), message, more)
       if (allocated(error)) then
-        call wrap_error(error, "array mismatch at element index "//trim(ch(i)))
+        call wrap_error(error, "array mismatch at element index "//trim(to_string(i)))
         return
       end if
     end do
