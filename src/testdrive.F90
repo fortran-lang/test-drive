@@ -500,13 +500,13 @@ contains
 
 
   !> Select a unit test from all available tests
-  function select_test(tests, name) result(pos)
+  pure function select_test(tests, name) result(pos)
+
+    !> Available unit tests
+    type(unittest_type), intent(in) :: tests(:)
 
     !> Name identifying the test suite
     character(len=*), intent(in) :: name
-
-    !> Available unit tests
-    type(unittest_type) :: tests(:)
 
     !> Selected test suite
     integer :: pos
@@ -525,13 +525,13 @@ contains
 
 
   !> Select a test suite from all available suites
-  function select_suite(suites, name) result(pos)
+  pure function select_suite(suites, name) result(pos)
+
+    !> Available test suites
+    type(testsuite_type), intent(in) :: suites(:)
 
     !> Name identifying the test suite
     character(len=*), intent(in) :: name
-
-    !> Available test suites
-    type(testsuite_type) :: suites(:)
 
     !> Selected test suite
     integer :: pos
@@ -589,7 +589,7 @@ contains
   end function new_testsuite
 
 
-  subroutine check_stat(error, stat, message, more)
+  pure subroutine check_stat(error, stat, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -614,7 +614,7 @@ contains
   end subroutine check_stat
 
 
-  subroutine check_logical(error, expression, message, more)
+  pure subroutine check_logical(error, expression, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -639,7 +639,7 @@ contains
   end subroutine check_logical
 
 
-  subroutine check_float_dp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_dp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -709,7 +709,7 @@ contains
   end subroutine check_float_dp
 
 
-  subroutine check_float_exceptional_dp(error, actual, message, more)
+  pure subroutine check_float_exceptional_dp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -734,7 +734,7 @@ contains
   end subroutine check_float_exceptional_dp
 
 
-  subroutine check_float_sp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_sp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -804,7 +804,7 @@ contains
   end subroutine check_float_sp
 
 
-  subroutine check_float_exceptional_sp(error, actual, message, more)
+  pure subroutine check_float_exceptional_sp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -830,7 +830,7 @@ contains
 
 
 #if WITH_XDP
-  subroutine check_float_xdp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_xdp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -900,7 +900,7 @@ contains
   end subroutine check_float_xdp
 
 
-  subroutine check_float_exceptional_xdp(error, actual, message, more)
+  pure subroutine check_float_exceptional_xdp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -927,7 +927,7 @@ contains
 
 
 #if WITH_QP
-  subroutine check_float_qp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_qp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -997,7 +997,7 @@ contains
   end subroutine check_float_qp
 
 
-  subroutine check_float_exceptional_qp(error, actual, message, more)
+  pure subroutine check_float_exceptional_qp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1023,7 +1023,7 @@ contains
 #endif
 
 
-  subroutine check_complex_dp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_dp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1093,7 +1093,7 @@ contains
   end subroutine check_complex_dp
 
 
-  subroutine check_complex_exceptional_dp(error, actual, message, more)
+  pure subroutine check_complex_exceptional_dp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1118,7 +1118,7 @@ contains
   end subroutine check_complex_exceptional_dp
 
 
-  subroutine check_complex_sp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_sp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1188,7 +1188,7 @@ contains
   end subroutine check_complex_sp
 
 
-  subroutine check_complex_exceptional_sp(error, actual, message, more)
+  pure subroutine check_complex_exceptional_sp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1214,7 +1214,7 @@ contains
 
 
 #if WITH_XDP
-  subroutine check_complex_xdp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_xdp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1284,7 +1284,7 @@ contains
   end subroutine check_complex_xdp
 
 
-  subroutine check_complex_exceptional_xdp(error, actual, message, more)
+  pure subroutine check_complex_exceptional_xdp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1311,7 +1311,7 @@ contains
 
 
 #if WITH_QP
-  subroutine check_complex_qp(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_qp(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1381,7 +1381,7 @@ contains
   end subroutine check_complex_qp
 
 
-  subroutine check_complex_exceptional_qp(error, actual, message, more)
+  pure subroutine check_complex_exceptional_qp(error, actual, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1407,7 +1407,7 @@ contains
 #endif
 
 
-  subroutine check_int_i1(error, actual, expected, message, more)
+  pure subroutine check_int_i1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1438,7 +1438,7 @@ contains
   end subroutine check_int_i1
 
 
-  subroutine check_int_i2(error, actual, expected, message, more)
+  pure subroutine check_int_i2(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1469,7 +1469,7 @@ contains
   end subroutine check_int_i2
 
 
-  subroutine check_int_i4(error, actual, expected, message, more)
+  pure subroutine check_int_i4(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1500,7 +1500,7 @@ contains
   end subroutine check_int_i4
 
 
-  subroutine check_int_i8(error, actual, expected, message, more)
+  pure subroutine check_int_i8(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1531,7 +1531,7 @@ contains
   end subroutine check_int_i8
 
 
-  subroutine check_bool(error, actual, expected, message, more)
+  pure subroutine check_bool(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1562,7 +1562,7 @@ contains
   end subroutine check_bool
 
 
-  subroutine check_string(error, actual, expected, message, more)
+  pure subroutine check_string(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1593,7 +1593,7 @@ contains
   end subroutine check_string
 
 
-  subroutine test_failed(error, message, more, and_more)
+  pure subroutine test_failed(error, message, more, and_more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1622,7 +1622,7 @@ contains
 
 
   !> A test is skipped because certain requirements are not met to run the actual test
-  subroutine skip_test(error, message, more, and_more)
+  pure subroutine skip_test(error, message, more, and_more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -1917,7 +1917,7 @@ contains
 
 
   !> Clear error type after it has been handled.
-  subroutine clear_error(error)
+  pure subroutine clear_error(error)
 
     !> Error handling
     type(error_type), intent(inout) :: error
@@ -2062,7 +2062,7 @@ contains
   end subroutine check_single_array
 
 
-  subroutine check_float_sp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_sp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2104,7 +2104,7 @@ contains
   end subroutine check_float_sp_r1
 
 
-  subroutine check_float_dp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_dp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2147,7 +2147,7 @@ contains
 
 
 #if WITH_XDP
-  subroutine check_float_xdp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_xdp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2191,7 +2191,7 @@ contains
 
 
 #if WITH_QP
-  subroutine check_float_qp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_float_qp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2234,7 +2234,7 @@ contains
 #endif
 
 
-  subroutine check_complex_sp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_sp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2276,7 +2276,7 @@ contains
   end subroutine check_complex_sp_r1
 
 
-  subroutine check_complex_dp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_dp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2319,7 +2319,7 @@ contains
 
 
 #if WITH_XDP
-  subroutine check_complex_xdp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_xdp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2363,7 +2363,7 @@ contains
 
 
 #if WITH_QP
-  subroutine check_complex_qp_r1(error, actual, expected, message, more, thr, rel)
+  pure subroutine check_complex_qp_r1(error, actual, expected, message, more, thr, rel)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2406,7 +2406,7 @@ contains
 #endif
 
 
-  subroutine check_int_i1_r1(error, actual, expected, message, more)
+  pure subroutine check_int_i1_r1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2442,7 +2442,7 @@ contains
   end subroutine check_int_i1_r1
 
 
-  subroutine check_int_i2_r1(error, actual, expected, message, more)
+  pure subroutine check_int_i2_r1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2478,7 +2478,7 @@ contains
   end subroutine check_int_i2_r1
 
 
-  subroutine check_int_i4_r1(error, actual, expected, message, more)
+  pure subroutine check_int_i4_r1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2514,7 +2514,7 @@ contains
   end subroutine check_int_i4_r1
 
 
-  subroutine check_int_i8_r1(error, actual, expected, message, more)
+  pure subroutine check_int_i8_r1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2550,7 +2550,7 @@ contains
   end subroutine check_int_i8_r1
 
 
-  subroutine check_bool_r1(error, actual, expected, message, more)
+  pure subroutine check_bool_r1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
@@ -2586,7 +2586,7 @@ contains
   end subroutine check_bool_r1
 
 
-  subroutine check_string_r1(error, actual, expected, message, more)
+  pure subroutine check_string_r1(error, actual, expected, message, more)
 
     !> Error handling
     type(error_type), allocatable, intent(out) :: error
