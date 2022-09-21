@@ -54,11 +54,28 @@ if get_option('openmp')
   lib_deps += omp_dep
 endif
 
-with_qp = fc.compiles('integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end')
-with_xdp = fc.compiles('''
-integer, parameter :: xdp = merge(-1, selected_real_kind(18),selected_real_kind(18) == selected_real_kind(33))
-complex(xdp) :: x
-end''')
+if get_option('qp').auto()
+  with_qp = fc.compiles('''
+    integer, parameter :: qp = selected_real_kind(33)
+    complex(qp) :: x
+    end
+  ''')
+else
+  with_qp = get_option('qp').allowed()
+endif
+
+if get_option('xdp').auto()
+  with_xdp = fc.compiles('''
+    integer, parameter :: xdp = &
+      & merge(-1, selected_real_kind(18), &
+      & selected_real_kind(18) == selected_real_kind(33))
+    complex(xdp) :: x
+    end
+  ''')
+else
+  with_xdp = get_option('xdp').allowed()
+endif
+
 add_project_arguments(
   '-DWITH_QP=@0@'.format(with_qp.to_int()),
   '-DWITH_XDP=@0@'.format(with_xdp.to_int()),
