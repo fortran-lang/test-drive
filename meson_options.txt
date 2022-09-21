@@ -18,3 +18,17 @@ option(
   yield: true,
   description: 'use OpenMP parallelisation',
 )
+
+option(
+  'xdp',
+  type: 'feature',
+  value: 'auto',
+  description: 'Support extended double precision',
+)
+
+option(
+  'qp',
+  type: 'feature',
+  value: 'auto',
+  description: 'Support quadruple precision',
+)
