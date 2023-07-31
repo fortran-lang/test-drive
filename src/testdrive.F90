@@ -114,7 +114,13 @@ module testdrive
   public :: check, test_failed, skip_test
   public :: test_interface, collect_interface
   public :: get_argument, get_variable, to_string
+  public :: junitxml_open_file
+  public :: junitxml_write_testsuite_opening_tag
+  public :: junitxml_write_testsuite_closing_tag
+  public :: junitxml_close_file
 
+  !> Unit number for JUnit.xml.
+  integer :: unit_junitxml
 
   !> Single precision real numbers
   integer, parameter :: sp = selected_real_kind(6)
@@ -306,9 +312,150 @@ module testdrive
 
   character(len=*), parameter :: fmt = '(1x, *(1x, a))'
 
+  contains
+  
+  !> Open JUnit.xml file for CLI output of test results.
+  subroutine junitxml_open_file()
+  
+    implicit none
+    
+    open(newunit=unit_junitxml, file='JUnit.xml', form='formatted', access='sequential', status='replace')
+    
+    if (unit_junitxml /= -1) then
+      write(unit_junitxml,'(a)') '<?xml version="1.0" encoding="UTF-8"?>'
+      write(unit_junitxml,'(a)') &
+        & '<testsuites' // &
+        & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // & 
+        & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // & 
+        & '>'
+    else
+      write(error_unit, '(a)') "# Error: Could not open JUnit.xml for writing! Program stops."
+      stop 1
+    endif
+    
+  end subroutine junitxml_open_file
 
-contains
+  !> Close JUnit.xml file.
+  subroutine junitxml_close_file()
+  
+    implicit none
+    
+    write(unit_junitxml,'(a)') '</testsuites>'
+    close(unit_junitxml)
+    
+  end subroutine junitxml_close_file
+  
+  !> Write opening tag for testsuite with name to JUnit.xml.
+  subroutine junitxml_write_testsuite_opening_tag(testsuite_name, id)
+  
+    implicit none
+    
+    character(len=*), intent(in) :: testsuite_name
+    integer, intent(in) :: id
+    
+    character(len=80) :: hostname
+    character (len=8)  cdate
+    character (len=10) ctime
 
+    
+    call hostnm(hostname)
+    call date_and_time(DATE=cdate, TIME=ctime)
+    
+    write(unit_junitxml,'(a,i0,a)') &
+      & '  <testsuite' // & 
+      & ' name="' // testsuite_name // '"' // &
+      & ' package="unknown"' // &
+      & ' id="', id, '"' // &
+      & ' timestamp="' // cdate(1:4) // '-' // cdate(5:6) // '-' // cdate(7:8) &
+      &                // 'T' // ctime(1:2) // ':' // ctime(3:4) // ':' // ctime(5:6) // '"' // &
+      & ' hostname="' // trim(hostname) // '"' // &
+      !& ' tests="0"' // &
+      !& ' failures="0"' // &
+      !& ' errors="0"' // &
+      !& ' skipped="0"' // &
+      !& ' time="0.0"' // &
+      & '>'
+    write(unit_junitxml,'(a)') '    <properties>'
+    write(unit_junitxml,'(a)') '    </properties>'
+    
+  end subroutine junitxml_write_testsuite_opening_tag
+
+  !> Write closing tag for testsuite to JUnit.xml.
+  subroutine junitxml_write_testsuite_closing_tag()
+  
+    implicit none
+    
+    write(unit_junitxml,'(a)') '  <system-out/>'
+    write(unit_junitxml,'(a)') '  <system-err/>'
+    write(unit_junitxml,'(a)') '  </testsuite>'
+    
+  end subroutine junitxml_write_testsuite_closing_tag
+  
+  !> Write single tag for testcase with name to JUnit.xml.
+  !> Needed, if no failure occurred and no stdout message present.
+  !> Shortens output to a single line in xml file.
+  subroutine junitxml_write_testcase_single_tag(testcase_name)
+  
+    implicit none
+    
+    character(len=*), intent(in) :: testcase_name
+    
+    write(unit_junitxml,'(a)') &
+      & '    <testcase' // & 
+      & ' name="' // testcase_name // '"' // &
+      & ' classname="unknown"' // &
+      !& ' time="0.0"' // &
+      & '/>'
+    
+  end subroutine junitxml_write_testcase_single_tag
+  
+  !> Write opening tag for testcase with name to JUnit.xml. Needed, if a failure occurred.
+  subroutine junitxml_write_testcase_opening_tag(testcase_name)
+  
+    implicit none
+    
+    character(len=*), intent(in) :: testcase_name
+    
+    write(unit_junitxml,'(a)') &
+      & '    <testcase' // & 
+      & ' name="' // testcase_name // '"' // &
+      & ' classname="unknown"' // &
+      !& ' time="0.0"' // &
+      & '>'
+    
+  end subroutine junitxml_write_testcase_opening_tag
+
+  !> Write closing tag for testcase to JUnit.xml.
+  subroutine junitxml_write_testcase_closing_tag(stdout)
+  
+    implicit none
+
+    character(len=*), intent(in) :: stdout
+
+    if (len_trim(stdout) > 0) then
+      write(unit_junitxml,'(a)') '      <system-out>'
+      write(unit_junitxml,'(a)') '           ' // stdout
+      write(unit_junitxml,'(a)') '      </system-out>'
+    endif
+    
+    write(unit_junitxml,'(a)') '    </testcase>'
+    
+  end subroutine junitxml_write_testcase_closing_tag  
+  
+  !> Write failure message to JUnit.xml.
+  subroutine junitxml_write_testcase_failure(message)
+  
+    implicit none
+    
+    character(len=*), intent(in) :: message
+    
+    write(unit_junitxml,'(a)') &
+      & '      <failure' // &
+      & ' message="' // trim(message) // '"' // &
+      & ' type="unknown"' // &
+      & '/>'
+    
+  end subroutine junitxml_write_testcase_failure
 
   !> Driver for testsuite
   recursive subroutine run_testsuite(collect, unit, stat, parallel)
@@ -396,6 +543,9 @@ contains
 
     type(error_type), allocatable :: error
     character(len=:), allocatable :: message
+    character(len=20) :: res
+    character(len=:), allocatable :: stdout
+    integer :: s, e
 
     call test%test(error)
     if (.not.test_skipped(error)) then
@@ -405,6 +555,34 @@ contains
     !$omp critical(testdrive_testsuite)
     write(unit, '(a)') message
     !$omp end critical(testdrive_testsuite)
+    
+    stdout = ''
+    if (allocated(error)) then
+      stdout = trim(error%message)
+    endif
+    
+    s = index(message, '[')
+    e = index(message, ']')
+    res = message(s+1:e-1)
+    select case (res)
+      case ('FAILED', 'UNEXPECTED PASS')
+        call junitxml_write_testcase_opening_tag(test%name)
+        call junitxml_write_testcase_failure(res)
+        call junitxml_write_testcase_closing_tag(stdout)
+      case ('EXPECTED FAIL', 'PASSED')
+        if (len_trim(stdout) > 0) then  
+          call junitxml_write_testcase_opening_tag(test%name)
+          call junitxml_write_testcase_closing_tag(stdout)
+        else
+          call junitxml_write_testcase_single_tag(test%name)
+        endif
+      case ('SKIPPED')
+        res = res
+      case default
+        write(unit, '(a)') "Error: Unknown test result '" // res // "' in test '" // test%name // "'!"
+        stop 2
+    end select
+
     if (allocated(error)) then
       call clear_error(error)
     end if
