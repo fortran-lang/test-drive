@@ -317,8 +317,6 @@ module testdrive
   !> Open JUnit.xml file for CLI output of test results.
   subroutine junitxml_open_file()
   
-    implicit none
-    
     open(newunit=unit_junitxml, file='JUnit.xml', form='formatted', access='sequential', status='replace')
     
     if (unit_junitxml /= -1) then
@@ -330,7 +328,7 @@ module testdrive
         & '>'
     else
       write(error_unit, '(a)') "# Error: Could not open JUnit.xml for writing! Program stops."
-      stop 1
+      error stop 1
     endif
     
   end subroutine junitxml_open_file
@@ -338,8 +336,6 @@ module testdrive
   !> Close JUnit.xml file.
   subroutine junitxml_close_file()
   
-    implicit none
-    
     write(unit_junitxml,'(a)') '</testsuites>'
     close(unit_junitxml)
     
@@ -348,8 +344,6 @@ module testdrive
   !> Write opening tag for testsuite with name to JUnit.xml.
   subroutine junitxml_write_testsuite_opening_tag(testsuite_name, id)
   
-    implicit none
-    
     character(len=*), intent(in) :: testsuite_name
     integer, intent(in) :: id
     
@@ -383,8 +377,6 @@ module testdrive
   !> Write closing tag for testsuite to JUnit.xml.
   subroutine junitxml_write_testsuite_closing_tag()
   
-    implicit none
-    
     write(unit_junitxml,'(a)') '  <system-out/>'
     write(unit_junitxml,'(a)') '  <system-err/>'
     write(unit_junitxml,'(a)') '  </testsuite>'
@@ -396,8 +388,6 @@ module testdrive
   !> Shortens output to a single line in xml file.
   subroutine junitxml_write_testcase_single_tag(testcase_name)
   
-    implicit none
-    
     character(len=*), intent(in) :: testcase_name
     
     write(unit_junitxml,'(a)') &
@@ -412,8 +402,6 @@ module testdrive
   !> Write opening tag for testcase with name to JUnit.xml. Needed, if a failure occurred.
   subroutine junitxml_write_testcase_opening_tag(testcase_name)
   
-    implicit none
-    
     character(len=*), intent(in) :: testcase_name
     
     write(unit_junitxml,'(a)') &
@@ -428,8 +416,6 @@ module testdrive
   !> Write closing tag for testcase to JUnit.xml.
   subroutine junitxml_write_testcase_closing_tag(stdout)
   
-    implicit none
-
     character(len=*), intent(in) :: stdout
 
     if (len_trim(stdout) > 0) then
@@ -445,8 +431,6 @@ module testdrive
   !> Write failure message to JUnit.xml.
   subroutine junitxml_write_testcase_failure(message)
   
-    implicit none
-    
     character(len=*), intent(in) :: message
     
     write(unit_junitxml,'(a)') &
@@ -543,7 +527,7 @@ module testdrive
 
     type(error_type), allocatable :: error
     character(len=:), allocatable :: message
-    character(len=20) :: res
+    character(len=:), allocatable :: res
     character(len=:), allocatable :: stdout
     integer :: s, e
 
@@ -580,7 +564,7 @@ module testdrive
         res = res
       case default
         write(unit, '(a)') "Error: Unknown test result '" // res // "' in test '" // test%name // "'!"
-        stop 2
+        error stop 2
     end select
 
     if (allocated(error)) then
