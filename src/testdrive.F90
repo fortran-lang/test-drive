@@ -602,11 +602,7 @@ contains
 
     if (.not.run_once) then
       call get_environment_variable("NO_COLOR", color_value, STATUS=color_status)
-      if (color_status.eq.0) then
-        NO_COLOR = .true.
-      else
-        NO_COLOR = .false.
-      end if
+      NO_COLOR = color_status == 0
       run_once = .true.
     end if
 
