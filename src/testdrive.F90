@@ -348,8 +348,8 @@ module testdrive
     integer, intent(in) :: id
     
     character(len=80) :: hostname
-    character (len=8)  cdate
-    character (len=10) ctime
+    character(len=8)  :: cdate
+    character(len=10) :: ctime
 
     
     call hostnm(hostname)
