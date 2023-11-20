@@ -12,42 +12,43 @@
 # limitations under the License.
 
 os = host_machine.system()
-
-if os == 'windows'
-  add_project_link_arguments(
-    '-Wl,--allow-multiple-definition',
-    language: 'fortran',
-  )
-endif
-
 fc = meson.get_compiler('fortran')
 fc_id = fc.get_id()
+ca = [] # compile args
+la = [] # link args
 
 if fc_id == 'gcc'
-  add_project_arguments(
+  ca += [
     '-ffree-line-length-none',
     '-fbacktrace',
-    language: 'fortran',
-  )
-elif fc_id == 'intel'
-  add_project_arguments(
+  ]
+  if os == 'windows'
+    la += ['-Wl,--allow-multiple-definition']
+  endif
+elif fc_id == 'intel-cl' or fc_id == 'intel-llvm-cl'
+  ca += [
+    '/traceback',
+    '/fpp',
+  ]
+elif fc_id == 'intel' or fc_id == 'intel-llvm'
+  ca += [
     '-traceback',
-    language: 'fortran',
-  )
+  ]
 elif fc_id == 'pgi' or fc_id == 'nvidia_hpc'
-  add_project_arguments(
+  ca += [
     '-Mbackslash',
     '-Mallocatable=03',
     '-traceback',
-    language: 'fortran',
-  )
+  ]
 elif fc_id == 'flang'
-  add_project_arguments(
+  ca += [
     '-Mbackslash',
     '-Mallocatable=03',
-    language: 'fortran',
-  )
+  ]
 endif
+
+add_project_arguments(fc.get_supported_arguments(ca), language: 'fortran')
+add_project_link_arguments(fc.get_supported_arguments(la), language: 'fortran')
 
 if get_option('openmp')
   omp_dep = dependency('openmp')
