@@ -15,6 +15,7 @@
 set(
   tests
   "check"
+  "check-array"
   "select"
 )
 set(
