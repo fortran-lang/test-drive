@@ -386,60 +386,66 @@ module testdrive
   !> Write single tag for testcase with name to JUnit.xml.
   !> Needed, if no failure occurred and no stdout message present.
   !> Shortens output to a single line in xml file.
-  subroutine junitxml_write_testcase_single_tag(testcase_name)
+  pure function junitxml_write_testcase_single_tag(testcase_name) result(res)
   
     character(len=*), intent(in) :: testcase_name
+    character(len=:), allocatable :: res
     
-    write(unit_junitxml,'(a)') &
+    res = &
       & '    <testcase' // & 
       & ' name="' // testcase_name // '"' // &
       & ' classname="unknown"' // &
       !& ' time="0.0"' // &
       & '/>'
     
-  end subroutine junitxml_write_testcase_single_tag
+  end function junitxml_write_testcase_single_tag
   
   !> Write opening tag for testcase with name to JUnit.xml. Needed, if a failure occurred.
-  subroutine junitxml_write_testcase_opening_tag(testcase_name)
-  
+  pure function junitxml_write_testcase_opening_tag(testcase_name) result(res)
+
     character(len=*), intent(in) :: testcase_name
+    character(len=:), allocatable :: res
     
-    write(unit_junitxml,'(a)') &
+    res = &
       & '    <testcase' // & 
       & ' name="' // testcase_name // '"' // &
       & ' classname="unknown"' // &
       !& ' time="0.0"' // &
       & '>'
     
-  end subroutine junitxml_write_testcase_opening_tag
+  end function junitxml_write_testcase_opening_tag
 
   !> Write closing tag for testcase to JUnit.xml.
-  subroutine junitxml_write_testcase_closing_tag(stdout)
+  pure function junitxml_write_testcase_closing_tag(stdout) result(res)
   
     character(len=*), intent(in) :: stdout
+    character(len=:), allocatable :: res
+
+    res = ''
 
     if (len_trim(stdout) > 0) then
-      write(unit_junitxml,'(a)') '      <system-out>'
-      write(unit_junitxml,'(a)') '           ' // stdout
-      write(unit_junitxml,'(a)') '      </system-out>'
+      res = res // '      <system-out>' // new_line('a')
+      res = res // '           ' // stdout // new_line('a')
+      res = res // '      </system-out>' // new_line('a')
     endif
     
-    write(unit_junitxml,'(a)') '    </testcase>'
+    res = res // '    </testcase>'
     
-  end subroutine junitxml_write_testcase_closing_tag  
+  end function junitxml_write_testcase_closing_tag  
   
   !> Write failure message to JUnit.xml.
-  subroutine junitxml_write_testcase_failure(message)
+  pure function junitxml_write_testcase_failure(message) result(res)
   
     character(len=*), intent(in) :: message
+    character(len=:), allocatable :: res
     
-    write(unit_junitxml,'(a)') &
+    res = &
       & '      <failure' // &
       & ' message="' // trim(message) // '"' // &
       & ' type="unknown"' // &
       & '/>'
     
-  end subroutine junitxml_write_testcase_failure
+  end function junitxml_write_testcase_failure
 
   !> Driver for testsuite
   recursive subroutine run_testsuite(collect, unit, stat, parallel)
@@ -527,45 +533,19 @@ module testdrive
 
     type(error_type), allocatable :: error
     character(len=:), allocatable :: message
-    character(len=:), allocatable :: res
-    character(len=:), allocatable :: stdout
-    integer :: s, e
+    character(len=:), allocatable :: junitxml_output
 
     call test%test(error)
     if (.not.test_skipped(error)) then
       if (allocated(error) .neqv. test%should_fail) stat = stat + 1
     end if
-    call make_output(message, test, error)
+    call make_output(message, test, error, junitxml_output)
     !$omp critical(testdrive_testsuite)
     write(unit, '(a)') message
+
+    if(allocated(junitxml_output)) write(unit_junitxml,'(a)') junitxml_output
+
     !$omp end critical(testdrive_testsuite)
-    
-    stdout = ''
-    if (allocated(error)) then
-      stdout = trim(error%message)
-    endif
-    
-    s = index(message, '[')
-    e = index(message, ']')
-    res = message(s+1:e-1)
-    select case (res)
-      case ('FAILED', 'UNEXPECTED PASS')
-        call junitxml_write_testcase_opening_tag(test%name)
-        call junitxml_write_testcase_failure(res)
-        call junitxml_write_testcase_closing_tag(stdout)
-      case ('EXPECTED FAIL', 'PASSED')
-        if (len_trim(stdout) > 0) then  
-          call junitxml_write_testcase_opening_tag(test%name)
-          call junitxml_write_testcase_closing_tag(stdout)
-        else
-          call junitxml_write_testcase_single_tag(test%name)
-        endif
-      case ('SKIPPED')
-        res = res
-      case default
-        write(unit, '(a)') "Error: Unknown test result '" // res // "' in test '" // test%name // "'!"
-        error stop 2
-    end select
 
     if (allocated(error)) then
       call clear_error(error)
@@ -591,7 +571,7 @@ module testdrive
 
 
   !> Create output message for test (this procedure is pure and therefore cannot launch tests)
-  pure subroutine make_output(output, test, error)
+  pure subroutine make_output(output, test, error, junitxml_output)
 
     !> Output message for display
     character(len=:), allocatable, intent(out) :: output
@@ -602,8 +582,12 @@ module testdrive
     !> Error handling
     type(error_type), intent(in), optional :: error
 
+    !> Optional output for JUnit
+    character(len=:), allocatable, intent(out), optional :: junitxml_output
+
     character(len=:), allocatable :: label
     character(len=*), parameter :: indent = repeat(" ", 7) // repeat(".", 3) // " "
+    character(len=:), allocatable :: stdout
 
     if (test_skipped(error)) then
       output = indent // test%name // " [SKIPPED]" &
@@ -611,20 +595,37 @@ module testdrive
       return
     end if
 
+
+    stdout = ''
+    if (present(error)) stdout = trim(error%message)
+
     if (present(error) .neqv. test%should_fail) then
       if (test%should_fail) then
-        label = " [UNEXPECTED PASS]"
+        label = "UNEXPECTED PASS"
       else
-        label = " [FAILED]"
+        label = "FAILED"
       end if
+        if(present(junitxml_output)) junitxml_output = &
+          junitxml_write_testcase_opening_tag(test%name) //new_line('a') // &
+          junitxml_write_testcase_failure(label) //new_line('a') // &
+          junitxml_write_testcase_closing_tag(stdout)
     else
       if (test%should_fail) then
-        label = " [EXPECTED FAIL]"
+        label = "EXPECTED FAIL"
       else
-        label = " [PASSED]"
+        label = "PASSED"
       end if
+        if (present(junitxml_output)) then
+          if (len_trim(stdout) > 0) then  
+            junitxml_output = &
+              junitxml_write_testcase_opening_tag(test%name) //new_line('a') // &
+              junitxml_write_testcase_closing_tag(stdout)
+          else
+            junitxml_output = junitxml_write_testcase_single_tag(test%name)
+          end if
+        end if
     end if
-    output = indent // test%name // label
+    output = indent // test%name // " [" // label // "]"
     if (present(error)) then
       output = output // new_line("a") // "  Message: " // error%message
     end if
