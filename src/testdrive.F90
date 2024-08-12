@@ -542,9 +542,7 @@ module testdrive
     call make_output(message, test, error, junitxml_output)
     !$omp critical(testdrive_testsuite)
     write(unit, '(a)') message
-
     if(allocated(junitxml_output)) write(unit_junitxml,'(a)') junitxml_output
-
     !$omp end critical(testdrive_testsuite)
 
     if (allocated(error)) then
