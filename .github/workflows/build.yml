@@ -4,17 +4,6 @@ on: [push, pull_request]
 
 env:
   BUILD_DIR: _build
-  PIP_PACKAGES: >-
-    meson==0.58.0
-    ninja
-    gcovr
-  MACOS_BASEKIT_URL: >-
-    https://registrationcenter-download.intel.com/akdlm/irc_nas/17969/m_BaseKit_p_2021.3.0.3043.dmg
-  MACOS_HPCKIT_URL: >-
-    https://registrationcenter-download.intel.com/akdlm/irc_nas/17890/m_HPCKit_p_2021.3.0.3226_offline.dmg
-  LINUX_INTEL_COMPONENTS: >-
-    intel-oneapi-compiler-fortran-2021.2.0
-    intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic-2021.2.0
 
 jobs:
   build:
@@ -25,183 +14,81 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         build: [meson, cmake]
         build-type: [debug]
-        compiler: [gnu]
+        compiler: [gcc]
         version: [10]
 
         include:
         - os: ubuntu-latest
           build: fpm
           build-type: debug
-          compiler: gnu
+          compiler: gcc
           version: 10
 
         - os: ubuntu-latest
           build: meson
           build-type: coverage
-          compiler: gnu
+          compiler: gcc
           version: 10
 
         - os: macos-latest
           build: meson
           build-type: coverage
-          compiler: gnu
+          compiler: gcc
           version: 10
 
-        - os: macos-latest
-          build: cmake
-          build-type: debug
-          compiler: gnu
-          version: 6
-
         - os: ubuntu-latest
           build: meson
           build-type: debug
-          compiler: gnu
-          version: 7
-
-        - os: ubuntu-latest
-          build: cmake
-          build-type: debug
-          compiler: gnu
-          version: 8
-
-        - os: ubuntu-latest
-          build: meson
-          build-type: debug
-          compiler: gnu
+          compiler: gcc
           version: 9
 
         - os: ubuntu-latest
           build: meson
           build-type: debug
-          compiler: gnu
+          compiler: gcc
           version: 11
 
         - os: ubuntu-latest
           build: meson
           build-type: debug
-          compiler: intel
-          version: 2021
+          compiler: intel-classic
+          version: 2021.6
 
         - os: macos-latest
           build: meson
           build-type: debug
-          compiler: intel
-          version: 2021
+          compiler: intel-classic
+          version: 2021.6
 
     defaults:
       run:
-        shell: ${{ matrix.shell || 'bash' }}
-
-    env:
-      FC: ${{ matrix.compiler == 'intel' && 'ifort' || 'gfortran' }}
-      CC: ${{ matrix.compiler == 'intel' && 'icc' || 'gcc' }}
-      GCC_V: ${{ matrix.version }}
-      PYTHON_V: 3.8
+        shell: bash
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
-    - uses: actions/setup-python@v1
+    - name: Setup python
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ env.PYTHON_V }}
+        python-version: 3.8
+        cache: 'pip'
+    
+    - name: Install python dependencies
+      if: ${{ ! contains(matrix.os, 'windows') }}
+      run: pip install -r requirements.txt
 
-    - name: Install GCC (OSX)
-      if: ${{ contains(matrix.os, 'macos') && matrix.compiler == 'gnu' }}
-      run: |
-        brew install gcc@${{ env.GCC_V }}
-        ln -s /usr/local/bin/gfortran-${{ env.GCC_V }} /usr/local/bin/gfortran
-        ln -s /usr/local/bin/gcc-${{ env.GCC_V }} /usr/local/bin/gcc
-        ln -s /usr/local/bin/g++-${{ env.GCC_V }} /usr/local/bin/g++
-
-    - name: Install GCC (Linux)
-      if: ${{ contains(matrix.os, 'ubuntu') && matrix.compiler == 'gnu' }}
-      run: |
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        sudo apt-get update
-        sudo apt-get install -y gcc-${{ env.GCC_V}} gfortran-${{ env.GCC_V }}
-        sudo update-alternatives \
-        --install /usr/bin/gcc gcc /usr/bin/gcc-${{ env.GCC_V }} 100 \
-        --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${{ env.GCC_V }} \
-        --slave /usr/bin/gcov gcov /usr/bin/gcov-${{ env.GCC_V }}
-
-    - name: Install GCC (Windows)
-      if: ${{ contains(matrix.os, 'windows') && matrix.compiler == 'gnu' }}
-      uses: msys2/setup-msys2@v2
+    - name: Setup fortran
+      uses: fortran-lang/setup-fortran@v1
       with:
-        msystem: MINGW64
-        update: false
-        install: >-
-          git
-          mingw-w64-x86_64-gcc-fortran
-          mingw-w64-x86_64-openblas
-          mingw-w64-x86_64-lapack
-          mingw-w64-x86_64-nlopt
-          mingw-w64-x86_64-meson
-          mingw-w64-x86_64-ninja
+        compiler: ${{ matrix.compiler }}
+        version: ${{ matrix.version }}
 
-    - name: Install fpm
+    - name: Setup fpm
       if: ${{ matrix.build == 'fpm' }}
       uses: fortran-lang/setup-fpm@v3
       with:
         fpm-version: 'v0.2.0'
-
-    - name: Prepare for cache restore
-      if: ${{ matrix.compiler == 'intel' }}
-      run: |
-        sudo mkdir -p /opt/intel
-        sudo chown $USER /opt/intel
-
-    - name: Cache Intel install
-      if: ${{ matrix.compiler == 'intel' }}
-      id: cache-install
-      uses: actions/cache@v2
-      with:
-        path: /opt/intel/oneapi
-        key: install-${{ matrix.compiler }}-${{ matrix.version }}-${{ matrix.os }}
-
-    - name: Install Intel (Linux)
-      if: ${{ contains(matrix.os, 'ubuntu') && contains(matrix.compiler, 'intel') && steps.cache-install.outputs.cache-hit != 'true' }}
-      run: |
-        wget https://apt.repos.intel.com/intel-gpg-keys/${{ env.KEY }}
-        sudo apt-key add ${{ env.KEY }}
-        rm ${{ env.KEY }}
-        echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-        sudo apt-get update
-        sudo apt-get install ${{ env.PKG }}
-      env:
-        KEY: GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-        PKG: ${{ env.LINUX_INTEL_COMPONENTS }}
-
-    - name: Install Intel HPCKit (OSX)
-      if: ${{ contains(matrix.os, 'macos') && contains(matrix.compiler, 'intel') && steps.cache-install.outputs.cache-hit != 'true' }}
-      run: |
-        curl --output ${{ env.OUT }} --url "$URL" --retry 5 --retry-delay 5
-        hdiutil attach ${{ env.OUT }}
-        if [ -z "$COMPONENTS" ]; then
-          sudo /Volumes/"$(basename "$URL" .dmg)"/bootstrapper.app/Contents/MacOS/bootstrapper -s --action install --eula=accept --continue-with-optional-error=yes --log-dir=.
-          installer_exit_code=$?
-        else
-          sudo /Volumes/"$(basename "$URL" .dmg)"/bootstrapper.app/Contents/MacOS/bootstrapper -s --action install --components="$COMPONENTS" --eula=accept --continue-with-optional-error=yes --log-dir=.
-          installer_exit_code=$?
-        fi
-        hdiutil detach /Volumes/"$(basename "$URL" .dmg)" -quiet
-        exit $installer_exit_code
-      env:
-        OUT: webimage-hpc.dmg
-        URL: ${{ env.MACOS_HPCKIT_URL }}
-        COMPONENTS: all
-
-    - name: Setup Intel oneAPI environment
-      if: ${{ matrix.compiler == 'intel' }}
-      run: |
-        source /opt/intel/oneapi/setvars.sh
-        printenv >> $GITHUB_ENV
-
-    - name: Install build and test dependencies
-      if: ${{ ! contains(matrix.os, 'windows') }}
-      run: pip3 install ${{ env.PIP_PACKAGES }}
 
     - name: Configure build (meson)
       if: ${{ matrix.build == 'meson' }}
@@ -215,7 +102,7 @@ jobs:
         ${{ env.MESON_ARGS }}
       env:
         COVERAGE: ${{ matrix.build-type == 'coverage' }}
-        MESON_ARGS: ${{ matrix.compiler == 'intel' && '-Dfortran_link_args=-qopenmp' || '' }}
+        MESON_ARGS: ${{ matrix.compiler == 'intel-classic' && '-Dfortran_link_args=-qopenmp' || '' }}
 
     - name: Configure build (CMake)
       if: ${{ matrix.build == 'cmake' }}
@@ -240,19 +127,16 @@ jobs:
 
     - name: Run unit tests (meson)
       if: ${{ matrix.build == 'meson' }}
-      run: |
-         meson test -C ${{ env.BUILD_DIR }} --print-errorlogs --no-rebuild --num-processes 2 -t 2
+      run: meson test -C ${{ env.BUILD_DIR }} --print-errorlogs --no-rebuild --num-processes 2 -t 2
 
     - name: Run unit tests (ctest)
       if: ${{ matrix.build == 'cmake' }}
-      run: |
-         ctest --output-on-failure --parallel 2
+      run: ctest --output-on-failure --parallel 2
       working-directory: ${{ env.BUILD_DIR }}
 
     - name: Create coverage report
       if: ${{ matrix.build == 'meson' && matrix.build-type == 'coverage' }}
-      run:
-         ninja -C ${{ env.BUILD_DIR }} coverage
+      run: ninja -C ${{ env.BUILD_DIR }} coverage
 
     - name: Install project
       if: ${{ matrix.build != 'fpm' }}
@@ -271,11 +155,11 @@ jobs:
 
     - name: Upload package
       if: ${{ matrix.build == 'meson' && matrix.build-type != 'coverage' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ env.PROJECT_OUTPUT }}
         path: ${{ env.PROJECT_OUTPUT }}
 
     - name: Upload coverage report
       if: ${{ matrix.build == 'meson' && matrix.build-type == 'coverage' }}
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3

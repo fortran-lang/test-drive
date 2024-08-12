@@ -50,7 +50,7 @@ end program tester
 ```
 
 Every test is defined in a separate module using a ``collect`` function, which is exported and added to the ``testsuites`` array in the test runner.
-All test have a simple interface with just an allocatable ``error_type`` as output to provide the test results.
+All tests have a simple interface with just an allocatable ``error_type`` as output to provide the test results.
 
 ```fortran
 module test_suite1
@@ -90,7 +90,7 @@ end module test_suite1
 
 ### Checking test conditions
 
-The procedures defining the tests can contain any Fortran code required for the checking the correctness of the project.
+The procedures defining the tests can contain any Fortran code required for checking the correctness of the project.
 An easy way to do so is provided by the generic ``check`` function.
 
 ```f90
@@ -154,7 +154,7 @@ An uncaught skipped test will fail regardless, therefore make sure to not run an
 
 ### Integration in build systems
 
-Finally, for usage with *fpm* it is benefical to have a single test driver which can run all tests.
+Finally, for usage with *fpm* it is beneficial to have a single test driver which can run all tests.
 While this brings the disadvantage of always having to run the complete testsuite, the main driver can provide the flexibility to select the suite and also the unit test using the boilerplate code shown here:
 
 ```f90
