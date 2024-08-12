@@ -109,6 +109,8 @@ module testdrive
   private
 
   public :: run_testsuite, run_selected, new_unittest, new_testsuite
+  public :: run_testsuite_junit
+  public :: run_selected_junit
   public :: select_test, select_suite
   public :: unittest_type, testsuite_type, error_type
   public :: check, test_failed, skip_test
@@ -312,8 +314,9 @@ module testdrive
 
   character(len=*), parameter :: fmt = '(1x, *(1x, a))'
 
-  contains
-  
+
+contains
+
   !> Open JUnit.xml file for CLI output of test results.
   subroutine junitxml_open_file()
   
@@ -483,6 +486,47 @@ module testdrive
 
   end subroutine run_testsuite
 
+  subroutine run_testsuite_junit(is, name, collect, unit, stat, parallel)
+
+    integer, intent(in) :: is
+    character(len=*), intent(in) :: name
+
+    !> Collect tests
+    procedure(collect_interface) :: collect
+
+    !> Unit for IO
+    integer, intent(in) :: unit
+
+    !> Number of failed tests
+    integer, intent(inout) :: stat
+
+    !> Run the tests in parallel
+    logical, intent(in), optional :: parallel
+
+    type(unittest_type), allocatable :: testsuite(:)
+    integer :: it
+    logical :: parallel_
+
+    call junitxml_write_testsuite_opening_tag(name, is)
+
+    parallel_ = .true.
+    if(present(parallel)) parallel_ = parallel
+
+    call collect(testsuite)
+
+    !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat) &
+    !$omp if (parallel_)
+    do it = 1, size(testsuite)
+      !$omp critical(testdrive_testsuite)
+      write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
+        & "Starting", testsuite(it)%name, "...", it, size(testsuite)
+      !$omp end critical(testdrive_testsuite)
+      call run_unittest(testsuite(it), unit, stat)
+    end do
+
+    call junitxml_write_testsuite_closing_tag()
+
+  end subroutine run_testsuite_junit
 
   !> Driver for selective testing
   recursive subroutine run_selected(collect, name, unit, stat)
@@ -518,6 +562,49 @@ module testdrive
 
   end subroutine run_selected
 
+  !>
+  subroutine run_selected_junit(is, testname, collect, name, unit, stat)
+
+    !>
+    integer, intent(in) :: is
+
+    !>
+    character(len=*), intent(in) :: testname
+
+    !> Collect tests
+    procedure(collect_interface) :: collect
+
+    !> Name of the selected test
+    character(len=*), intent(in) :: name
+
+    !> Unit for IO
+    integer, intent(in) :: unit
+
+    !> Number of failed tests
+    integer, intent(inout) :: stat
+
+    type(unittest_type), allocatable :: testsuite(:)
+    integer :: it
+
+    call junitxml_write_testsuite_opening_tag(testname, is)
+
+    call collect(testsuite)
+
+    it = select_test(testsuite, name)
+
+    if (it > 0 .and. it <= size(testsuite)) then
+      call run_unittest(testsuite(it), unit, stat)
+    else
+      write(unit, fmt) "Available tests:"
+      do it = 1, size(testsuite)
+        write(unit, fmt) "-", testsuite(it)%name
+      end do
+      stat = -huge(it)
+    end if
+
+    call junitxml_write_testsuite_closing_tag()
+
+  end subroutine run_selected_junit
 
   !> Run a selected unit test
   recursive subroutine run_unittest(test, unit, stat)
@@ -544,7 +631,6 @@ module testdrive
     write(unit, '(a)') message
     if(allocated(junitxml_output)) write(unit_junitxml,'(a)') junitxml_output
     !$omp end critical(testdrive_testsuite)
-
     if (allocated(error)) then
       call clear_error(error)
     end if
@@ -592,7 +678,6 @@ module testdrive
         & // new_line("a") // "  Message: " // error%message
       return
     end if
-
 
     stdout = ''
     if (present(error)) stdout = trim(error%message)

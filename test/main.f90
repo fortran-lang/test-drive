@@ -15,6 +15,8 @@
 program tester
   use, intrinsic :: iso_fortran_env, only : error_unit
   use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
+    & run_testsuite_junit, &
+    & run_selected_junit, &
     & select_suite, run_selected, get_argument, &
     & junitxml_open_file, junitxml_close_file, &
     & junitxml_write_testsuite_opening_tag, junitxml_write_testsuite_closing_tag
@@ -43,17 +45,19 @@ program tester
     if (is > 0 .and. is <= size(testsuites)) then
       if (allocated(test_name)) then
         write(error_unit, fmt) "Suite:", testsuites(is)%name
-        call junitxml_write_testsuite_opening_tag(testsuites(is)%name, is)
-        call run_selected(testsuites(is)%collect, test_name, error_unit, stat)
-        call junitxml_write_testsuite_closing_tag()
+!        call junitxml_write_testsuite_opening_tag(testsuites(is)%name, is)
+!        call run_selected(testsuites(is)%collect, test_name, error_unit, stat)
+!        call junitxml_write_testsuite_closing_tag()
+        call run_selected_junit(is, testsuites(is)%name, testsuites(is)%collect, test_name, error_unit, stat)
         if (stat < 0) then
           error stop 1
         end if
       else
         write(error_unit, fmt) "Testing:", testsuites(is)%name
-        call junitxml_write_testsuite_opening_tag(testsuites(is)%name, is)
-        call run_testsuite(testsuites(is)%collect, error_unit, stat)
-        call junitxml_write_testsuite_closing_tag()
+!        call junitxml_write_testsuite_opening_tag(testsuites(is)%name, is)
+!        call run_testsuite(testsuites(is)%collect, error_unit, stat)
+!        call junitxml_write_testsuite_closing_tag()
+        call run_testsuite_junit(is, testsuites(is)%name, testsuites(is)%collect, error_unit, stat)
       end if
     else
       write(error_unit, fmt) "Available testsuites"
@@ -65,17 +69,18 @@ program tester
   else
     do is = 1, size(testsuites)
       write(error_unit, fmt) "Testing:", testsuites(is)%name
-      call junitxml_write_testsuite_opening_tag(testsuites(is)%name, is)
-      call run_testsuite(testsuites(is)%collect, error_unit, stat)
-      call junitxml_write_testsuite_closing_tag()
+!      call junitxml_write_testsuite_opening_tag(testsuites(is)%name, is)
+!      call run_testsuite(testsuites(is)%collect, error_unit, stat)
+!      call junitxml_write_testsuite_closing_tag()
+      call run_testsuite_junit(is, testsuites(is)%name, testsuites(is)%collect, error_unit, stat)
     end do
   end if
+
+  call junitxml_close_file()
 
   if (stat > 0) then
     write(error_unit, '(i0, 1x, a)') stat, "test(s) failed!"
     error stop 1
   end if
-
-  call junitxml_close_file()
 
 end program tester
