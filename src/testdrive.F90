@@ -521,7 +521,7 @@ contains
       write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
         & "Starting", testsuite(it)%name, "...", it, size(testsuite)
       !$omp end critical(testdrive_testsuite)
-      call run_unittest(testsuite(it), unit, stat)
+      call run_unittest(testsuite(it), unit, stat, junit = .true.)
     end do
 
     call junitxml_write_testsuite_closing_tag()
@@ -593,7 +593,7 @@ contains
     it = select_test(testsuite, name)
 
     if (it > 0 .and. it <= size(testsuite)) then
-      call run_unittest(testsuite(it), unit, stat)
+      call run_unittest(testsuite(it), unit, stat, junit = .true.)
     else
       write(unit, fmt) "Available tests:"
       do it = 1, size(testsuite)
@@ -607,7 +607,7 @@ contains
   end subroutine run_selected_junit
 
   !> Run a selected unit test
-  recursive subroutine run_unittest(test, unit, stat)
+  recursive subroutine run_unittest(test, unit, stat, junit)
 
     !> Unit test
     type(unittest_type), intent(in) :: test
@@ -618,9 +618,16 @@ contains
     !> Number of failed tests
     integer, intent(inout) :: stat
 
+    !>
+    logical, intent(in), optional :: junit
+
     type(error_type), allocatable :: error
     character(len=:), allocatable :: message
     character(len=:), allocatable :: junitxml_output
+    logical :: junit_
+
+    junit_ = .false.
+    if(present(junit)) junit_ = junit
 
     call test%test(error)
     if (.not.test_skipped(error)) then
