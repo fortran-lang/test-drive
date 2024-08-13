@@ -318,9 +318,18 @@ module testdrive
 contains
 
   !> Open JUnit.xml file for CLI output of test results.
-  subroutine junitxml_open_file()
+  subroutine junitxml_open_file(name)
+    character(len=*), intent(in), optional :: name
+
+    character(len=:), allocatable :: name_
+    character(len=:), allocatable :: namexml
+
+    name_ = ''
+    if (present(name)) name_ = '_'//trim(name)
+
+    namexml = 'JUnit'//name_//'.xml'
   
-    open(newunit=unit_junitxml, file='JUnit.xml', form='formatted', access='sequential', status='replace')
+    open(newunit=unit_junitxml, file=namexml, form='formatted', access='sequential', status='replace')
     
     if (unit_junitxml /= -1) then
       write(unit_junitxml,'(a)') '<?xml version="1.0" encoding="UTF-8"?>'
@@ -330,7 +339,7 @@ contains
         & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // & 
         & '>'
     else
-      write(error_unit, '(a)') "# Error: Could not open JUnit.xml for writing! Program stops."
+      write(error_unit, '(a)') "# Error: Could not open "//namexml//" for writing! Program stops."
       error stop 1
     endif
     
