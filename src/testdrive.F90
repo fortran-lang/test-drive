@@ -335,6 +335,7 @@ contains
       write(unit_junitxml,'(a)') '<?xml version="1.0" encoding="UTF-8"?>'
       write(unit_junitxml,'(a)') &
         & '<testsuites' // &
+        & ' name = "' // name_ // '"' // &
         & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // & 
         & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // & 
         & '>'
