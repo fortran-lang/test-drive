@@ -119,6 +119,9 @@ module testdrive
   public :: junitxml_run_selected
   public :: junitxml_close_file
 
+  !> Logical for activation JUnit.xml
+  logical :: ljunit = .false.
+
   !> Unit number for JUnit.xml.
   integer :: unit_junitxml
 
@@ -330,12 +333,12 @@ contains
     open(newunit=unit_junitxml, file=namexml, form='formatted', access='sequential', status='replace')
     
     if (unit_junitxml /= -1) then
-      write(unit_junitxml,'(a)') '<?xml version="1.0" encoding="UTF-8"?>'
-      write(unit_junitxml,'(a)') &
+      write(unit_junitxml,'(a/,a)') '<?xml version="1.0" encoding="UTF-8"?>', &
         & '<testsuites' // &
         & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // & 
         & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // & 
         & '>'
+      ljunit = .true.
     else
       write(error_unit, '(a)') "# Error: Could not open "//namexml//" for writing! Program stops."
       error stop 1
@@ -348,6 +351,8 @@ contains
   
     write(unit_junitxml,'(a)') '</testsuites>'
     close(unit_junitxml)
+
+    ljunit = .false.
     
   end subroutine junitxml_close_file
   
@@ -607,7 +612,11 @@ contains
     if (.not.test_skipped(error)) then
       if (allocated(error) .neqv. test%should_fail) stat = stat + 1
     end if
-    call make_output(message, test, error, junitxml_output)
+    if (ljunit) then
+      call make_output(message, test, error, junitxml_output)
+    else
+      call make_output(message, test, error)
+    endif
     !$omp critical(testdrive_testsuite)
     write(unit, '(a)') message
     if(allocated(junitxml_output)) write(unit_junitxml,'(a)') junitxml_output
