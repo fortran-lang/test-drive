@@ -586,8 +586,9 @@ contains
 
   end subroutine run_selected
 
+
   !> Run a selected unit test
-  recursive subroutine run_unittest(test, unit, stat, junit)
+  recursive subroutine run_unittest(test, unit, stat)
 
     !> Unit test
     type(unittest_type), intent(in) :: test
@@ -598,16 +599,9 @@ contains
     !> Number of failed tests
     integer, intent(inout) :: stat
 
-    !>
-    logical, intent(in), optional :: junit
-
     type(error_type), allocatable :: error
     character(len=:), allocatable :: message
     character(len=:), allocatable :: junitxml_output
-    logical :: junit_
-
-    junit_ = .false.
-    if(present(junit)) junit_ = junit
 
     call test%test(error)
     if (.not.test_skipped(error)) then
