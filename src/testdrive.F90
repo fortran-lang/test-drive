@@ -407,7 +407,7 @@ contains
     res = &
       & '    <testcase' // & 
       & ' name="' // testcase_name // '"' // &
-      & ' classname="unknown"' // &
+      & ' classname="aaaa"' // &
       !& ' time="0.0"' // &
       & '/>'
     
@@ -422,7 +422,7 @@ contains
     res = &
       & '    <testcase' // & 
       & ' name="' // testcase_name // '"' // &
-      & ' classname="unknown"' // &
+      & ' classname="bbb"' // &
       !& ' time="0.0"' // &
       & '>'
     
