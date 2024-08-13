@@ -109,16 +109,14 @@ module testdrive
   private
 
   public :: run_testsuite, run_selected, new_unittest, new_testsuite
-  public :: run_testsuite_junit
-  public :: run_selected_junit
   public :: select_test, select_suite
   public :: unittest_type, testsuite_type, error_type
   public :: check, test_failed, skip_test
   public :: test_interface, collect_interface
   public :: get_argument, get_variable, to_string
   public :: junitxml_open_file
-  public :: junitxml_write_testsuite_opening_tag
-  public :: junitxml_write_testsuite_closing_tag
+  public :: junitxml_run_testsuite
+  public :: junitxml_run_selected
   public :: junitxml_close_file
 
   !> Unit number for JUnit.xml.
@@ -335,7 +333,6 @@ contains
       write(unit_junitxml,'(a)') '<?xml version="1.0" encoding="UTF-8"?>'
       write(unit_junitxml,'(a)') &
         & '<testsuites' // &
-        & ' name = "' // name_ // '"' // &
         & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // & 
         & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // & 
         & '>'
@@ -368,7 +365,7 @@ contains
     call hostnm(hostname)
     call date_and_time(DATE=cdate, TIME=ctime)
     
-    write(unit_junitxml,'(a,i0,a)') &
+    write(unit_junitxml,'(a,i0,2(a/),a)') &
       & '  <testsuite' // & 
       & ' name="' // testsuite_name // '"' // &
       & ' package="unknown"' // &
@@ -381,18 +378,16 @@ contains
       !& ' errors="0"' // &
       !& ' skipped="0"' // &
       !& ' time="0.0"' // &
-      & '>'
-    write(unit_junitxml,'(a)') '    <properties>'
-    write(unit_junitxml,'(a)') '    </properties>'
+      & '>', &
+      '    <properties>', &
+      '    </properties>'
     
   end subroutine junitxml_write_testsuite_opening_tag
 
   !> Write closing tag for testsuite to JUnit.xml.
   subroutine junitxml_write_testsuite_closing_tag()
   
-    write(unit_junitxml,'(a)') '  <system-out/>'
-    write(unit_junitxml,'(a)') '  <system-err/>'
-    write(unit_junitxml,'(a)') '  </testsuite>'
+    write(unit_junitxml,'(a/,a/,a)') '  <system-out/>', '  <system-err/>', '  </testsuite>'
     
   end subroutine junitxml_write_testsuite_closing_tag
   
@@ -407,7 +402,7 @@ contains
     res = &
       & '    <testcase' // & 
       & ' name="' // testcase_name // '"' // &
-      & ' classname="aaaa"' // &
+      & ' classname="unknown"' // &
       !& ' time="0.0"' // &
       & '/>'
     
@@ -422,7 +417,7 @@ contains
     res = &
       & '    <testcase' // & 
       & ' name="' // testcase_name // '"' // &
-      & ' classname="bbb"' // &
+      & ' classname="unknown"' // &
       !& ' time="0.0"' // &
       & '>'
     
@@ -460,6 +455,66 @@ contains
     
   end function junitxml_write_testcase_failure
 
+
+  !>
+  subroutine junitxml_run_testsuite(is, name, collect, unit, stat, parallel)
+
+    !>
+    integer, intent(in) :: is
+
+    !>
+    character(len=*), intent(in) :: name
+
+    !> Collect tests
+    procedure(collect_interface) :: collect
+
+    !> Unit for IO
+    integer, intent(in) :: unit
+
+    !> Number of failed tests
+    integer, intent(inout) :: stat
+
+    !> Run the tests in parallel
+    logical, intent(in), optional :: parallel
+
+    call junitxml_write_testsuite_opening_tag(name, is)
+
+    call run_testsuite(collect, unit, stat, parallel)
+
+    call junitxml_write_testsuite_closing_tag()
+
+  end subroutine junitxml_run_testsuite
+
+  !>
+  subroutine junitxml_run_selected(is, testname, collect, name, unit, stat)
+
+    !>
+    integer, intent(in) :: is
+
+    !>
+    character(len=*), intent(in) :: testname
+
+    !> Collect tests
+    procedure(collect_interface) :: collect
+
+    !> Name of the selected test
+    character(len=*), intent(in) :: name
+
+    !> Unit for IO
+    integer, intent(in) :: unit
+
+    !> Number of failed tests
+    integer, intent(inout) :: stat
+
+    call junitxml_write_testsuite_opening_tag(testname, is)
+
+    call run_selected(collect, name, unit, stat)
+
+    call junitxml_write_testsuite_closing_tag()
+
+  end subroutine junitxml_run_selected
+
+
   !> Driver for testsuite
   recursive subroutine run_testsuite(collect, unit, stat, parallel)
 
@@ -496,47 +551,6 @@ contains
 
   end subroutine run_testsuite
 
-  subroutine run_testsuite_junit(is, name, collect, unit, stat, parallel)
-
-    integer, intent(in) :: is
-    character(len=*), intent(in) :: name
-
-    !> Collect tests
-    procedure(collect_interface) :: collect
-
-    !> Unit for IO
-    integer, intent(in) :: unit
-
-    !> Number of failed tests
-    integer, intent(inout) :: stat
-
-    !> Run the tests in parallel
-    logical, intent(in), optional :: parallel
-
-    type(unittest_type), allocatable :: testsuite(:)
-    integer :: it
-    logical :: parallel_
-
-    call junitxml_write_testsuite_opening_tag(name, is)
-
-    parallel_ = .true.
-    if(present(parallel)) parallel_ = parallel
-
-    call collect(testsuite)
-
-    !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat) &
-    !$omp if (parallel_)
-    do it = 1, size(testsuite)
-      !$omp critical(testdrive_testsuite)
-      write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
-        & "Starting", testsuite(it)%name, "...", it, size(testsuite)
-      !$omp end critical(testdrive_testsuite)
-      call run_unittest(testsuite(it), unit, stat, junit = .true.)
-    end do
-
-    call junitxml_write_testsuite_closing_tag()
-
-  end subroutine run_testsuite_junit
 
   !> Driver for selective testing
   recursive subroutine run_selected(collect, name, unit, stat)
@@ -571,50 +585,6 @@ contains
     end if
 
   end subroutine run_selected
-
-  !>
-  subroutine run_selected_junit(is, testname, collect, name, unit, stat)
-
-    !>
-    integer, intent(in) :: is
-
-    !>
-    character(len=*), intent(in) :: testname
-
-    !> Collect tests
-    procedure(collect_interface) :: collect
-
-    !> Name of the selected test
-    character(len=*), intent(in) :: name
-
-    !> Unit for IO
-    integer, intent(in) :: unit
-
-    !> Number of failed tests
-    integer, intent(inout) :: stat
-
-    type(unittest_type), allocatable :: testsuite(:)
-    integer :: it
-
-    call junitxml_write_testsuite_opening_tag(testname, is)
-
-    call collect(testsuite)
-
-    it = select_test(testsuite, name)
-
-    if (it > 0 .and. it <= size(testsuite)) then
-      call run_unittest(testsuite(it), unit, stat, junit = .true.)
-    else
-      write(unit, fmt) "Available tests:"
-      do it = 1, size(testsuite)
-        write(unit, fmt) "-", testsuite(it)%name
-      end do
-      stat = -huge(it)
-    end if
-
-    call junitxml_write_testsuite_closing_tag()
-
-  end subroutine run_selected_junit
 
   !> Run a selected unit test
   recursive subroutine run_unittest(test, unit, stat, junit)

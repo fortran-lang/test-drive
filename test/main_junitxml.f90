@@ -12,10 +12,12 @@
 ! limitations under the License.
 
 !> Driver for unit testing
-program tester
+program tester_junitxml
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
-    & select_suite, run_selected, get_argument
+  use testdrive, only : new_testsuite, testsuite_type, &
+    & select_suite, get_argument, &
+    & junitxml_open_file, junitxml_close_file, &
+    & junitxml_run_testsuite, junitxml_run_selected
   use test_check, only : collect_check
   use test_select, only : collect_select
   implicit none
@@ -34,18 +36,20 @@ program tester
   call get_argument(1, suite_name)
   call get_argument(2, test_name)
 
+  call junitxml_open_file()
+
   if (allocated(suite_name)) then
     is = select_suite(testsuites, suite_name)
     if (is > 0 .and. is <= size(testsuites)) then
       if (allocated(test_name)) then
         write(error_unit, fmt) "Suite:", testsuites(is)%name
-        call run_selected(testsuites(is)%collect, test_name, error_unit, stat)
+        call junitxml_run_selected(is, testsuites(is)%name, testsuites(is)%collect, test_name, error_unit, stat)
         if (stat < 0) then
           error stop 1
         end if
       else
         write(error_unit, fmt) "Testing:", testsuites(is)%name
-        call run_testsuite(testsuites(is)%collect, error_unit, stat)
+        call junitxml_run_testsuite(is, testsuites(is)%name, testsuites(is)%collect, error_unit, stat)
       end if
     else
       write(error_unit, fmt) "Available testsuites"
@@ -57,13 +61,15 @@ program tester
   else
     do is = 1, size(testsuites)
       write(error_unit, fmt) "Testing:", testsuites(is)%name
-      call run_testsuite(testsuites(is)%collect, error_unit, stat)
+      call junitxml_run_testsuite(is, testsuites(is)%name, testsuites(is)%collect, error_unit, stat)
     end do
   end if
+
+  call junitxml_close_file()
 
   if (stat > 0) then
     write(error_unit, '(i0, 1x, a)') stat, "test(s) failed!"
     error stop 1
   end if
 
-end program tester
+end program tester_junitxml
