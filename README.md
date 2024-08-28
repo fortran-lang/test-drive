@@ -371,6 +371,9 @@ The following cache variables may be set to influence the library detection:
 ``TEST_DRIVE_SUBPROJECT``
   Directory to find the test-drive subproject, relative to the project root
 
+``TEST_DRIVE_GIT_TAG``
+  The tag to use if fetching from git.
+
 #]]
 
 set(_lib "test-drive")
@@ -453,12 +456,16 @@ foreach(method ${${_pkg}_FIND_METHOD})
   endif()
 
   if("${method}" STREQUAL "fetch")
-    message(STATUS "Retrieving ${_lib} from ${_url}")
+    if(NOT DEFINED "${_pkg}_GIT_TAG")
+      set("_${_pkg}_GIT_TAG")
+      set("${_pkg}_GIT_TAG" "HEAD")
+    endif()
+    message(STATUS "Retrieving ${_lib} from ${_url} with tag ${${_pkg}_GIT_TAG}")
     include(FetchContent)
     FetchContent_Declare(
       "${_lib}"
       GIT_REPOSITORY "${_url}"
-      GIT_TAG "HEAD"
+      GIT_TAG "${${_pkg}_GIT_TAG}"
       )
     FetchContent_MakeAvailable("${_lib}")
 
@@ -483,6 +490,10 @@ else()
   set("${_pkg}_FOUND" FALSE)
 endif()
 
+if(DEFINED "_${_pkg}_GIT_TAG")
+  unset("${_pkg}_GIT_TAG")
+  unset("_${_pkg}_GIT_TAG")
+endif()
 if(DEFINED "_${_pkg}_SUBPROJECT")
   unset("${_pkg}_SUBPROJECT")
   unset("_${_pkg}_SUBPROJECT")
