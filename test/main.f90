@@ -17,6 +17,7 @@ program tester
   use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
     & select_suite, run_selected, get_argument
   use test_check, only : collect_check
+  use test_check_array, only: collect_check_array
   use test_select, only : collect_select
   implicit none
   integer :: stat, is
@@ -28,6 +29,7 @@ program tester
 
   testsuites = [ &
     new_testsuite("check", collect_check), &
+    new_testsuite("check-array", collect_check_array), &
     new_testsuite("select", collect_select) &
     ]
 
