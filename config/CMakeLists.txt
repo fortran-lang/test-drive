@@ -34,20 +34,24 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 include(CheckFortranSourceCompiles)
-check_fortran_source_compiles(
-  "integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end"
-  WITH_QP
-)
-set(WITH_QP ${WITH_QP} PARENT_SCOPE)
-check_fortran_source_compiles(
-  "
-  integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33))
-  complex(xdp) :: x
-  end
-  "
-  WITH_XDP
-)
-set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
+if(NOT DEFINED WITH_QP)
+  check_fortran_source_compiles(
+    "integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end"
+    WITH_QP
+  )
+  set(WITH_QP ${WITH_QP} PARENT_SCOPE)
+endif()
+if(NOT DEFINED WITH_XDP)
+  check_fortran_source_compiles(
+    "
+    integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33))
+    complex(xdp) :: x
+    end
+    "
+    WITH_XDP
+  )
+  set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
+endif()
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
