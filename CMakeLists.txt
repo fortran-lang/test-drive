@@ -17,7 +17,7 @@ get_directory_property(is-subproject PARENT_DIRECTORY)
 project(
   "test-drive"
   LANGUAGES "Fortran"
-  VERSION "0.4.0"
+  VERSION "0.5.0"
   DESCRIPTION "The simple testing framework"
 )
 
