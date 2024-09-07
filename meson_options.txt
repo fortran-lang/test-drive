@@ -32,3 +32,10 @@ option(
   value: 'auto',
   description: 'Support quadruple precision',
 )
+
+option(
+  'testing',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable testing of test-drive library',
+)
