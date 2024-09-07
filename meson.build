@@ -77,4 +77,6 @@ if install
 endif
 
 # add the testsuite
-subdir('test')
+if get_option('testing').auto() ? not meson.is_subproject() : get_option('testing').enabled()
+  subdir('test')
+endif
