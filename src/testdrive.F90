@@ -602,7 +602,7 @@ contains
   end subroutine junit_pop_suite
 
   !> Register a new unit test
-  pure subroutine junit_push_test(junit, test, error, time)
+  subroutine junit_push_test(junit, test, error, time)
 
     !> JUnit output
     type(junit_output), intent(inout), optional :: junit
