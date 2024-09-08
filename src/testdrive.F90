@@ -114,6 +114,7 @@ module testdrive
   public :: check, test_failed, skip_test
   public :: test_interface, collect_interface
   public :: get_argument, get_variable, to_string
+  public :: junit_output, junit_header
 
 
   !> Single precision real numbers
@@ -304,14 +305,46 @@ module testdrive
   end type testsuite_type
 
 
+  !> Output JUnit.xml for discovering unit tests by other tools
+  type :: junit_output
+    !> XML output string (initial block)
+    character(len=:), allocatable :: xml_start
+    !> XML output string (current block)
+    character(len=:), allocatable :: xml_block
+    !> XML output string (final block)
+    character(len=:), allocatable :: xml_final
+    !> Unique identifier
+    integer :: uid = 0
+    !> Timestamp
+    character(len=19) :: timestamp = '1970-01-01T00:00:00'
+    !> Hostname
+    character(len=:), allocatable :: hostname
+    !> Package name
+    character(len=:), allocatable :: package
+    !> Testsuite name
+    character(len=:), allocatable :: testsuite
+    !> Number of tests
+    integer :: tests = 0
+    !> Number of failures
+    integer :: failures = 0
+    !> Number of errors
+    integer :: errors = 0
+    !> Number of skipped tests
+    integer :: skipped = 0
+    !> Running time
+    real(sp) :: time = 0.0_sp
+  end type junit_output
+
+
   character(len=*), parameter :: fmt = '(1x, *(1x, a))'
+  character(len=*), parameter :: newline = new_line("a")
 
 
 contains
 
 
   !> Driver for testsuite
-  recursive subroutine run_testsuite(collect, unit, stat, parallel)
+  recursive subroutine run_testsuite(collect, unit, stat, parallel, junit)
 
     !> Collect tests
     procedure(collect_interface) :: collect
@@ -325,6 +358,9 @@ contains
     !> Run the tests in parallel
     logical, intent(in), optional :: parallel
 
+    !> Produce junit output
+    type(junit_output), intent(inout), optional :: junit
+
     type(unittest_type), allocatable :: testsuite(:)
     integer :: it
     logical :: parallel_
@@ -334,6 +370,8 @@ contains
 
     call collect(testsuite)
 
+    call junit_push_suite(junit, "testdrive")
+
     !$omp parallel do schedule(dynamic) shared(testsuite, unit) reduction(+:stat) &
     !$omp if (parallel_)
     do it = 1, size(testsuite)
@@ -341,14 +379,16 @@ contains
       write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
         & "Starting", testsuite(it)%name, "...", it, size(testsuite)
       !$omp end critical(testdrive_testsuite)
-      call run_unittest(testsuite(it), unit, stat)
+      call run_unittest(testsuite(it), unit, stat, junit)
     end do
+
+    call junit_pop_suite(junit)
 
   end subroutine run_testsuite
 
 
   !> Driver for selective testing
-  recursive subroutine run_selected(collect, name, unit, stat)
+  recursive subroutine run_selected(collect, name, unit, stat, junit)
 
     !> Collect tests
     procedure(collect_interface) :: collect
@@ -362,15 +402,20 @@ contains
     !> Number of failed tests
     integer, intent(inout) :: stat
 
+    !> Produce junit output
+    type(junit_output), intent(inout), optional :: junit
+
     type(unittest_type), allocatable :: testsuite(:)
     integer :: it
 
     call collect(testsuite)
 
+    call junit_push_suite(junit, "testdrive")
+
     it = select_test(testsuite, name)
 
     if (it > 0 .and. it <= size(testsuite)) then
-      call run_unittest(testsuite(it), unit, stat)
+      call run_unittest(testsuite(it), unit, stat, junit)
     else
       write(unit, fmt) "Available tests:"
       do it = 1, size(testsuite)
@@ -379,11 +424,13 @@ contains
       stat = -huge(it)
     end if
 
+    call junit_pop_suite(junit)
+
   end subroutine run_selected
 
 
   !> Run a selected unit test
-  recursive subroutine run_unittest(test, unit, stat)
+  recursive subroutine run_unittest(test, unit, stat, junit)
 
     !> Unit test
     type(unittest_type), intent(in) :: test
@@ -394,6 +441,9 @@ contains
     !> Number of failed tests
     integer, intent(inout) :: stat
 
+    !> Produce junit output
+    type(junit_output), intent(inout), optional :: junit
+
     type(error_type), allocatable :: error
     character(len=:), allocatable :: message
 
@@ -401,6 +451,7 @@ contains
     if (.not.test_skipped(error)) then
       if (allocated(error) .neqv. test%should_fail) stat = stat + 1
     end if
+    call junit_push_test(junit, test, error, 0.0_sp)
     call make_output(message, test, error)
     !$omp critical(testdrive_testsuite)
     write(unit, '(a)') message
@@ -445,7 +496,7 @@ contains
 
     if (test_skipped(error)) then
       output = indent // test%name // " [SKIPPED]" &
-        & // new_line("a") // "  Message: " // error%message
+        & // newline // "  Message: " // error%message
       return
     end if
 
@@ -464,9 +515,203 @@ contains
     end if
     output = indent // test%name // label
     if (present(error)) then
-      output = output // new_line("a") // "  Message: " // error%message
+      output = output // newline // "  Message: " // error%message
     end if
   end subroutine make_output
+
+
+  !> Initialize output for JUnit.xml
+  pure subroutine junit_header(junit, package)
+
+    !> JUnit output
+    type(junit_output), intent(inout), optional :: junit
+
+    !> Package name
+    character(len=*), intent(in) :: package
+
+    if (.not.present(junit)) return
+
+    junit%xml_start = &
+      & '<?xml version="1.0" encoding="UTF-8"?>' // newline // &
+      & '<testsuites' // newline // &
+      & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // newline // & 
+      & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // newline // &
+      & '>' // newline
+    junit%xml_block = ''
+    junit%xml_final = &
+      & '</testsuites>'
+
+    junit%hostname = 'localhost'
+    junit%package = package
+
+  end subroutine junit_header
+
+  !> Register a test suite in JUnit.xml
+  subroutine junit_push_suite(junit, name)
+
+    !> JUnit output
+    type(junit_output), intent(inout), optional :: junit
+
+    !> Name of the test suite
+    character(len=*), intent(in) :: name
+
+    if (.not.present(junit)) return
+
+    junit%timestamp = get_timestamp()
+    junit%testsuite = name
+    junit%uid = junit%uid + 1
+
+  end subroutine junit_push_suite
+
+  !> Finalize a test suite in JUnit.xml
+  subroutine junit_pop_suite(junit)
+
+    !> JUnit output
+    type(junit_output), intent(inout), optional :: junit
+
+    if (.not.present(junit)) return
+
+    junit%xml_start = &
+      & junit%xml_start // &
+      & '  <testsuite' // newline // &
+      & '   name="'//junit%testsuite//'"' // newline // &
+      & '   package="'//junit%package//'"' // newline // &
+      & '   id="'//to_string(junit%uid)//'"' // newline // &
+      & '   timestamp="'//junit%timestamp//'"' // newline // &
+      & '   hostname="'//junit%hostname//'"' // newline // &
+      & '   tests="'//to_string(junit%tests)//'"' // newline // &
+      & '   failures="'//to_string(junit%failures)//'"' // newline // &
+      & '   errors="'//to_string(junit%errors)//'"' // newline // &
+      & '   skipped="'//to_string(junit%skipped)//'"' // newline // &
+      & '   time="'//to_string(junit%time)//'"' // newline // &
+      & '  >' // newline // &
+      & '  <properties>' // newline // &
+      & '  </properties>' // newline // &
+      & junit%xml_block // newline // &
+      & '  </testsuite>' // newline
+
+    junit%xml_block = ''
+    junit%tests = 0
+    junit%failures = 0
+    junit%errors = 0
+    junit%skipped = 0
+    junit%time = 0.0_sp
+
+    call junit_write(junit)
+
+  end subroutine junit_pop_suite
+
+  !> Register a new unit test
+  subroutine junit_push_test(junit, test, error, time)
+
+    !> JUnit output
+    type(junit_output), intent(inout), optional :: junit
+
+    !> Unit test
+    type(unittest_type), intent(in) :: test
+
+    !> Error handling
+    type(error_type), intent(in), optional :: error
+
+    !> Running time
+    real(sp), intent(in) :: time
+
+    if (.not.present(junit)) return
+
+    !$omp critical(testdrive_junit)
+    junit%tests = junit%tests + 1
+    junit%time = junit%time + time
+
+    junit%xml_block = &
+      & junit%xml_block // &
+      & '   <testcase' // newline // &
+      & '    name="'//test%name//'"' // newline // &
+      & '    classname="'//junit%testsuite//'"' // newline // &
+      & '    time="'//to_string(time)//'"' // newline // &
+      & '   >' // newline
+
+    if (test_skipped(error)) then
+      junit%xml_block = &
+        & junit%xml_block // &
+        & '    <skipped/>' // newline
+      junit%skipped = junit%skipped + 1
+    elseif (present(error)) then
+      if (test%should_fail) then
+        junit%xml_block = &
+          & junit%xml_block // &
+          & '    <system-out>' // newline // &
+          & '     "'//error%message//'"' // newline // &
+          & '    </system-out>' // newline
+      else
+        junit%xml_block = &
+          & junit%xml_block // &
+          & '    <failure' // newline // &
+          & '     message="'//error%message//'"' // newline // &
+          & '     type="AssertionError"' // newline // &
+          & '    />' // newline
+        junit%failures = junit%failures + 1
+      end if
+    else
+      if (test%should_fail) then
+        junit%xml_block = &
+          & junit%xml_block // &
+          & '    <failure' // newline // &
+          & '     message="Unexpected pass"' // newline // &
+          & '     type="AssertionError"' // newline // &
+          & '    />' // newline
+        junit%failures = junit%failures + 1
+      else
+        junit%xml_block = &
+          & junit%xml_block // &
+          & '    <system-out>' // newline // &
+          & '     "Test passed successfully"' // newline // &
+          & '    </system-out>' // newline
+      end if
+    end if
+
+    junit%xml_block = &
+      & junit%xml_block // &
+      & '   </testcase>' // newline   
+    !$omp end critical(testdrive_junit)
+
+  end subroutine junit_push_test
+
+
+  !> Write results to JUnit.xml
+  subroutine junit_write(junit)
+
+    !> JUnit output
+    type(junit_output), intent(inout), optional :: junit
+
+    integer :: io
+
+    if (.not.present(junit)) return
+    open( &
+      & newunit=io, &
+      & file='JUnit'//junit%package//'.xml', &
+      & status='replace', &
+      & action='write')
+    write(io, '(a)') junit%xml_start // junit%xml_final
+    close(io)
+
+  end subroutine junit_write
+
+
+  !> Create ISO 8601 formatted timestamp
+  function get_timestamp() result(timestamp)
+
+    !> ISO 8601 formatted timestamp
+    character(len=19) :: timestamp
+
+    character(len=8) :: date
+    character(len=10) :: time
+
+    call date_and_time(date=date, time=time)
+
+    timestamp = date(1:4) // "-" // date(5:6) // "-" // date(7:8) // "T" // &
+      & time(1:2) // ":" // time(3:4) // ":" // time(5:6)
+
+  end function get_timestamp
 
 
   !> Select a unit test from all available tests
@@ -1577,7 +1822,7 @@ contains
     !> Another line of error message
     character(len=*), intent(in), optional :: and_more
 
-    character(len=*), parameter :: skip = new_line("a") // repeat(" ", 11)
+    character(len=*), parameter :: skip = newline // repeat(" ", 11)
 
     allocate(error)
     error%stat = fatal
