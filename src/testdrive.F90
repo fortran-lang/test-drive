@@ -437,7 +437,7 @@ contains
     !$omp if (parallel_)
     do it = 1, size(testsuite)
       !$omp critical(testdrive_testsuite)
-      write(unit, '(1x, 3(1x, a), 1x, a)') &
+      write(unit, '(1x, 4(1x, a))') &
         & "Starting", (color%blue)//testsuite(it)%name//color%reset, &
         & color%dim//"..."//color%reset, &
         & color%bold//"(" // color%cyan//to_string(it)//color%bold // &
