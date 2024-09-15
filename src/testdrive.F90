@@ -115,6 +115,7 @@ module testdrive
   public :: test_interface, collect_interface
   public :: get_argument, get_variable, to_string
   public :: junit_output, junit_header
+  public :: init_color_output
 
 
   !> Single precision real numbers
@@ -336,6 +337,66 @@ module testdrive
   end type junit_output
 
 
+  !> Container for terminal escape code
+  type :: color_code
+    !> Style descriptor
+    integer(i1) :: style = -1_i1
+    !> Background color descriptor
+    integer(i1) :: bg = -1_i1
+    !> Foreground color descriptor
+    integer(i1) :: fg = -1_i1
+  end type color_code
+
+  interface operator(+)
+    module procedure :: add_color
+  end interface operator(+)
+
+  interface operator(//)
+    module procedure :: concat_color_left
+    module procedure :: concat_color_right
+  end interface operator(//)
+
+
+  !> Colorizer class for handling colorful output in the terminal
+  type, public :: color_output
+
+    type(color_code) :: &
+      reset = color_code(), &
+      bold = color_code(), &
+      dim = color_code(), &
+      italic = color_code(), &
+      underline = color_code(), &
+      blink = color_code(), &
+      reverse = color_code(), &
+      hidden = color_code()
+
+    type(color_code) :: &
+      black = color_code(), &
+      red = color_code(), &
+      green = color_code(), &
+      yellow = color_code(), &
+      blue = color_code(), &
+      magenta = color_code(), &
+      cyan = color_code(), &
+      white = color_code()
+
+    type(color_code) :: &
+      bg_black = color_code(), &
+      bg_red = color_code(), &
+      bg_green = color_code(), &
+      bg_yellow = color_code(), &
+      bg_blue = color_code(), &
+      bg_magenta = color_code(), &
+      bg_cyan = color_code(), &
+      bg_white = color_code()
+  end type color_output
+
+  interface color_output
+    module procedure :: new_color_output
+  end interface color_output
+
+  type(color_output), protected :: color
+
   character(len=*), parameter :: fmt = '(1x, *(1x, a))'
   character(len=*), parameter :: newline = new_line("a")
 
@@ -376,8 +437,11 @@ contains
     !$omp if (parallel_)
     do it = 1, size(testsuite)
       !$omp critical(testdrive_testsuite)
-      write(unit, '(1x, 3(1x, a), 1x, "(", i0, "/", i0, ")")') &
-        & "Starting", testsuite(it)%name, "...", it, size(testsuite)
+      write(unit, '(1x, 4(1x, a))') &
+        & "Starting", (color%blue)//testsuite(it)%name//color%reset, &
+        & color%dim//"..."//color%reset, &
+        & color%bold//"(" // color%cyan//to_string(it)//color%bold // &
+        & "/" // color%cyan//to_string(size(testsuite))//color%bold // ")"//color%reset
       !$omp end critical(testdrive_testsuite)
       call run_unittest(testsuite(it), unit, stat, junit)
     end do
@@ -492,30 +556,33 @@ contains
     type(error_type), intent(in), optional :: error
 
     character(len=:), allocatable :: label
-    character(len=*), parameter :: indent = repeat(" ", 7) // repeat(".", 3) // " "
+    type(color_code) :: label_color
 
     if (test_skipped(error)) then
-      output = indent // test%name // " [SKIPPED]" &
-        & // newline // "  Message: " // error%message
-      return
-    end if
-
-    if (present(error) .neqv. test%should_fail) then
+      label_color = color%yellow + color%bold
+      label = "SKIPPED"
+    else if (present(error) .neqv. test%should_fail) then
       if (test%should_fail) then
-        label = " [UNEXPECTED PASS]"
+        label_color = color%magenta + color%bold
+        label = "UNEXPECTED PASS"
       else
-        label = " [FAILED]"
+        label_color = color%red + color%bold
+        label = "FAILED"
       end if
     else
       if (test%should_fail) then
-        label = " [EXPECTED FAIL]"
+        label_color = color%cyan + color%bold
+        label = "EXPECTED FAIL"
       else
-        label = " [PASSED]"
+        label_color = color%green + color%bold
+        label = "PASSED"
       end if
     end if
-    output = indent // test%name // label
+    output = "       " // color%dim//"..."//color%reset // " " // &
+      & color%blue//test%name//color%reset // &
+      & " "//color%bold//"["//label_color//label//color%bold//"]"//color%reset
     if (present(error)) then
-      output = output // newline // "  Message: " // error%message
+      output = output // newline // "  "//color%bold//"Message:"//color%reset//" " // error%message
     end if
   end subroutine make_output
 
@@ -2229,5 +2296,146 @@ contains
   end function is_nan_qp
 #endif
 
+  !> Initialize color output
+  subroutine init_color_output(use_color)
+    !> Enable color output
+    logical, intent(in) :: use_color
+
+    color = new_color_output(use_color)
+  end subroutine init_color_output
+
+  !> Create a new colorizer object
+  function new_color_output(use_color) result(new)
+    !> Enable color output
+    logical, intent(in) :: use_color
+    !> New instance of the colorizer
+    type(color_output) :: new
+
+    type(color_code), parameter :: &
+      reset = color_code(style=0_i1), &
+      bold = color_code(style=1_i1), &
+      dim = color_code(style=2_i1), &
+      italic = color_code(style=3_i1), &
+      underline = color_code(style=4_i1), &
+      blink = color_code(style=5_i1), &
+      reverse = color_code(style=7_i1), &
+      hidden = color_code(style=8_i1)
+
+    type(color_code), parameter :: &
+      black = color_code(fg=0_i1), &
+      red = color_code(fg=1_i1), &
+      green = color_code(fg=2_i1), &
+      yellow = color_code(fg=3_i1), &
+      blue = color_code(fg=4_i1), &
+      magenta = color_code(fg=5_i1), &
+      cyan = color_code(fg=6_i1), &
+      white = color_code(fg=7_i1)
+
+    type(color_code), parameter :: &
+      bg_black = color_code(bg=0_i1), &
+      bg_red = color_code(bg=1_i1), &
+      bg_green = color_code(bg=2_i1), &
+      bg_yellow = color_code(bg=3_i1), &
+      bg_blue = color_code(bg=4_i1), &
+      bg_magenta = color_code(bg=5_i1), &
+      bg_cyan = color_code(bg=6_i1), &
+      bg_white = color_code(bg=7_i1)
+
+    if (use_color) then
+      new%reset = reset
+      new%bold = bold
+      new%dim = dim
+      new%italic = italic
+      new%underline = underline
+      new%blink = blink
+      new%reverse = reverse
+      new%hidden = hidden
+      new%black = black
+      new%red = red
+      new%green = green
+      new%yellow = yellow
+      new%blue = blue
+      new%magenta = magenta
+      new%cyan = cyan
+      new%white = white
+      new%bg_black = bg_black
+      new%bg_red = bg_red
+      new%bg_green = bg_green
+      new%bg_yellow = bg_yellow
+      new%bg_blue = bg_blue
+      new%bg_magenta = bg_magenta
+      new%bg_cyan = bg_cyan
+      new%bg_white = bg_white
+    end if
+  end function new_color_output
+
+  !> Add two escape sequences, attributes in the right value override the left value ones.
+  pure function add_color(lval, rval) result(code)
+    !> First escape code
+    type(color_code), intent(in) :: lval
+    !> Second escape code
+    type(color_code), intent(in) :: rval
+    !> Combined escape code
+    type(color_code) :: code
+  
+    code = color_code( &
+      style=merge(rval%style, lval%style, rval%style >= 0), &
+      fg=merge(rval%fg, lval%fg, rval%fg >= 0), &
+      bg=merge(rval%bg, lval%bg, rval%bg >= 0))
+  end function add_color
+  
+  !> Concatenate an escape code with a string and turn it into an actual escape sequence
+  pure function concat_color_left(lval, code) result(str)
+    !> String to add the escape code to
+    character(len=*), intent(in) :: lval
+    !> Escape sequence
+    type(color_code), intent(in) :: code
+    !> Concatenated string
+    character(len=:), allocatable :: str
+  
+    str = lval // escape_color(code)
+  end function concat_color_left
+  
+  !> Concatenate an escape code with a string and turn it into an actual escape sequence
+  pure function concat_color_right(code, rval) result(str)
+    !> String to add the escape code to
+    character(len=*), intent(in) :: rval
+    !> Escape sequence
+    type(color_code), intent(in) :: code
+    !> Concatenated string
+    character(len=:), allocatable :: str
+  
+    str = escape_color(code) // rval
+  end function concat_color_right
+  
+  !> Transform a color code into an actual ANSI escape sequence
+  pure function escape_color(code) result(str)
+    !> Color code to be used
+    type(color_code), intent(in) :: code
+    !> ANSI escape sequence representing the color code
+    character(len=:), allocatable :: str
+    character, parameter :: chars(0:9) = &
+      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+  
+    if (anycolor(code)) then
+      str = achar(27) // "[0"  ! Always reset the style
+      if (code%style > 0 .and. code%style < 10) str = str // ";" // chars(code%style)
+      if (code%fg >= 0 .and. code%fg < 10) str = str // ";3" // chars(code%fg)
+      if (code%bg >= 0 .and. code%bg < 10) str = str // ";4" // chars(code%bg)
+      str = str // "m"
+    else
+      str = ""
+    end if
+  end function escape_color
+  
+  !> Check whether the code describes any color or is just a stub
+  pure function anycolor(code)
+    !> Escape sequence
+    type(color_code), intent(in) :: code
+    !> Any color / style is active
+    logical :: anycolor
+  
+    anycolor = code%fg >= 0 .or. code%bg >= 0 .or. code%style >= 0
+  end function anycolor
 
 end module testdrive

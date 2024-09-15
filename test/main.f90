@@ -15,7 +15,8 @@
 program tester
   use, intrinsic :: iso_fortran_env, only : error_unit
   use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
-    & select_suite, run_selected, get_argument, junit_output, junit_header
+    & select_suite, run_selected, get_argument, junit_output, junit_header, &
+    & init_color_output
   use test_check, only : collect_check
   use test_select, only : collect_select
   implicit none
@@ -35,6 +36,8 @@ program tester
 
   call get_argument(1, suite_name)
   call get_argument(2, test_name)
+
+  call init_color_output(.true.)
 
   if (allocated(suite_name)) then
     is = select_suite(testsuites, suite_name)
