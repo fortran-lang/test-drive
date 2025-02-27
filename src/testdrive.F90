@@ -344,6 +344,8 @@ module testdrive
     integer :: skipped = 0
     !> Running time
     real(sp) :: time = 0.0_sp
+  contains
+    final :: destroy_junit_output
   end type junit_output
 
 
@@ -772,6 +774,22 @@ contains
     close(io)
 
   end subroutine junit_write
+
+
+  !> deallocate internal data of junit_output
+  subroutine destroy_junit_output(self)
+
+    !> JUnit output
+    type(junit_output), intent(inout) :: self
+
+    if (allocated(self%xml_start)) deallocate(self%xml_start)
+    if (allocated(self%xml_block)) deallocate(self%xml_block)
+    if (allocated(self%xml_final)) deallocate(self%xml_final)
+    if (allocated(self%hostname)) deallocate(self%hostname)
+    if (allocated(self%package)) deallocate(self%package)
+    if (allocated(self%testsuite)) deallocate(self%testsuite)
+
+  end subroutine destroy_junit_output
 
 
   !> Create ISO 8601 formatted timestamp
