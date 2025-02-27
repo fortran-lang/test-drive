@@ -279,6 +279,11 @@ module testdrive
     !> Whether test is supposed to fail
     logical :: should_fail = .false.
 
+  contains
+
+    !> Deallocate unittest's internal data
+    final :: destroy_unittest
+
   end type unittest_type
 
 
@@ -302,6 +307,11 @@ module testdrive
 
     !> Entry point of the test
     procedure(collect_interface), pointer, nopass :: collect => null()
+
+  contains
+
+    !> Deallocate testsuite's internal data
+    final :: destroy_testsuite
 
   end type testsuite_type
 
@@ -853,6 +863,18 @@ contains
   end function new_unittest
 
 
+  !> Finalize unit test
+  subroutine destroy_unittest(self)
+
+    !> unittest to destroy
+    type(unittest_type), intent(inout) :: self
+
+    if (allocated(self%name)) deallocate(self%name)
+    self%test => null()
+
+  end subroutine destroy_unittest
+
+
   !> Register a new testsuite
   function new_testsuite(name, collect) result(self)
 
@@ -869,6 +891,18 @@ contains
     self%collect => collect
 
   end function new_testsuite
+
+
+  !> Finalize testsuite
+  subroutine destroy_testsuite(self)
+
+    !> testsuite to destroy
+    type(testsuite_type), intent(inout) :: self
+
+    if (allocated(self%name)) deallocate(self%name)
+    self%collect => null()
+
+  end subroutine destroy_testsuite
 
 
   subroutine check_stat(error, stat, message, more)
