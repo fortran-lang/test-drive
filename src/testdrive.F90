@@ -942,10 +942,11 @@ contains
     real(dp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(dp), intent(in), optional :: rel
 
     logical :: relative
     real(dp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -957,13 +958,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -972,19 +976,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1037,10 +1033,11 @@ contains
     real(sp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(sp), intent(in), optional :: rel
 
     logical :: relative
     real(sp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1051,14 +1048,17 @@ contains
       threshold = epsilon(expected)
     end if
 
-    if (present(rel)) then
-      relative = rel
+     if (present(rel)) then
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1067,19 +1067,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1133,10 +1125,11 @@ contains
     real(xdp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(xdp), intent(in), optional :: rel
 
     logical :: relative
     real(xdp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1148,13 +1141,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1163,19 +1159,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1230,10 +1218,11 @@ contains
     real(qp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(qp), intent(in), optional :: rel
 
     logical :: relative
     real(qp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1245,13 +1234,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1260,19 +1252,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1326,10 +1310,11 @@ contains
     real(dp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(dp), intent(in), optional :: rel
 
     logical :: relative
     real(dp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1341,13 +1326,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1356,19 +1344,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1421,10 +1401,11 @@ contains
     real(sp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(sp), intent(in), optional :: rel
 
     logical :: relative
     real(sp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1436,13 +1417,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1451,19 +1435,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1517,10 +1493,11 @@ contains
     real(xdp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(xdp), intent(in), optional :: rel
 
     logical :: relative
     real(xdp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1532,13 +1509,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1547,19 +1527,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 
@@ -1614,10 +1586,11 @@ contains
     real(qp), intent(in), optional :: thr
 
     !> Check for relative errors instead
-    logical, intent(in), optional :: rel
+    real(qp), intent(in), optional :: rel
 
     logical :: relative
     real(qp) :: diff, threshold
+    character :: percent
 
     call check(error, actual, message, more)
     if (allocated(error)) return
@@ -1629,13 +1602,16 @@ contains
     end if
 
     if (present(rel)) then
-      relative = rel
+      relative = .true.
+      percent = '%'
+      threshold = rel
     else
+      percent = ' '
       relative = .false.
     end if
 
     if (relative) then
-      diff = abs(actual - expected) / abs(expected)
+      diff = (abs(actual - expected) / abs(expected)) * 100
     else
       diff = abs(actual - expected)
     end if
@@ -1644,19 +1620,11 @@ contains
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(int(diff*100))//"%)", &
-            more)
-        else
-          call test_failed(error, &
-            "Floating point value missmatch", &
-            "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
-            "(difference: "//to_string(diff)//")", &
-            more)
-        end if
+        call test_failed(error, &
+          "Floating point value missmatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//percent//")", &
+          more)
       end if
     end if
 

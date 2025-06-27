@@ -79,6 +79,7 @@ contains
       new_unittest("expression-with-more", test_expression_with_more, should_fail=.true.), &
       new_unittest("real-single-abs", test_rsp_abs), &
       new_unittest("real-single-rel", test_rsp_rel), &
+      new_unittest("real-single-rel-success", test_rsp_rel_success), &
       new_unittest("real-single-nan", test_rsp_nan, should_fail=.true.), &
       new_unittest("real-single-abs-fail", test_rsp_abs_fail, should_fail=.true.), &
       new_unittest("real-single-rel-fail", test_rsp_rel_fail, should_fail=.true.), &
@@ -86,6 +87,7 @@ contains
       new_unittest("real-single-nan-message", test_rsp_nan_message, should_fail=.true.), &
       new_unittest("real-double-abs", test_rdp_abs), &
       new_unittest("real-double-rel", test_rdp_rel), &
+      new_unittest("real-double-rel-success", test_rdp_rel_success), &
       new_unittest("real-double-nan", test_rdp_nan, should_fail=.true.), &
       new_unittest("real-double-abs-fail", test_rdp_abs_fail, should_fail=.true.), &
       new_unittest("real-double-rel-fail", test_rdp_rel_fail, should_fail=.true.), &
@@ -93,6 +95,7 @@ contains
       new_unittest("real-double-nan-message", test_rdp_nan_message, should_fail=.true.), &
       new_unittest("real-xdouble-abs", test_rxdp_abs), &
       new_unittest("real-xdouble-rel", test_rxdp_rel), &
+      new_unittest("real-xdouble-rel-success", test_rxdp_rel_success), &
       new_unittest("real-xdouble-nan", test_rxdp_nan, should_fail=.true.), &
       new_unittest("real-xdouble-abs-fail", test_rxdp_abs_fail, should_fail=.true.), &
       new_unittest("real-xdouble-rel-fail", test_rxdp_rel_fail, should_fail=.true.), &
@@ -100,6 +103,7 @@ contains
       new_unittest("real-xdouble-nan-message", test_rxdp_nan_message, should_fail=.true.), &
       new_unittest("real-quadruple-abs", test_rqp_abs), &
       new_unittest("real-quadruple-rel", test_rqp_rel), &
+      new_unittest("real-quadruple-rel-success", test_rqp_rel_success), &
       new_unittest("real-quadruple-nan", test_rqp_nan, should_fail=.true.), &
       new_unittest("real-quadruple-abs-fail", test_rqp_abs_fail, should_fail=.true.), &
       new_unittest("real-quadruple-rel-fail", test_rqp_rel_fail, should_fail=.true.), &
@@ -107,6 +111,7 @@ contains
       new_unittest("real-quadruple-nan-message", test_rqp_nan_message, should_fail=.true.), &
       new_unittest("complex-single-abs", test_csp_abs), &
       new_unittest("complex-single-rel", test_csp_rel), &
+      new_unittest("complex-single-rel-success", test_csp_rel_success), &
       new_unittest("complex-single-nan", test_csp_nan, should_fail=.true.), &
       new_unittest("complex-single-abs-fail", test_csp_abs_fail, should_fail=.true.), &
       new_unittest("complex-single-rel-fail", test_csp_rel_fail, should_fail=.true.), &
@@ -114,6 +119,7 @@ contains
       new_unittest("complex-single-nan-message", test_csp_nan_message, should_fail=.true.), &
       new_unittest("complex-double-abs", test_cdp_abs), &
       new_unittest("complex-double-rel", test_cdp_rel), &
+      new_unittest("complex-double-rel-success", test_rdp_rel_success), &
       new_unittest("complex-double-nan", test_cdp_nan, should_fail=.true.), &
       new_unittest("complex-double-abs-fail", test_cdp_abs_fail, should_fail=.true.), &
       new_unittest("complex-double-rel-fail", test_cdp_rel_fail, should_fail=.true.), &
@@ -121,6 +127,7 @@ contains
       new_unittest("complex-double-nan-message", test_cdp_nan_message, should_fail=.true.), &
       new_unittest("complex-xdouble-abs", test_cxdp_abs), &
       new_unittest("complex-xdouble-rel", test_cxdp_rel), &
+      new_unittest("complex-xdouble-rel-success", test_rxdp_rel_success), &
       new_unittest("complex-xdouble-nan", test_cxdp_nan, should_fail=.true.), &
       new_unittest("complex-xdouble-abs-fail", test_cxdp_abs_fail, should_fail=.true.), &
       new_unittest("complex-xdouble-rel-fail", test_cxdp_rel_fail, should_fail=.true.), &
@@ -128,6 +135,7 @@ contains
       new_unittest("complex-xdouble-nan-message", test_cxdp_nan_message, should_fail=.true.), &
       new_unittest("complex-quadruple-abs", test_cqp_abs), &
       new_unittest("complex-quadruple-rel", test_cqp_rel), &
+      new_unittest("complex-quadruple-rel-success", test_rqp_rel_success), &
       new_unittest("complex-quadruple-nan", test_cqp_nan, should_fail=.true.), &
       new_unittest("complex-quadruple-abs-fail", test_cqp_abs_fail, should_fail=.true.), &
       new_unittest("complex-quadruple-rel-fail", test_cqp_rel_fail, should_fail=.true.), &
@@ -281,7 +289,7 @@ contains
 
     val = ieee_value(val, ieee_quiet_nan)
 
-    call check(error, val, 3.3_sp, rel=.true.)
+    call check(error, val, 3.3_sp, rel=1._sp)
 
   end subroutine test_rsp_nan
 
@@ -295,10 +303,22 @@ contains
 
     val = 3.3_sp
 
-    call check(error, val, 3.3_sp, rel=.true.)
+    call check(error, val, 3.3_sp, rel=1._sp)
 
   end subroutine test_rsp_rel
 
+  subroutine test_rsp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(sp) :: val
+
+    val = 1.0_sp
+
+    call check(error, val, 1.5_sp, rel=40._sp)
+
+  end subroutine test_rsp_rel_success
 
   subroutine test_rsp_abs_fail(error)
 
@@ -323,10 +343,9 @@ contains
 
     val = 1.0_sp
 
-    call check(error, val, 1.5_sp, rel=.true.)
+    call check(error, val, 1.5_sp, rel=1._sp)
 
   end subroutine test_rsp_rel_fail
-
 
   subroutine test_rsp_abs_message(error)
 
@@ -379,10 +398,22 @@ contains
 
     val = 3.3_dp
 
-    call check(error, val, 3.3_dp, rel=.true.)
+    call check(error, val, 3.3_dp, rel=1._dp)
 
   end subroutine test_rdp_rel
 
+  subroutine test_rdp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(dp) :: val
+
+    val = 1.0_dp
+
+    call check(error, val, 1.5_dp, rel=40._dp)
+
+  end subroutine test_rdp_rel_success
 
   subroutine test_rdp_nan(error)
 
@@ -393,7 +424,7 @@ contains
 
     val = ieee_value(val, ieee_quiet_nan)
 
-    call check(error, val, 3.3_dp, rel=.true.)
+    call check(error, val, 3.3_dp, rel=1._dp)
 
   end subroutine test_rdp_nan
 
@@ -421,7 +452,7 @@ contains
 
     val = 1.0_dp
 
-    call check(error, val, 1.5_dp, rel=.true.)
+    call check(error, val, 1.5_dp, rel=1._dp)
 
   end subroutine test_rdp_rel_fail
 
@@ -482,12 +513,29 @@ contains
 
     val = 3.3_xdp
 
-    call check(error, val, 3.3_xdp, rel=.true.)
+    call check(error, val, 3.3_xdp, rel=1._xdp)
 #else
     call skip_test(error, "Extended double precision is not enabled")
 #endif
 
   end subroutine test_rxdp_rel
+
+  subroutine test_rxdp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.0_xdp
+
+    call check(error, val, 1.5_xdp, rel=40._xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_rel_success
 
 
   subroutine test_rxdp_nan(error)
@@ -500,7 +548,7 @@ contains
 
     val = ieee_value(val, ieee_quiet_nan)
 
-    call check(error, val, 3.3_xdp, rel=.true.)
+    call check(error, val, 3.3_xdp, rel=1._xdp)
 #else
     call skip_test(error, "Extended double precision is not enabled")
 #endif
@@ -536,7 +584,7 @@ contains
 
     val = 1.0_xdp
 
-    call check(error, val, 1.5_xdp, rel=.true.)
+    call check(error, val, 1.5_xdp, rel=1._xdp)
 #else
     call skip_test(error, "Extended double precision is not enabled")
 #endif
@@ -608,13 +656,29 @@ contains
 
     val = 3.3_qp
 
-    call check(error, val, 3.3_qp, rel=.true.)
+    call check(error, val, 3.3_qp, rel=1._qp)
 #else
     call skip_test(error, "Quadruple precision is not enabled")
 #endif
 
   end subroutine test_rqp_rel
 
+  subroutine test_rqp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.0_qp
+
+    call check(error, val, 1.5_qp, rel=40._qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_rel_success
 
   subroutine test_rqp_nan(error)
 
@@ -626,7 +690,7 @@ contains
 
     val = ieee_value(val, ieee_quiet_nan)
 
-    call check(error, val, 3.3_qp, rel=.true.)
+    call check(error, val, 3.3_qp, rel=1._qp)
 #else
     call skip_test(error, "Quadruple precision is not enabled")
 #endif
@@ -662,7 +726,7 @@ contains
 
     val = 1.0_qp
 
-    call check(error, val, 1.5_qp, rel=.true.)
+    call check(error, val, 1.5_qp, rel=1._qp)
 #else
     call skip_test(error, "Quadruple precision is not enabled")
 #endif
@@ -730,7 +794,7 @@ contains
     val = cmplx(ieee_value(0.0_sp, ieee_quiet_nan), &
       & ieee_value(0.0_sp, ieee_quiet_nan), sp)
 
-    call check(error, val, cmplx(3.3_sp, 1.0_sp, sp), rel=.true.)
+    call check(error, val, cmplx(3.3_sp, 1.0_sp, sp), rel=1._sp)
 
   end subroutine test_csp_nan
 
@@ -744,10 +808,22 @@ contains
 
     val = cmplx(3.3_sp, 1.0_sp, sp)
 
-    call check(error, val, cmplx(3.3_sp, 1.0_sp, sp), rel=.true.)
+    call check(error, val, cmplx(3.3_sp, 1.0_sp, sp), rel=1._sp)
 
   end subroutine test_csp_rel
 
+  subroutine test_csp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(sp) :: val
+
+    val = cmplx(3.3_sp, 1.0_sp, sp)
+
+    call check(error, val, cmplx(3.5_sp, 2.0_sp, sp), rel=26._sp)
+
+  end subroutine test_csp_rel_success
 
   subroutine test_csp_abs_fail(error)
 
@@ -772,7 +848,7 @@ contains
 
     val = cmplx(1.0_sp, 1.5_sp, sp)
 
-    call check(error, val, cmplx(1.5_sp, 1.0_sp, sp), rel=.true.)
+    call check(error, val, cmplx(1.5_sp, 1.0_sp, sp), rel=1._sp)
 
   end subroutine test_csp_rel_fail
 
@@ -828,10 +904,22 @@ contains
 
     val = cmplx(3.3_dp, 1.0_dp, dp)
 
-    call check(error, val, cmplx(3.3_dp, 1.0_dp, dp), rel=.true.)
+    call check(error, val, cmplx(3.3_dp, 1.0_dp, dp), rel=1._dp)
 
   end subroutine test_cdp_rel
 
+  subroutine test_cdp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(dp) :: val
+
+    val = cmplx(3.3_dp, 1.0_dp, dp)
+
+    call check(error, val, cmplx(3.5_dp, 2.0_dp, dp), rel=26._dp)
+
+  end subroutine test_cdp_rel_success
 
   subroutine test_cdp_nan(error)
 
@@ -842,7 +930,7 @@ contains
 
     val = cmplx(ieee_value(0.0_dp, ieee_quiet_nan), 0.0_dp, dp)
 
-    call check(error, val, cmplx(3.3_dp, 1.0_dp, dp), rel=.true.)
+    call check(error, val, cmplx(3.3_dp, 1.0_dp, dp), rel=1._dp)
 
   end subroutine test_cdp_nan
 
@@ -870,7 +958,7 @@ contains
 
     val = cmplx(1.0_dp, 1.5_dp, dp)
 
-    call check(error, val, cmplx(1.5_dp, 1.0_dp, dp), rel=.true.)
+    call check(error, val, cmplx(1.5_dp, 1.0_dp, dp), rel=1._dp)
 
   end subroutine test_cdp_rel_fail
 
@@ -931,13 +1019,29 @@ contains
 
     val = cmplx(3.3_xdp, 1.0_xdp, xdp)
 
-    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), rel=.true.)
+    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), rel=1._xdp)
 #else
     call skip_test(error, "Extended double precision is not enabled")
 #endif
 
   end subroutine test_cxdp_rel
 
+  subroutine test_cxdp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(3.3_xdp, 1.0_xdp, xdp)
+
+    call check(error, val, cmplx(3.5_xdp, 2.0_xdp, sp), rel=26._xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_rel_success
 
   subroutine test_cxdp_nan(error)
 
@@ -949,7 +1053,7 @@ contains
 
     val = cmplx(ieee_value(0.0_xdp, ieee_quiet_nan), 0.0_xdp, xdp)
 
-    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), rel=.true.)
+    call check(error, val, cmplx(3.3_xdp, 1.0_xdp, xdp), rel=1._xdp)
 #else
     call skip_test(error, "Extended double precision is not enabled")
 #endif
@@ -985,7 +1089,7 @@ contains
 
     val = cmplx(1.0_xdp, 1.5_xdp, xdp)
 
-    call check(error, val, cmplx(1.5_xdp, 1.0_xdp, xdp), rel=.true.)
+    call check(error, val, cmplx(1.5_xdp, 1.0_xdp, xdp), rel=1._xdp)
 #else
     call skip_test(error, "Extended double precision is not enabled")
 #endif
@@ -1057,13 +1161,29 @@ contains
 
     val = cmplx(3.3_qp, 1.0_qp, qp)
 
-    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), rel=.true.)
+    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), rel=1._qp)
 #else
     call skip_test(error, "Quadruple precision is not enabled")
 #endif
 
   end subroutine test_cqp_rel
 
+    subroutine test_cqp_rel_success(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(3.3_qp, 1.0_qp, qp)
+
+    call check(error, val, cmplx(3.5_qp, 2.0_qp, sp), rel=26._qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_rel_success
 
   subroutine test_cqp_nan(error)
 
@@ -1075,7 +1195,7 @@ contains
 
     val = cmplx(ieee_value(0.0_qp, ieee_quiet_nan), 0.0_qp, qp)
 
-    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), rel=.true.)
+    call check(error, val, cmplx(3.3_qp, 1.0_qp, qp), rel=1._qp)
 #else
     call skip_test(error, "Quadruple precision is not enabled")
 #endif
@@ -1111,7 +1231,7 @@ contains
 
     val = cmplx(1.0_qp, 1.5_qp, qp)
 
-    call check(error, val, cmplx(1.5_qp, 1.0_qp, qp), rel=.true.)
+    call check(error, val, cmplx(1.5_qp, 1.0_qp, qp), rel=1._qp)
 #else
     call skip_test(error, "Quadruple precision is not enabled")
 #endif
