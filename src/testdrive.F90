@@ -974,13 +974,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1069,13 +1069,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1165,13 +1165,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1262,13 +1262,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1358,13 +1358,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1453,13 +1453,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1549,13 +1549,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1646,13 +1646,13 @@ contains
       else
         if (relative) then
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(int(diff*100))//"%)", &
             more)
         else
           call test_failed(error, &
-            "Floating point value missmatch", &
+            "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
             "(difference: "//to_string(diff)//")", &
             more)
@@ -1711,7 +1711,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
@@ -1742,7 +1742,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
@@ -1773,7 +1773,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
@@ -1804,7 +1804,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Integer value missmatch", &
+          "Integer value mismatch", &
           "expected "//to_string(expected)//" but got "//to_string(actual), &
           more)
       end if
@@ -1835,7 +1835,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Logical value missmatch", &
+          "Logical value mismatch", &
           "expected "//merge("T", "F", expected)//" but got "//merge("T", "F", actual), &
           more)
       end if
@@ -1866,7 +1866,7 @@ contains
         call test_failed(error, message, more)
       else
         call test_failed(error, &
-          "Character value missmatch", &
+          "Character value mismatch", &
           "expected '"//expected//"' but got '"//actual//"'", &
           more)
       end if
