@@ -14,7 +14,7 @@
 !> Driver for unit testing
 program tester
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use, intrinsic :: ieee_arithmetic
+  use, intrinsic :: ieee_arithmetic, only: ieee_quiet_nan
   use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
     & select_suite, run_selected, get_argument, junit_output, junit_header, &
     & init_color_output
