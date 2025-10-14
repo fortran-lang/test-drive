@@ -22,7 +22,7 @@
 #endif
 
 module test_check
-  use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan
+  use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan 
   use testdrive, only : new_unittest, unittest_type, error_type, check, skip_test, to_string
   implicit none
   private
@@ -67,6 +67,7 @@ contains
     !> Collection of tests
     type(unittest_type), allocatable, intent(out) :: testsuite(:)
 
+    allocate(testsuite(95))
     testsuite = [ &
       new_unittest("success", test_success), &
       new_unittest("failure", test_failure, should_fail=.true.), &

@@ -14,6 +14,7 @@
 !> Driver for unit testing
 program tester
   use, intrinsic :: iso_fortran_env, only : error_unit
+  use, intrinsic :: ieee_arithmetic
   use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
     & select_suite, run_selected, get_argument, junit_output, junit_header, &
     & init_color_output
@@ -29,6 +30,7 @@ program tester
   stat = 0
   call junit_header(junit, "testdrive")
 
+  allocate(testsuites(2))
   testsuites = [ &
     new_testsuite("check", collect_check), &
     new_testsuite("select", collect_select) &

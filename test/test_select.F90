@@ -29,6 +29,7 @@ contains
 
     !> Collection of tests
     type(unittest_type), allocatable, intent(out) :: testsuite(:)
+    allocate(testsuite(6))
 
     testsuite = [ &
       new_unittest("always-pass", always_pass), &
@@ -68,6 +69,8 @@ contains
     !> Collection of tests
     type(unittest_type), allocatable, intent(out) :: testsuite(:)
 
+    allocate(testsuite(2))
+
     testsuite = [ &
       new_unittest("always-pass", always_pass), &
       new_unittest("always-fail", always_fail, should_fail=.true.) &
@@ -81,6 +84,7 @@ contains
 
     !> Collection of tests
     type(unittest_type), allocatable, intent(out) :: testsuite(:)
+    allocate(testsuite(2))
 
     testsuite = [ &
       new_unittest("always-pass", always_pass, should_fail=.true.), &
