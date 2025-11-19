@@ -285,11 +285,10 @@ module testdrive
   abstract interface
     !> Collect all tests
     subroutine collect_interface(testsuite)
+      import :: unittest_type
 #ifdef __NVCOMPILER_LLVM__
       ! this is only an issue with nvhpc 25.9, possibly a bug in the compiler ! verify in next release
-      import :: unittest_type, test_interface
-#else
-      import :: unittest_type
+      import :: test_interface
 #endif
 
       !> Collection of tests
