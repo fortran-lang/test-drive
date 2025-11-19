@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13]
+        os: [ubuntu-24.04, macos-13]
         build: [meson, cmake]
         build-type: [debug]
         compiler: [gcc]
@@ -60,14 +60,14 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: '3.10'
         cache: 'pip'
-    
+
     - name: Install python dependencies
       if: ${{ ! contains(matrix.os, 'windows') }}
       run: pip install -r requirements.txt
@@ -149,7 +149,7 @@ jobs:
 
     - name: Upload package
       if: ${{ matrix.build == 'meson' && matrix.build-type != 'coverage' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.PROJECT_OUTPUT }}
         path: ${{ env.PROJECT_OUTPUT }}
