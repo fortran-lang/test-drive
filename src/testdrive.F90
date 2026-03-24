@@ -246,9 +246,10 @@ module testdrive
   end interface to_string
 
 
-  !> Check for not a number value. Uses IEEE intrinsic `ieee_is_nan` when
-  !> available, falls back to bit pattern inspection for single and double
-  !> precision when is disabled.
+  !> Check for not-a-number (NaN) values. Uses the IEEE intrinsic
+  !> `ieee_is_nan` when available, and falls back to a portable
+  !> comparison-based implementation (using `HUGE`/`ABS`) when IEEE
+  !> arithmetic is disabled.
   interface is_nan
     module procedure :: is_nan_sp
     module procedure :: is_nan_dp
