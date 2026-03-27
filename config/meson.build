@@ -77,8 +77,16 @@ else
   with_xdp = get_option('xdp').allowed()
 endif
 
+with_ieee_is_nan = fc.compiles('''
+    use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
+    logical :: x
+    x = ieee_is_nan(0.0)
+    end
+''')
+
 add_project_arguments(
   '-DWITH_QP=@0@'.format(with_qp.to_int()),
   '-DWITH_XDP=@0@'.format(with_xdp.to_int()),
+  '-DWITH_IEEE_IS_NAN=@0@'.format(with_ieee_is_nan.to_int()),
   language: 'fortran',
 )

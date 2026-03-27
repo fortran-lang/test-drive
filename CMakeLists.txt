@@ -61,6 +61,7 @@ target_compile_definitions(
   PRIVATE
   "WITH_QP=$<BOOL:${WITH_QP}>"
   "WITH_XDP=$<BOOL:${WITH_XDP}>"
+  "WITH_IEEE_IS_NAN=$<BOOL:${WITH_IEEE_IS_NAN}>"
 )
 
 # Export targets for other projects

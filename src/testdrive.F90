@@ -21,6 +21,11 @@
 #define WITH_XDP 0
 #endif
 
+!# Enable ieee_is_nan for NaN detection
+#ifndef WITH_IEEE_IS_NAN
+#define WITH_IEEE_IS_NAN 0
+#endif
+
 !> Provides a light-weight procedural testing framework for Fortran projects.
 !>
 !> Testsuites are defined by a [[collect_interface]] returning a set of
@@ -257,8 +262,10 @@ module testdrive
   end interface to_string
 
 
-  !> Implementation of check for not a number value, in case a compiler does not
-  !> provide the IEEE intrinsic ``ieee_is_nan`` (currently this is Intel oneAPI on MacOS)
+  !> Check for not-a-number (NaN) values. Uses the IEEE intrinsic
+  !> `ieee_is_nan` when available, and falls back to a portable
+  !> comparison-based implementation (using `HUGE`/`ABS`) when IEEE
+  !> arithmetic is disabled.
   interface is_nan
     module procedure :: is_nan_sp
     module procedure :: is_nan_dp
@@ -2648,47 +2655,76 @@ contains
   end subroutine escalate_error
 
 
-  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+
+  !> Determine whether a value is not a number
   elemental function is_nan_sp(val) result(is_nan)
+#if WITH_IEEE_IS_NAN
+    use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
+#endif
     !> Value to check
     real(sp), intent(in) :: val
     !> Value is not a number
     logical :: is_nan
 
+#if WITH_IEEE_IS_NAN
+    is_nan = ieee_is_nan(val)
+#else
     is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+#endif
   end function is_nan_sp
 
-  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  !> Determine whether a value is not a number
   elemental function is_nan_dp(val) result(is_nan)
+#if WITH_IEEE_IS_NAN
+    use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
+#endif
     !> Value to check
     real(dp), intent(in) :: val
     !> Value is not a number
     logical :: is_nan
 
+#if WITH_IEEE_IS_NAN
+    is_nan = ieee_is_nan(val)
+#else
     is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+#endif
   end function is_nan_dp
 
 #if WITH_XDP
-  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  !> Determine whether a value is not a number
   elemental function is_nan_xdp(val) result(is_nan)
+#if WITH_IEEE_IS_NAN
+    use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
+#endif
     !> Value to check
     real(xdp), intent(in) :: val
     !> Value is not a number
     logical :: is_nan
 
+#if WITH_IEEE_IS_NAN
+    is_nan = ieee_is_nan(val)
+#else
     is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+#endif
   end function is_nan_xdp
 #endif
 
 #if WITH_QP
-  !> Determine whether a value is not a number without requiring IEEE arithmetic support
+  !> Determine whether a value is not a number
   elemental function is_nan_qp(val) result(is_nan)
+#if WITH_IEEE_IS_NAN
+    use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
+#endif
     !> Value to check
     real(qp), intent(in) :: val
     !> Value is not a number
     logical :: is_nan
 
+#if WITH_IEEE_IS_NAN
+    is_nan = ieee_is_nan(val)
+#else
     is_nan = .not.((val <= huge(val) .and. val >= -huge(val)) .or. abs(val) > huge(val))
+#endif
   end function is_nan_qp
 #endif
 

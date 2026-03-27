@@ -38,6 +38,7 @@ if(NOT DEFINED WITH_QP)
   check_fortran_source_compiles(
     "integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end"
     WITH_QP
+    SRC_EXT "F90"
   )
   set(WITH_QP ${WITH_QP} PARENT_SCOPE)
 endif()
@@ -49,8 +50,17 @@ if(NOT DEFINED WITH_XDP)
     end
     "
     WITH_XDP
+    SRC_EXT "F90"
   )
   set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
+endif()
+if(NOT DEFINED WITH_IEEE_IS_NAN)
+  check_fortran_source_compiles(
+    "use, intrinsic :: ieee_arithmetic, only : ieee_is_nan; logical :: x; x = ieee_is_nan(0.0); end"
+    WITH_IEEE_IS_NAN
+    SRC_EXT "F90"
+  )
+  set(WITH_IEEE_IS_NAN ${WITH_IEEE_IS_NAN} PARENT_SCOPE)
 endif()
 
 include(CMakePackageConfigHelpers)
