@@ -208,6 +208,22 @@ module testdrive
 #if WITH_QP
     module procedure :: check_complex_exceptional_qp
 #endif
+    module procedure :: check_float_absrel_sp
+    module procedure :: check_float_absrel_dp
+#if WITH_XDP
+    module procedure :: check_float_absrel_xdp
+#endif
+#if WITH_QP
+    module procedure :: check_float_absrel_qp
+#endif
+    module procedure :: check_complex_absrel_sp
+    module procedure :: check_complex_absrel_dp
+#if WITH_XDP
+    module procedure :: check_complex_absrel_xdp
+#endif
+#if WITH_QP
+    module procedure :: check_complex_absrel_qp
+#endif
     module procedure :: check_int_i1
     module procedure :: check_int_i2
     module procedure :: check_int_i4
@@ -1690,6 +1706,382 @@ contains
     end if
 
   end subroutine check_complex_exceptional_qp
+#endif
+
+
+  subroutine check_float_absrel_dp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(dp), intent(in) :: actual
+
+    !> Expected floating point value
+    real(dp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(dp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(dp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(dp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_float_absrel_dp
+
+
+  subroutine check_float_absrel_sp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(sp), intent(in) :: actual
+
+    !> Expected floating point value
+    real(sp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(sp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(sp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(sp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_float_absrel_sp
+
+
+#if WITH_XDP
+  subroutine check_float_absrel_xdp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(xdp), intent(in) :: actual
+
+    !> Expected floating point value
+    real(xdp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(xdp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(xdp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(xdp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_float_absrel_xdp
+#endif
+
+
+#if WITH_QP
+  subroutine check_float_absrel_qp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    real(qp), intent(in) :: actual
+
+    !> Expected floating point value
+    real(qp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(qp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(qp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(qp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_float_absrel_qp
+#endif
+
+
+  subroutine check_complex_absrel_dp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(dp), intent(in) :: actual
+
+    !> Expected floating point value
+    complex(dp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(dp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(dp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(dp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_complex_absrel_dp
+
+
+  subroutine check_complex_absrel_sp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(sp), intent(in) :: actual
+
+    !> Expected floating point value
+    complex(sp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(sp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(sp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(sp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_complex_absrel_sp
+
+
+#if WITH_XDP
+  subroutine check_complex_absrel_xdp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(xdp), intent(in) :: actual
+
+    !> Expected floating point value
+    complex(xdp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(xdp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(xdp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(xdp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_complex_absrel_xdp
+#endif
+
+
+#if WITH_QP
+  subroutine check_complex_absrel_qp(error, actual, expected, thr_abs, thr_rel, message, more)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    !> Found floating point value
+    complex(qp), intent(in) :: actual
+
+    !> Expected floating point value
+    complex(qp), intent(in) :: expected
+
+    !> Absolute threshold for matching floating point values
+    real(qp), intent(in) :: thr_abs
+
+    !> Relative threshold for matching floating point values
+    real(qp), intent(in) :: thr_rel
+
+    !> A detailed message describing the error
+    character(len=*), intent(in), optional :: message
+
+    !> Another line of error message
+    character(len=*), intent(in), optional :: more
+
+    real(qp) :: diff, threshold
+
+    call check(error, actual, message, more)
+    if (allocated(error)) return
+
+    diff = abs(actual - expected)
+    threshold = max(thr_abs, abs(thr_rel * expected))
+
+    if (diff > threshold) then
+      if (present(message)) then
+        call test_failed(error, message, more)
+      else
+        call test_failed(error, &
+          "Floating point value mismatch", &
+          "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
+          "(difference: "//to_string(diff)//")", &
+          more)
+      end if
+    end if
+
+  end subroutine check_complex_absrel_qp
 #endif
 
 

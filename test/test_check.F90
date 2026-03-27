@@ -162,7 +162,31 @@ contains
       new_unittest("string-i1", test_string_i1), &
       new_unittest("string-i2", test_string_i2), &
       new_unittest("string-i4", test_string_i4), &
-      new_unittest("string-i8", test_string_i8) &
+      new_unittest("string-i8", test_string_i8), &
+      new_unittest("real-single-absrel-relpass-absfail", test_rsp_absrel_relpass_absfail), &
+      new_unittest("real-single-absrel-relfail-abspass", test_rsp_absrel_relfail_abspass), &
+      new_unittest("real-single-absrel-fail", test_rsp_absrel_fail, should_fail=.true.), &
+      new_unittest("real-double-absrel-relpass-absfail", test_rdp_absrel_relpass_absfail), &
+      new_unittest("real-double-absrel-relfail-abspass", test_rdp_absrel_relfail_abspass), &
+      new_unittest("real-double-absrel-fail", test_rdp_absrel_fail, should_fail=.true.), &
+      new_unittest("complex-single-absrel-relpass-absfail", test_csp_absrel_relpass_absfail), &
+      new_unittest("complex-single-absrel-relfail-abspass", test_csp_absrel_relfail_abspass), &
+      new_unittest("complex-single-absrel-fail", test_csp_absrel_fail, should_fail=.true.), &
+      new_unittest("complex-double-absrel-relpass-absfail", test_cdp_absrel_relpass_absfail), &
+      new_unittest("complex-double-absrel-relfail-abspass", test_cdp_absrel_relfail_abspass), &
+      new_unittest("complex-double-absrel-fail", test_cdp_absrel_fail, should_fail=.true.), &
+      new_unittest("real-xdouble-absrel-relpass-absfail", test_rxdp_absrel_relpass_absfail), &
+      new_unittest("real-xdouble-absrel-relfail-abspass", test_rxdp_absrel_relfail_abspass), &
+      new_unittest("real-xdouble-absrel-fail", test_rxdp_absrel_fail, should_fail=.true.), &
+      new_unittest("real-quadruple-absrel-relpass-absfail", test_rqp_absrel_relpass_absfail), &
+      new_unittest("real-quadruple-absrel-relfail-abspass", test_rqp_absrel_relfail_abspass), &
+      new_unittest("real-quadruple-absrel-fail", test_rqp_absrel_fail, should_fail=.true.), &
+      new_unittest("complex-xdouble-absrel-relpass-absfail", test_cxdp_absrel_relpass_absfail), &
+      new_unittest("complex-xdouble-absrel-relfail-abspass", test_cxdp_absrel_relfail_abspass), &
+      new_unittest("complex-xdouble-absrel-fail", test_cxdp_absrel_fail, should_fail=.true.), &
+      new_unittest("complex-quadruple-absrel-relpass-absfail", test_cqp_absrel_relpass_absfail), &
+      new_unittest("complex-quadruple-absrel-relfail-abspass", test_cqp_absrel_relfail_abspass), &
+      new_unittest("complex-quadruple-absrel-fail", test_cqp_absrel_fail, should_fail=.true.) &
       ]
 
   end subroutine collect_check
@@ -1519,6 +1543,390 @@ contains
 
     call check(error, to_string(-huge(1_i8) - 1_i8), "-9223372036854775808")
   end subroutine test_string_i8
+
+
+  subroutine test_rsp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(sp) :: val
+
+    val = 1.005_sp
+
+    call check(error, val, 1.0_sp, thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_rsp_absrel_relpass_absfail
+
+
+  subroutine test_rsp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(sp) :: val
+
+    val = 1.05e-3_sp
+
+    call check(error, val, 1.0e-3_sp, thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_rsp_absrel_relfail_abspass
+
+
+  subroutine test_rsp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(sp) :: val
+
+    val = 1.02_sp
+
+    call check(error, val, 1.0_sp, thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_rsp_absrel_fail
+
+
+  subroutine test_rdp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(dp) :: val
+
+    val = 1.005_dp
+
+    call check(error, val, 1.0_dp, thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_relpass_absfail
+
+
+  subroutine test_rdp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(dp) :: val
+
+    val = 1.05e-3_dp
+
+    call check(error, val, 1.0e-3_dp, thr_abs=1.0e-4_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_relfail_abspass
+
+
+  subroutine test_rdp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    real(dp) :: val
+
+    val = 1.02_dp
+
+    call check(error, val, 1.0_dp, thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_fail
+
+
+  subroutine test_csp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(sp) :: val
+
+    val = cmplx(1.004_sp, 1.003_sp, sp)
+
+    call check(error, val, cmplx(1.0_sp, 1.0_sp, sp), thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_csp_absrel_relpass_absfail
+
+
+  subroutine test_csp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(sp) :: val
+
+    val = cmplx(1.05e-3_sp, 1.05e-3_sp, sp)
+
+    call check(error, val, cmplx(1.0e-3_sp, 1.0e-3_sp, sp), thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_csp_absrel_relfail_abspass
+
+
+  subroutine test_csp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(sp) :: val
+
+    val = cmplx(1.02_sp, 1.02_sp, sp)
+
+    call check(error, val, cmplx(1.0_sp, 1.0_sp, sp), thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_csp_absrel_fail
+
+
+  subroutine test_cdp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(dp) :: val
+
+    val = cmplx(1.004_dp, 1.003_dp, dp)
+
+    call check(error, val, cmplx(1.0_dp, 1.0_dp, dp), thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_cdp_absrel_relpass_absfail
+
+
+  subroutine test_cdp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(dp) :: val
+
+    val = cmplx(1.05e-3_dp, 1.05e-3_dp, dp)
+
+    call check(error, val, cmplx(1.0e-3_dp, 1.0e-3_dp, dp), thr_abs=1.0e-4_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_cdp_absrel_relfail_abspass
+
+
+  subroutine test_cdp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    complex(dp) :: val
+
+    val = cmplx(1.02_dp, 1.02_dp, dp)
+
+    call check(error, val, cmplx(1.0_dp, 1.0_dp, dp), thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_cdp_absrel_fail
+
+
+  subroutine test_rxdp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.005_xdp
+
+    call check(error, val, 1.0_xdp, thr_abs=1.0e-8_xdp, thr_rel=1.0e-2_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_absrel_relpass_absfail
+
+
+  subroutine test_rxdp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.05e-3_xdp
+
+    call check(error, val, 1.0e-3_xdp, thr_abs=1.0e-4_xdp, thr_rel=1.0e-2_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_absrel_relfail_abspass
+
+
+  subroutine test_rxdp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    real(xdp) :: val
+
+    val = 1.02_xdp
+
+    call check(error, val, 1.0_xdp, thr_abs=1.0e-8_xdp, thr_rel=1.0e-2_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_rxdp_absrel_fail
+
+
+  subroutine test_rqp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.005_qp
+
+    call check(error, val, 1.0_qp, thr_abs=1.0e-8_qp, thr_rel=1.0e-2_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_absrel_relpass_absfail
+
+
+  subroutine test_rqp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.05e-3_qp
+
+    call check(error, val, 1.0e-3_qp, thr_abs=1.0e-4_qp, thr_rel=1.0e-2_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_absrel_relfail_abspass
+
+
+  subroutine test_rqp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    real(qp) :: val
+
+    val = 1.02_qp
+
+    call check(error, val, 1.0_qp, thr_abs=1.0e-8_qp, thr_rel=1.0e-2_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_rqp_absrel_fail
+
+
+  subroutine test_cxdp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(1.004_xdp, 1.003_xdp, xdp)
+
+    call check(error, val, cmplx(1.0_xdp, 1.0_xdp, xdp), thr_abs=1.0e-8_xdp, thr_rel=1.0e-2_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_absrel_relpass_absfail
+
+
+  subroutine test_cxdp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(1.05e-3_xdp, 1.05e-3_xdp, xdp)
+
+    call check(error, val, cmplx(1.0e-3_xdp, 1.0e-3_xdp, xdp), thr_abs=1.0e-4_xdp, thr_rel=1.0e-2_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_absrel_relfail_abspass
+
+
+  subroutine test_cxdp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_XDP
+    complex(xdp) :: val
+
+    val = cmplx(1.02_xdp, 1.02_xdp, xdp)
+
+    call check(error, val, cmplx(1.0_xdp, 1.0_xdp, xdp), thr_abs=1.0e-8_xdp, thr_rel=1.0e-2_xdp)
+#else
+    call skip_test(error, "Extended double precision is not enabled")
+#endif
+
+  end subroutine test_cxdp_absrel_fail
+
+
+  subroutine test_cqp_absrel_relpass_absfail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(1.004_qp, 1.003_qp, qp)
+
+    call check(error, val, cmplx(1.0_qp, 1.0_qp, qp), thr_abs=1.0e-8_qp, thr_rel=1.0e-2_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_absrel_relpass_absfail
+
+
+  subroutine test_cqp_absrel_relfail_abspass(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(1.05e-3_qp, 1.05e-3_qp, qp)
+
+    call check(error, val, cmplx(1.0e-3_qp, 1.0e-3_qp, qp), thr_abs=1.0e-4_qp, thr_rel=1.0e-2_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_absrel_relfail_abspass
+
+
+  subroutine test_cqp_absrel_fail(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+#if WITH_QP
+    complex(qp) :: val
+
+    val = cmplx(1.02_qp, 1.02_qp, qp)
+
+    call check(error, val, cmplx(1.0_qp, 1.0_qp, qp), thr_abs=1.0e-8_qp, thr_rel=1.0e-2_qp)
+#else
+    call skip_test(error, "Quadruple precision is not enabled")
+#endif
+
+  end subroutine test_cqp_absrel_fail
 
 
 end module test_check

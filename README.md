@@ -117,12 +117,17 @@ Possible ways to use check are listed below
 | logical comparison   | *error*, *logical*, *logical*, ...                             |
 | integer comparison   | *error*, *integer*, ...                                        |
 | character comparison | *error*, *character*, *character*, ...                         |
-| real comparison      | *error*, *real*, *real*, ..., thr=*real*, rel=*logical*        |
-| real NaN check       | *error*, *real*, ...                                           |
-| complex comparison   | *error*, *complex*, *complex*, ..., thr=*real*, rel=*logical*  |
-| complex NaN check    | *error*, *complex*, ...                                        |
+| real comparison      | *error*, *real*, *real*, ..., thr=*real*, rel=*logical*                |
+| real combined check  | *error*, *real*, *real*, *thr_abs*, *thr_rel*, ...                     |
+| real NaN check       | *error*, *real*, ...                                                   |
+| complex comparison   | *error*, *complex*, *complex*, ..., thr=*real*, rel=*logical*          |
+| complex combined check | *error*, *complex*, *complex*, *thr_abs*, *thr_rel*, ...             |
+| complex NaN check    | *error*, *complex*, ...                                                |
 
 Each check will generate a meaningful error message based on the available arguments, but can also be provided with a custom error message instead.
+
+The combined check uses a pytest-style tolerance: `|actual - expected| <= max(thr_abs, thr_rel * |expected|)`, where both the absolute and relative threshold should be positive tolerances.
+This passes if *either* the absolute or relative threshold is satisfied.
 
 To generate custom checks the ``test_failed`` procedure is available to generate error messages
 
