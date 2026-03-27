@@ -74,6 +74,41 @@ if install
     description: 'The simple testing framework',
     subdirs: ['', module_id],
   )
+
+  cmake_data = configuration_data({
+    'PROJECT_NAME': meson.project_name(),
+    'PROJECT_VERSION': meson.project_version(),
+    'PACKAGE_INIT': 'cmake_minimum_required(VERSION 3.9...3.31 FATAL_ERROR)',
+    'CMAKE_SIZEOF_VOID_P': '8',
+    'CMAKE_INSTALL_PREFIX': get_option('prefix'),
+    'CMAKE_INSTALL_INCLUDEDIR': get_option('includedir'),
+    'CMAKE_INSTALL_LIBDIR': get_option('libdir'),
+    'TESTDRIVE_WITH_QP': with_qp ? 'ON' : 'OFF',
+    'TESTDRIVE_WITH_XDP': with_xdp ? 'ON' : 'OFF',
+    'TESTDRIVE_WITH_IEEE_IS_NAN': with_ieee_is_nan ? 'ON' : 'OFF',
+    'module-dir': module_id,
+  })
+  cmake_files = [
+    configure_file(
+      input: files('config'/'template-config.cmake'),
+      output: meson.project_name() + '-config.cmake',
+      configuration: cmake_data,
+    ),
+    configure_file(
+      input: files('config'/'template-version.cmake'),
+      output: meson.project_name() + '-config-version.cmake',
+      configuration: cmake_data,
+    ),
+    configure_file(
+      input: files('config'/'template-targets.cmake'),
+      output: meson.project_name() + '-targets.cmake',
+      configuration: cmake_data,
+    ),
+  ]
+  install_data(
+    cmake_files,
+    install_dir: get_option('libdir')/'cmake'/meson.project_name()
+  )
 endif
 
 # add the testsuite

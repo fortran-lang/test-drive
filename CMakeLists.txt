@@ -59,13 +59,14 @@ target_include_directories(
 target_compile_definitions(
   "${PROJECT_NAME}-lib"
   PRIVATE
-  "WITH_QP=$<BOOL:${WITH_QP}>"
-  "WITH_XDP=$<BOOL:${WITH_XDP}>"
-  "WITH_IEEE_IS_NAN=$<BOOL:${WITH_IEEE_IS_NAN}>"
+  "WITH_QP=$<BOOL:${TESTDRIVE_WITH_QP}>"
+  "WITH_XDP=$<BOOL:${TESTDRIVE_WITH_XDP}>"
+  "WITH_IEEE_IS_NAN=$<BOOL:${TESTDRIVE_WITH_IEEE_IS_NAN}>"
 )
 
 # Export targets for other projects
 add_library("${PROJECT_NAME}" INTERFACE)
+add_library("${PROJECT_NAME}:${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 target_link_libraries("${PROJECT_NAME}" INTERFACE "${PROJECT_NAME}-lib")
 install(
   TARGETS
@@ -98,6 +99,13 @@ install(
 
 # add the testsuite
 include(CTest)
-if(BUILD_TESTING AND TEST_DRIVE_BUILD_TESTING)
+if(DEFINED TEST_DRIVE_BUILD_TESTING AND NOT DEFINED TESTDRIVE_BUILD_TESTING)
+  message(WARNING "TEST_DRIVE_BUILD_TESTING is deprecated, use TESTDRIVE_BUILD_TESTING instead")
+  set(TESTDRIVE_BUILD_TESTING ${TEST_DRIVE_BUILD_TESTING})
+endif()
+if(NOT DEFINED TESTDRIVE_BUILD_TESTING AND DEFINED BUILD_TESTING)
+  set(TESTDRIVE_BUILD_TESTING ${BUILD_TESTING})
+endif()
+if(TESTDRIVE_BUILD_TESTING)
   add_subdirectory("test")
 endif()

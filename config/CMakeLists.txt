@@ -12,7 +12,7 @@
 # limitations under the License.
 
 option(BUILD_SHARED_LIBS "Whether the libraries built should be shared" FALSE)
-option(TEST_DRIVE_BUILD_TESTING "Enable testing for this project" ON)
+option(TESTDRIVE_BUILD_TESTING "Enable testing for this project" ON)
 
 set(
   module-dir
@@ -33,39 +33,49 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   )
 endif()
 
+if(NOT DEFINED TESTDRIVE_WITH_QP AND DEFINED WITH_QP)
+  set(TESTDRIVE_WITH_QP ${WITH_QP})
+endif()
+if(NOT DEFINED TESTDRIVE_WITH_XDP AND DEFINED WITH_XDP)
+  set(TESTDRIVE_WITH_XDP ${WITH_XDP})
+endif()
+if(NOT DEFINED TESTDRIVE_WITH_IEEE_IS_NAN AND DEFINED WITH_IEEE_IS_NAN)
+  set(TESTDRIVE_WITH_IEEE_IS_NAN ${WITH_IEEE_IS_NAN})
+endif()
+
 include(CheckFortranSourceCompiles)
-if(NOT DEFINED WITH_QP)
+if(NOT DEFINED TESTDRIVE_WITH_QP)
   check_fortran_source_compiles(
     "integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end"
-    WITH_QP
+    TESTDRIVE_WITH_QP
     SRC_EXT "F90"
   )
-  set(WITH_QP ${WITH_QP} PARENT_SCOPE)
+  set(TESTDRIVE_WITH_QP ${TESTDRIVE_WITH_QP} PARENT_SCOPE)
 endif()
-if(NOT DEFINED WITH_XDP)
+if(NOT DEFINED TESTDRIVE_WITH_XDP)
   check_fortran_source_compiles(
     "
     integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33))
     complex(xdp) :: x
     end
     "
-    WITH_XDP
+    TESTDRIVE_WITH_XDP
     SRC_EXT "F90"
   )
-  set(WITH_XDP ${WITH_XDP} PARENT_SCOPE)
+  set(TESTDRIVE_WITH_XDP ${TESTDRIVE_WITH_XDP} PARENT_SCOPE)
 endif()
-if(NOT DEFINED WITH_IEEE_IS_NAN)
+if(NOT DEFINED TESTDRIVE_WITH_IEEE_IS_NAN)
   check_fortran_source_compiles(
     "use, intrinsic :: ieee_arithmetic, only : ieee_is_nan; logical :: x; x = ieee_is_nan(0.0); end"
-    WITH_IEEE_IS_NAN
+    TESTDRIVE_WITH_IEEE_IS_NAN
     SRC_EXT "F90"
   )
-  set(WITH_IEEE_IS_NAN ${WITH_IEEE_IS_NAN} PARENT_SCOPE)
+  set(TESTDRIVE_WITH_IEEE_IS_NAN ${TESTDRIVE_WITH_IEEE_IS_NAN} PARENT_SCOPE)
 endif()
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/template.cmake"
+  "${CMAKE_CURRENT_SOURCE_DIR}/template-config.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
   INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
 )
