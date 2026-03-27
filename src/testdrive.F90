@@ -302,6 +302,11 @@ module testdrive
     !> Whether test is supposed to fail
     logical :: should_fail = .false.
 
+  contains
+
+    !> Deallocate unittest's internal data
+    final :: destroy_unittest
+
   end type unittest_type
 
 
@@ -329,6 +334,11 @@ module testdrive
 
     !> Entry point of the test
     procedure(collect_interface), pointer, nopass :: collect => null()
+
+  contains
+
+    !> Deallocate testsuite's internal data
+    final :: destroy_testsuite
 
   end type testsuite_type
 
@@ -361,6 +371,8 @@ module testdrive
     integer :: skipped = 0
     !> Running time
     real(sp) :: time = 0.0_sp
+  contains
+    final :: destroy_junit_output
   end type junit_output
 
 
@@ -791,6 +803,22 @@ contains
   end subroutine junit_write
 
 
+  !> deallocate internal data of junit_output
+  subroutine destroy_junit_output(self)
+
+    !> JUnit output
+    type(junit_output), intent(inout) :: self
+
+    if (allocated(self%xml_start)) deallocate(self%xml_start)
+    if (allocated(self%xml_block)) deallocate(self%xml_block)
+    if (allocated(self%xml_final)) deallocate(self%xml_final)
+    if (allocated(self%hostname)) deallocate(self%hostname)
+    if (allocated(self%package)) deallocate(self%package)
+    if (allocated(self%testsuite)) deallocate(self%testsuite)
+
+  end subroutine destroy_junit_output
+
+
   !> Create ISO 8601 formatted timestamp
   function get_timestamp() result(timestamp)
 
@@ -880,6 +908,18 @@ contains
   end function new_unittest
 
 
+  !> Finalize unit test
+  subroutine destroy_unittest(self)
+
+    !> unittest to destroy
+    type(unittest_type), intent(inout) :: self
+
+    if (allocated(self%name)) deallocate(self%name)
+    self%test => null()
+
+  end subroutine destroy_unittest
+
+
   !> Register a new testsuite
   function new_testsuite(name, collect) result(self)
 
@@ -896,6 +936,18 @@ contains
     self%collect => collect
 
   end function new_testsuite
+
+
+  !> Finalize testsuite
+  subroutine destroy_testsuite(self)
+
+    !> testsuite to destroy
+    type(testsuite_type), intent(inout) :: self
+
+    if (allocated(self%name)) deallocate(self%name)
+    self%collect => null()
+
+  end subroutine destroy_testsuite
 
 
   subroutine check_stat(error, stat, message, more)
