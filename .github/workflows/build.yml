@@ -169,3 +169,62 @@ jobs:
     - name: Upload coverage report
       if: ${{ matrix.build == 'meson' && matrix.build-type == 'coverage' }}
       uses: codecov/codecov-action@v3
+
+  conda:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        build: [meson, cmake]
+        build-type: [debug]
+        toolchain:
+          - {compiler: flang, version: '21.*'}
+          - {compiler: ifx, version: '2025.*'}
+          - {compiler: lfortran, version: '0.*'}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Install dependencies
+      uses: mamba-org/setup-micromamba@v1
+      with:
+        environment-file: config/test-env.yml
+        create-args: >-
+          ${{ matrix.toolchain.compiler }}=${{ matrix.toolchain.version }}
+
+    - name: Configure build (meson)
+      if: ${{ matrix.build == 'meson' }}
+      run: >-
+        meson setup _build
+        --buildtype=debug
+        --prefix=$PWD/_dist
+        --libdir=lib
+        --warnlevel=0
+
+    - name: Configure build (CMake)
+      if: ${{ matrix.build == 'cmake' }}
+      run: >-
+        cmake -B${{ env.BUILD_DIR }}
+        -GNinja
+        -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_INSTALL_PREFIX=$PWD/_dist
+        -DCMAKE_INSTALL_LIBDIR=lib
+
+    - name: Build library
+      if: ${{ matrix.build != 'fpm' }}
+      run: ninja -C _build
+
+    - name: Run unit tests (meson)
+      if: ${{ matrix.build == 'meson' }}
+      run: meson test -C _build --print-errorlogs --no-rebuild --num-processes 2 -t 2
+
+    - name: Run unit tests (ctest)
+      if: ${{ matrix.build == 'cmake' }}
+      run: ctest --output-on-failure --parallel 2
+      working-directory: _build

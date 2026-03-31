@@ -16,7 +16,7 @@ project(
   'fortran',
   version: '0.6.0',
   license: 'Apache-2.0 OR MIT',
-  meson_version: '>=0.53',
+  meson_version: '>=0.60',
   default_options: [
     'buildtype=debugoptimized',
     'default_library=both',
@@ -59,13 +59,15 @@ if install
   # Distribute the license files in share/licenses/<name>
   install_data(
     testdrive_lic,
-    install_dir: get_option('datadir')/'licenses'/meson.project_name()
+    install_dir: get_option('datadir')/'licenses'/meson.project_name(),
+    install_tag: 'doc',
   )
 
   module_id = meson.project_name() / fc_id + '-' + fc.version()
   meson.add_install_script(
     'config'/'install-mod.py',
     get_option('includedir') / module_id,
+    install_tag: 'devel',
   )
 
   pkg = import('pkgconfig')
@@ -78,8 +80,8 @@ if install
   cmake_data = configuration_data({
     'PROJECT_NAME': meson.project_name(),
     'PROJECT_VERSION': meson.project_version(),
-    'PACKAGE_INIT': 'cmake_minimum_required(VERSION 3.9...3.31 FATAL_ERROR)',
-    'CMAKE_SIZEOF_VOID_P': '8',
+    'PACKAGE_INIT': '',
+    'CMAKE_SIZEOF_VOID_P': fc.sizeof('void*'),
     'CMAKE_INSTALL_PREFIX': get_option('prefix'),
     'CMAKE_INSTALL_INCLUDEDIR': get_option('includedir'),
     'CMAKE_INSTALL_LIBDIR': get_option('libdir'),
@@ -107,7 +109,8 @@ if install
   ]
   install_data(
     cmake_files,
-    install_dir: get_option('libdir')/'cmake'/meson.project_name()
+    install_dir: get_option('libdir')/'cmake'/meson.project_name(),
+    install_tag: 'devel',
   )
 endif
 
