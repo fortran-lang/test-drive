@@ -45,6 +45,12 @@ jobs:
         - os: ubuntu-latest
           build: meson
           build-type: debug
+          compiler: gcc
+          version: 15
+
+        - os: ubuntu-latest
+          build: meson
+          build-type: debug
           compiler: intel-classic
           version: 2021.6
 
