@@ -180,7 +180,7 @@ jobs:
         build-type: [debug]
         toolchain:
           - {compiler: flang, version: '21.*'}
-          - {compiler: ifx, version: '2025.*'}
+          - {compiler: ifx_win-64, version: '2025.*'}
           - {compiler: lfortran, version: '0.*'}
 
     defaults:
