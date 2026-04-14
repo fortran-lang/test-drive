@@ -113,9 +113,9 @@ module testdrive
   implicit none
   private
 
-#if defined(__GFORTRAN__) && (__GNUC__ == 15) && (__GNUC_MINOR__ == 1)
+#if defined(__GFORTRAN__) && (__GNUC__ == 15)
 ! gfortran 15.1 finalization of derived types in this module can segfault
-#define TESTDRIVE_GFORTRAN_15_1_BROKEN_FINALIZATION 1
+#define TESTDRIVE_GFORTRAN_15_BROKEN_FINALIZATION 1
 #endif
 
   public :: run_testsuite, run_selected, new_unittest, new_testsuite
@@ -309,7 +309,7 @@ module testdrive
 
   contains
 
-#ifndef TESTDRIVE_GFORTRAN_15_1_BROKEN_FINALIZATION
+#ifndef TESTDRIVE_GFORTRAN_15_BROKEN_FINALIZATION
     !> Deallocate unittest's internal data
     final :: destroy_unittest
 #endif
@@ -344,7 +344,7 @@ module testdrive
 
   contains
 
-#ifndef TESTDRIVE_GFORTRAN_15_1_BROKEN_FINALIZATION
+#ifndef TESTDRIVE_GFORTRAN_15_BROKEN_FINALIZATION
     !> Deallocate testsuite's internal data
     final :: destroy_testsuite
 #endif
