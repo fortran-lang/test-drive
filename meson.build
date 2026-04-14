@@ -81,7 +81,7 @@ if install
     'PROJECT_NAME': meson.project_name(),
     'PROJECT_VERSION': meson.project_version(),
     'PACKAGE_INIT': '',
-    'CMAKE_SIZEOF_VOID_P': fc.sizeof('void*'),
+    'CMAKE_SIZEOF_VOID_P': fc.sizeof('void*') * 8,
     'CMAKE_INSTALL_PREFIX': get_option('prefix'),
     'CMAKE_INSTALL_INCLUDEDIR': get_option('includedir'),
     'CMAKE_INSTALL_LIBDIR': get_option('libdir'),
