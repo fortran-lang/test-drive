@@ -114,6 +114,7 @@ module testdrive
   private
 
 #if defined(__GFORTRAN__) && (__GNUC__ == 15) && (__GNUC_MINOR__ == 1)
+! gfortran 15.1 finalization of derived types in this module can segfault
 #define TESTDRIVE_GFORTRAN_15_1_BROKEN_FINALIZATION 1
 #endif
 
