@@ -17,7 +17,7 @@ get_directory_property(is-subproject PARENT_DIRECTORY)
 project(
   "test-drive"
   LANGUAGES "Fortran"
-  VERSION "0.6.0"
+  VERSION "0.6.1"
   DESCRIPTION "The simple testing framework"
 )
 
@@ -49,6 +49,7 @@ set_target_properties(
   VERSION "${PROJECT_VERSION}"
   SOVERSION "${PROJECT_VERSION_MAJOR}"
   Fortran_MODULE_DIRECTORY "${PROJECT_BINARY_DIR}/include"
+  WINDOWS_EXPORT_ALL_SYMBOLS TRUE
 )
 target_include_directories(
   "${PROJECT_NAME}-lib"
