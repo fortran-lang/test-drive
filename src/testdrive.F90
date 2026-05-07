@@ -113,7 +113,7 @@ module testdrive
   implicit none
   private
 
-#if defined(__GFORTRAN__) && (__GNUC__ == 15)
+#if defined(__GFORTRAN__) && (__GNUC__ >= 15)
 ! gfortran 15.1 finalization of derived types in this module can segfault
 #define TESTDRIVE_GFORTRAN_15_BROKEN_FINALIZATION 1
 #endif
