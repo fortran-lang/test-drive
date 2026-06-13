@@ -81,7 +81,6 @@ if install
     'PROJECT_NAME': meson.project_name(),
     'PROJECT_VERSION': meson.project_version(),
     'PACKAGE_INIT': '',
-    'CMAKE_SIZEOF_VOID_P': '8',
     'CMAKE_INSTALL_PREFIX': get_option('prefix'),
     'CMAKE_INSTALL_INCLUDEDIR': get_option('includedir'),
     'CMAKE_INSTALL_LIBDIR': get_option('libdir'),
@@ -94,11 +93,6 @@ if install
     configure_file(
       input: files('config'/'template-config.cmake'),
       output: meson.project_name() + '-config.cmake',
-      configuration: cmake_data,
-    ),
-    configure_file(
-      input: files('config'/'template-version.cmake'),
-      output: meson.project_name() + '-config-version.cmake',
       configuration: cmake_data,
     ),
     configure_file(
