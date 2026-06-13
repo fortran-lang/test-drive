@@ -42,8 +42,14 @@ target_compile_definitions(
   "WITH_XDP=$<BOOL:${WITH_XDP}>"
 )
 
-add_test("${PROJECT_NAME}/all-tests" "${PROJECT_NAME}-tester")
+set_target_properties(
+  "${PROJECT_NAME}-tester"
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}"
+)
+
+add_test("${PROJECT_NAME}/all-tests" "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-tester")
 
 foreach(t IN LISTS tests)
-  add_test("${PROJECT_NAME}/${t}" "${PROJECT_NAME}-tester" "${t}")
+  add_test("${PROJECT_NAME}/${t}" "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-tester" "${t}")
 endforeach()
