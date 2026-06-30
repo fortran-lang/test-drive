@@ -15,8 +15,14 @@ option(BUILD_SHARED_LIBS "Whether the libraries built should be shared" FALSE)
 option(TESTDRIVE_BUILD_TESTING "Enable testing for this project" ON)
 
 set(
-  module-dir
+  "${PROJECT_NAME}-module-dir"
   "${PROJECT_NAME}/${CMAKE_Fortran_COMPILER_ID}-${CMAKE_Fortran_COMPILER_VERSION}"
+  CACHE STRING
+  "Subdirectory to install generated module files to"
+)
+set(
+  module-dir
+  "${${PROJECT_NAME}-module-dir}"
 )
 set(module-dir "${module-dir}" PARENT_SCOPE)
 
