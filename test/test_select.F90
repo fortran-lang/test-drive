@@ -97,7 +97,7 @@ contains
 
     integer :: unit, stat
 
-    open(status='scratch', newunit=unit)
+    open(status="scratch", newunit=unit)
 
     stat = 7
     call run_testsuite(stub_collect, unit, stat)
@@ -115,7 +115,7 @@ contains
 
     integer :: unit, stat
 
-    open(status='scratch', newunit=unit)
+    open(status="scratch", newunit=unit)
 
     stat = 3
     call run_testsuite(stub_collect_bad, unit, stat)
@@ -133,7 +133,7 @@ contains
 
     integer :: unit, stat
 
-    open(status='scratch', newunit=unit)
+    open(status="scratch", newunit=unit)
 
     stat = 1
     call run_selected(stub_collect, "always-fail", unit, stat)
@@ -151,7 +151,7 @@ contains
 
     integer :: unit, stat
 
-    open(status='scratch', newunit=unit)
+    open(status="scratch", newunit=unit)
 
     call run_selected(stub_collect, "not-available", unit, stat)
     call check(error, stat < 0)

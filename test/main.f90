@@ -14,11 +14,11 @@
 !> Driver for unit testing
 program tester
   use, intrinsic :: iso_fortran_env, only : error_unit
+  use test_check, only : collect_check
+  use test_select, only : collect_select
   use testdrive, only : run_testsuite, new_testsuite, testsuite_type, &
     & select_suite, run_selected, get_argument, junit_output, junit_header, &
     & init_color_output
-  use test_check, only : collect_check
-  use test_select, only : collect_select
   implicit none
   integer :: stat, is
   character(len=:), allocatable :: suite_name, test_name
@@ -67,7 +67,7 @@ program tester
   end if
 
   if (stat > 0) then
-    write(error_unit, '(i0, 1x, a)') stat, "test(s) failed!"
+    write(error_unit, "(i0, 1x, a)") stat, "test(s) failed!"
     error stop 1
   end if
 

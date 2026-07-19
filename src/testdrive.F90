@@ -363,7 +363,7 @@ module testdrive
     !> Unique identifier
     integer :: uid = 0
     !> Timestamp
-    character(len=19) :: timestamp = '1970-01-01T00:00:00'
+    character(len=19) :: timestamp = "1970-01-01T00:00:00"
     !> Hostname
     character(len=:), allocatable :: hostname
     !> Package name
@@ -445,7 +445,7 @@ module testdrive
 
   type(color_output), protected :: color
 
-  character(len=*), parameter :: fmt = '(1x, *(1x, a))'
+  character(len=*), parameter :: fmt = "(1x, *(1x, a))"
   character(len=*), parameter :: newline = new_line("a")
 
 
@@ -485,7 +485,7 @@ contains
     !$omp if (parallel_)
     do it = 1, size(testsuite)
       !$omp critical(testdrive_testsuite)
-      write(unit, '(1x, 4(1x, a))') &
+      write(unit, "(1x, 4(1x, a))") &
         & "Starting", (color%blue)//testsuite(it)%name//color%reset, &
         & color%dim//"..."//color%reset, &
         & color%bold//"(" // color%cyan//to_string(it)//color%bold // &
@@ -566,7 +566,7 @@ contains
     call junit_push_test(junit, test, error, 0.0_sp)
     !$omp critical(testdrive_testsuite)
     call make_output(message, test, error)
-    write(unit, '(a)') message
+    write(unit, "(a)") message
     !$omp end critical(testdrive_testsuite)
     if (allocated(error)) then
       call clear_error(error)
@@ -648,15 +648,15 @@ contains
 
     junit%xml_start = &
       & '<?xml version="1.0" encoding="UTF-8"?>' // newline // &
-      & '<testsuites' // newline // &
-      & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // newline // & 
+      & "<testsuites" // newline // &
+      & ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' // newline // &
       & ' xsi:noNamespaceSchemaLocation="JUnit.xsd"' // newline // &
-      & '>' // newline
-    junit%xml_block = ''
+      & ">" // newline
+    junit%xml_block = ""
     junit%xml_final = &
-      & '</testsuites>'
+      & "</testsuites>"
 
-    junit%hostname = 'localhost'
+    junit%hostname = "localhost"
     junit%package = package
 
   end subroutine junit_header
@@ -688,7 +688,7 @@ contains
 
     junit%xml_start = &
       & junit%xml_start // &
-      & '  <testsuite' // newline // &
+      & "  <testsuite" // newline // &
       & '   name="'//junit%testsuite//'"' // newline // &
       & '   package="'//junit%package//'"' // newline // &
       & '   id="'//to_string(junit%uid)//'"' // newline // &
@@ -699,13 +699,13 @@ contains
       & '   errors="'//to_string(junit%errors)//'"' // newline // &
       & '   skipped="'//to_string(junit%skipped)//'"' // newline // &
       & '   time="'//to_string(junit%time)//'"' // newline // &
-      & '  >' // newline // &
-      & '  <properties>' // newline // &
-      & '  </properties>' // newline // &
+      & "  >" // newline // &
+      & "  <properties>" // newline // &
+      & "  </properties>" // newline // &
       & junit%xml_block // newline // &
-      & '  </testsuite>' // newline
+      & "  </testsuite>" // newline
 
-    junit%xml_block = ''
+    junit%xml_block = ""
     junit%tests = 0
     junit%failures = 0
     junit%errors = 0
@@ -739,54 +739,54 @@ contains
 
     junit%xml_block = &
       & junit%xml_block // &
-      & '   <testcase' // newline // &
+      & "   <testcase" // newline // &
       & '    name="'//test%name//'"' // newline // &
       & '    classname="'//junit%testsuite//'"' // newline // &
       & '    time="'//to_string(time)//'"' // newline // &
-      & '   >' // newline
+      & "   >" // newline
 
     if (test_skipped(error)) then
       junit%xml_block = &
         & junit%xml_block // &
-        & '    <skipped/>' // newline
+        & "    <skipped/>" // newline
       junit%skipped = junit%skipped + 1
-    elseif (present(error)) then
+    else if (present(error)) then
       if (test%should_fail) then
         junit%xml_block = &
           & junit%xml_block // &
-          & '    <system-out>' // newline // &
+          & "    <system-out>" // newline // &
           & '     "'//error%message//'"' // newline // &
-          & '    </system-out>' // newline
+          & "    </system-out>" // newline
       else
         junit%xml_block = &
           & junit%xml_block // &
-          & '    <failure' // newline // &
+          & "    <failure" // newline // &
           & '     message="'//error%message//'"' // newline // &
           & '     type="AssertionError"' // newline // &
-          & '    />' // newline
+          & "    />" // newline
         junit%failures = junit%failures + 1
       end if
     else
       if (test%should_fail) then
         junit%xml_block = &
           & junit%xml_block // &
-          & '    <failure' // newline // &
+          & "    <failure" // newline // &
           & '     message="Unexpected pass"' // newline // &
           & '     type="AssertionError"' // newline // &
-          & '    />' // newline
+          & "    />" // newline
         junit%failures = junit%failures + 1
       else
         junit%xml_block = &
           & junit%xml_block // &
-          & '    <system-out>' // newline // &
+          & "    <system-out>" // newline // &
           & '     "Test passed successfully"' // newline // &
-          & '    </system-out>' // newline
+          & "    </system-out>" // newline
       end if
     end if
 
     junit%xml_block = &
       & junit%xml_block // &
-      & '   </testcase>' // newline   
+      & "   </testcase>" // newline
     !$omp end critical(testdrive_junit)
 
   end subroutine junit_push_test
@@ -803,10 +803,10 @@ contains
     if (.not.present(junit)) return
     open( &
       & newunit=io, &
-      & file='JUnit'//junit%package//'.xml', &
-      & status='replace', &
-      & action='write')
-    write(io, '(a)') junit%xml_start // junit%xml_final
+      & file="JUnit"//junit%package//".xml", &
+      & status="replace", &
+      & action="write")
+    write(io, "(a)") junit%xml_start // junit%xml_final
     close(io)
 
   end subroutine junit_write
@@ -852,7 +852,7 @@ contains
     character(len=*), intent(in) :: name
 
     !> Available unit tests
-    type(unittest_type) :: tests(:)
+    type(unittest_type), intent(inout) :: tests(:)
 
     !> Selected test suite
     integer :: pos
@@ -877,7 +877,7 @@ contains
     character(len=*), intent(in) :: name
 
     !> Available test suites
-    type(testsuite_type) :: suites(:)
+    type(testsuite_type), intent(inout) :: suites(:)
 
     !> Selected test suite
     integer :: pos
@@ -2470,7 +2470,7 @@ contains
 
     if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = '-'
+      buffer(pos:pos) = "-"
     end if
 
     string = buffer(pos:)
@@ -2507,7 +2507,7 @@ contains
 
     if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = '-'
+      buffer(pos:pos) = "-"
     end if
 
     string = buffer(pos:)
@@ -2544,7 +2544,7 @@ contains
 
     if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = '-'
+      buffer(pos:pos) = "-"
     end if
 
     string = buffer(pos:)
@@ -2581,7 +2581,7 @@ contains
 
     if (val < 0_ik) then
       pos = pos - 1
-      buffer(pos:pos) = '-'
+      buffer(pos:pos) = "-"
     end if
 
     string = buffer(pos:)
@@ -2594,7 +2594,7 @@ contains
     integer, parameter :: buffer_len = 128
     character(len=buffer_len) :: buffer
 
-    write(buffer, '(g0)') val
+    write(buffer, "(g0)") val
     string = trim(buffer)
 
   end function real_sp_to_string
@@ -2606,7 +2606,7 @@ contains
     integer, parameter :: buffer_len = 128
     character(len=buffer_len) :: buffer
 
-    write(buffer, '(g0)') val
+    write(buffer, "(g0)") val
     string = trim(buffer)
 
   end function real_dp_to_string
@@ -2619,7 +2619,7 @@ contains
     integer, parameter :: buffer_len = 128
     character(len=buffer_len) :: buffer
 
-    write(buffer, '(g0)') val
+    write(buffer, "(g0)") val
     string = trim(buffer)
 
   end function real_xdp_to_string
@@ -2633,7 +2633,7 @@ contains
     integer, parameter :: buffer_len = 128
     character(len=buffer_len) :: buffer
 
-    write(buffer, '(g0)') val
+    write(buffer, "(g0)") val
     string = trim(buffer)
 
   end function real_qp_to_string
@@ -2705,9 +2705,9 @@ contains
     type(error_type), intent(inout) :: error
 
     if (error%stat /= success) then
-      write(error_unit, '(a)') "[Fatal] Uncaught error"
+      write(error_unit, "(a)") "[Fatal] Uncaught error"
       if (allocated(error%message)) then
-        write(error_unit, '(a, 1x, i0, *(1x, a))') &
+        write(error_unit, "(a, 1x, i0, *(1x, a))") &
           "Code:", error%stat, "Message:", error%message
       end if
       error stop
@@ -2870,13 +2870,13 @@ contains
     type(color_code), intent(in) :: rval
     !> Combined escape code
     type(color_code) :: code
-  
+
     code = color_code( &
       style=merge(rval%style, lval%style, rval%style >= 0), &
       fg=merge(rval%fg, lval%fg, rval%fg >= 0), &
       bg=merge(rval%bg, lval%bg, rval%bg >= 0))
   end function add_color
-  
+
   !> Concatenate an escape code with a string and turn it into an actual escape sequence
   pure function concat_color_left(lval, code) result(str)
     !> String to add the escape code to
@@ -2885,10 +2885,10 @@ contains
     type(color_code), intent(in) :: code
     !> Concatenated string
     character(len=:), allocatable :: str
-  
+
     str = lval // escape_color(code)
   end function concat_color_left
-  
+
   !> Concatenate an escape code with a string and turn it into an actual escape sequence
   pure function concat_color_right(code, rval) result(str)
     !> String to add the escape code to
@@ -2897,10 +2897,10 @@ contains
     type(color_code), intent(in) :: code
     !> Concatenated string
     character(len=:), allocatable :: str
-  
+
     str = escape_color(code) // rval
   end function concat_color_right
-  
+
   !> Transform a color code into an actual ANSI escape sequence
   pure function escape_color(code) result(str)
     !> Color code to be used
@@ -2909,7 +2909,7 @@ contains
     character(len=:), allocatable :: str
     character, parameter :: chars(0:9) = &
       ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-  
+
     if (anycolor(code)) then
       str = achar(27) // "[0"  ! Always reset the style
       if (code%style > 0 .and. code%style < 10) str = str // ";" // chars(code%style)
@@ -2920,14 +2920,14 @@ contains
       str = ""
     end if
   end function escape_color
-  
+
   !> Check whether the code describes any color or is just a stub
   pure function anycolor(code)
     !> Escape sequence
     type(color_code), intent(in) :: code
     !> Any color / style is active
     logical :: anycolor
-  
+
     anycolor = code%fg >= 0 .or. code%bg >= 0 .or. code%style >= 0
   end function anycolor
 

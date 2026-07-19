@@ -88,7 +88,7 @@ jobs:
       if: ${{ matrix.build == 'fpm' }}
       uses: fortran-lang/setup-fpm@v3
       with:
-        fpm-version: 'v0.2.0'
+        fpm-version: 'v0.4.0'
 
     - name: Configure build (meson)
       if: ${{ matrix.build == 'meson' }}
@@ -175,3 +175,19 @@ jobs:
     - name: Upload coverage report
       if: ${{ matrix.build == 'meson' && matrix.build-type == 'coverage' }}
       uses: codecov/codecov-action@v3
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install pre-commit
+      run: pip install pre-commit
+
+    - name: Run pre-commit checks
+      run: pre-commit run -a

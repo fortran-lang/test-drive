@@ -16,7 +16,7 @@ program tester
   end do
 
   if (stat > 0) then
-    write(error_unit, '(i0, 1x, a)') stat, "test(s) failed!"
+    write(error_unit, "(i0, 1x, a)") stat, "test(s) failed!"
     error stop
   end if
 

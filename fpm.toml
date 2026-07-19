@@ -3,6 +3,13 @@ version = "0.6.1"
 license = "Apache-2.0 OR MIT"
 maintainer = ["@awvwgk"]
 author = ["Sebastian Ehlert"]
-copyright = "2020-2021 Sebastian Ehlert"
+copyright = "2020-2026 Sebastian Ehlert"
 description = "The simple testing framework"
 keywords = ["testing-framework", "unit-testing"]
+
+[extra.fortitude.check]
+ignore = [
+  "C002",  # interface without implicit none
+  "C003",  # implicit none(external)
+]
+line-length = 132
