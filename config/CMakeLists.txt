@@ -46,7 +46,11 @@ endif()
 include(CheckFortranSourceCompiles)
 if(NOT DEFINED TESTDRIVE_WITH_QP)
   check_fortran_source_compiles(
-    "integer, parameter :: qp = selected_real_kind(33); complex(qp) :: x; end"
+    "integer, parameter :: qp = selected_real_kind(33)
+    complex(qp) :: x
+    real(qp) :: y
+    y = abs(x)
+    end"
     TESTDRIVE_WITH_QP
     SRC_EXT "F90"
   )
@@ -57,6 +61,8 @@ if(NOT DEFINED TESTDRIVE_WITH_XDP)
     "
     integer, parameter :: xdp = merge(-1, selected_real_kind(18), selected_real_kind(18) == selected_real_kind(33))
     complex(xdp) :: x
+    real(xdp) :: y
+    y = abs(x)
     end
     "
     TESTDRIVE_WITH_XDP

@@ -59,6 +59,8 @@ if get_option('qp').auto()
   with_qp = fc.compiles('''
     integer, parameter :: qp = selected_real_kind(33)
     complex(qp) :: x
+    real(qp) :: y
+    y = abs(x)
     end
   ''')
 else
@@ -71,6 +73,8 @@ if get_option('xdp').auto()
       & merge(-1, selected_real_kind(18), &
       & selected_real_kind(18) == selected_real_kind(33))
     complex(xdp) :: x
+    real(xdp) :: y
+    y = abs(x)
     end
   ''')
 else
