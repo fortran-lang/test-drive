@@ -7,6 +7,8 @@ copyright = "2020-2026 Sebastian Ehlert"
 description = "The simple testing framework"
 keywords = ["testing-framework", "unit-testing"]
 
+[preprocess.cpp]
+
 [extra.fortitude.check]
 ignore = [
   "C002",  # interface without implicit none
