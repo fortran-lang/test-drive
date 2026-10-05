@@ -129,6 +129,9 @@ Each check will generate a meaningful error message based on the available argum
 The combined check uses a pytest-style tolerance: `|actual - expected| <= max(thr_abs, thr_rel * |expected|)`, where both the absolute and relative threshold should be positive tolerances.
 This passes if *either* the absolute or relative threshold is satisfied.
 
+Real and complex comparisons fail if any value or threshold is NaN.
+The difference to an infinite value is always infinite, so no threshold can cover it; infinite values therefore only pass if actual and expected are the same infinity.
+
 To generate custom checks the ``test_failed`` procedure is available to generate error messages
 
 ```f90

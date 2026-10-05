@@ -22,7 +22,8 @@
 #endif
 
 module test_check
-  use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan
+  use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan, &
+    & ieee_positive_inf, ieee_negative_inf
   use testdrive, only : new_unittest, unittest_type, error_type, check, skip_test, to_string
   implicit none
   private
@@ -80,6 +81,8 @@ contains
       new_unittest("real-single-abs", test_rsp_abs), &
       new_unittest("real-single-rel", test_rsp_rel), &
       new_unittest("real-single-nan", test_rsp_nan, should_fail=.true.), &
+      new_unittest("real-single-abs-expected-nan", test_rsp_abs_expected_nan, should_fail=.true.), &
+      new_unittest("real-single-rel-expected-inf", test_rsp_rel_expected_inf, should_fail=.true.), &
       new_unittest("real-single-abs-fail", test_rsp_abs_fail, should_fail=.true.), &
       new_unittest("real-single-rel-fail", test_rsp_rel_fail, should_fail=.true.), &
       new_unittest("real-single-abs-message", test_rsp_abs_message, should_fail=.true.), &
@@ -87,6 +90,18 @@ contains
       new_unittest("real-double-abs", test_rdp_abs), &
       new_unittest("real-double-rel", test_rdp_rel), &
       new_unittest("real-double-nan", test_rdp_nan, should_fail=.true.), &
+      new_unittest("real-double-rel-equal-thr-nan", test_rdp_rel_equal_thr_nan, should_fail=.true.), &
+      new_unittest("real-double-rel-equal-inf", test_rdp_rel_equal_inf), &
+      new_unittest("real-double-rel-zero", test_rdp_rel_zero), &
+      new_unittest("real-double-abs-expected-nan", test_rdp_abs_expected_nan, should_fail=.true.), &
+      new_unittest("real-double-abs-thr-nan", test_rdp_abs_thr_nan, should_fail=.true.), &
+      new_unittest("real-double-abs-thr-inf", test_rdp_abs_thr_inf), &
+      new_unittest("real-double-abs-thr-inf-actual-inf", test_rdp_abs_thr_inf_actual_inf, should_fail=.true.), &
+      new_unittest("real-double-abs-thr-neginf", test_rdp_abs_thr_neginf, should_fail=.true.), &
+      new_unittest("real-double-abs-expected-inf", test_rdp_abs_expected_inf, should_fail=.true.), &
+      new_unittest("real-double-rel-expected-inf", test_rdp_rel_expected_inf, should_fail=.true.), &
+      new_unittest("real-double-abs-huge-diff", test_rdp_abs_huge_diff, should_fail=.true.), &
+      new_unittest("real-double-rel-huge-diff", test_rdp_rel_huge_diff, should_fail=.true.), &
       new_unittest("real-double-abs-fail", test_rdp_abs_fail, should_fail=.true.), &
       new_unittest("real-double-rel-fail", test_rdp_rel_fail, should_fail=.true.), &
       new_unittest("real-double-abs-message", test_rdp_abs_message, should_fail=.true.), &
@@ -115,6 +130,14 @@ contains
       new_unittest("complex-double-abs", test_cdp_abs), &
       new_unittest("complex-double-rel", test_cdp_rel), &
       new_unittest("complex-double-nan", test_cdp_nan, should_fail=.true.), &
+      new_unittest("complex-double-rel-equal-inf", test_cdp_rel_equal_inf), &
+      new_unittest("complex-double-rel-zero", test_cdp_rel_zero), &
+      new_unittest("complex-double-abs-thr-inf", test_cdp_abs_thr_inf), &
+      new_unittest("complex-double-rel-expected-inf", test_cdp_rel_expected_inf, should_fail=.true.), &
+      new_unittest("complex-double-abs-huge-diff", test_cdp_abs_huge_diff, should_fail=.true.), &
+      new_unittest("complex-double-abs-thr-nan", test_cdp_abs_thr_nan, should_fail=.true.), &
+      new_unittest("complex-double-abs-expected-imag-nan", test_cdp_abs_expected_imag_nan, should_fail=.true.), &
+      new_unittest("complex-double-abs-expected-nan", test_cdp_abs_expected_nan, should_fail=.true.), &
       new_unittest("complex-double-abs-fail", test_cdp_abs_fail, should_fail=.true.), &
       new_unittest("complex-double-rel-fail", test_cdp_rel_fail, should_fail=.true.), &
       new_unittest("complex-double-abs-message", test_cdp_abs_message, should_fail=.true.), &
@@ -166,15 +189,24 @@ contains
       new_unittest("real-single-absrel-relpass-absfail", test_rsp_absrel_relpass_absfail), &
       new_unittest("real-single-absrel-relfail-abspass", test_rsp_absrel_relfail_abspass), &
       new_unittest("real-single-absrel-fail", test_rsp_absrel_fail, should_fail=.true.), &
+      new_unittest("real-single-absrel-expected-inf", test_rsp_absrel_expected_inf, should_fail=.true.), &
       new_unittest("real-double-absrel-relpass-absfail", test_rdp_absrel_relpass_absfail), &
       new_unittest("real-double-absrel-relfail-abspass", test_rdp_absrel_relfail_abspass), &
       new_unittest("real-double-absrel-fail", test_rdp_absrel_fail, should_fail=.true.), &
+      new_unittest("real-double-absrel-expected-nan", test_rdp_absrel_expected_nan, should_fail=.true.), &
+      new_unittest("real-double-absrel-thr-abs-nan", test_rdp_absrel_thr_abs_nan, should_fail=.true.), &
+      new_unittest("real-double-absrel-thr-rel-nan", test_rdp_absrel_thr_rel_nan, should_fail=.true.), &
+      new_unittest("real-double-absrel-expected-inf", test_rdp_absrel_expected_inf, should_fail=.true.), &
+      new_unittest("real-double-absrel-equal-inf", test_rdp_absrel_equal_inf), &
       new_unittest("complex-single-absrel-relpass-absfail", test_csp_absrel_relpass_absfail), &
       new_unittest("complex-single-absrel-relfail-abspass", test_csp_absrel_relfail_abspass), &
       new_unittest("complex-single-absrel-fail", test_csp_absrel_fail, should_fail=.true.), &
       new_unittest("complex-double-absrel-relpass-absfail", test_cdp_absrel_relpass_absfail), &
       new_unittest("complex-double-absrel-relfail-abspass", test_cdp_absrel_relfail_abspass), &
       new_unittest("complex-double-absrel-fail", test_cdp_absrel_fail, should_fail=.true.), &
+      new_unittest("complex-double-absrel-expected-nan", test_cdp_absrel_expected_nan, should_fail=.true.), &
+      new_unittest("complex-double-absrel-expected-inf", test_cdp_absrel_expected_inf, should_fail=.true.), &
+      new_unittest("complex-double-absrel-equal-inf", test_cdp_absrel_equal_inf), &
       new_unittest("real-xdouble-absrel-relpass-absfail", test_rxdp_absrel_relpass_absfail), &
       new_unittest("real-xdouble-absrel-relfail-abspass", test_rxdp_absrel_relfail_abspass), &
       new_unittest("real-xdouble-absrel-fail", test_rxdp_absrel_fail, should_fail=.true.), &
@@ -310,6 +342,26 @@ contains
   end subroutine test_rsp_nan
 
 
+  subroutine test_rsp_abs_expected_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_sp, ieee_value(0.0_sp, ieee_quiet_nan), thr=0.1_sp)
+
+  end subroutine test_rsp_abs_expected_nan
+
+
+  subroutine test_rsp_rel_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_sp, ieee_value(0.0_sp, ieee_positive_inf), thr=0.1_sp, rel=.true.)
+
+  end subroutine test_rsp_rel_expected_inf
+
+
   subroutine test_rsp_rel(error)
 
     !> Error handling
@@ -420,6 +472,128 @@ contains
     call check(error, val, 3.3_dp, rel=.true.)
 
   end subroutine test_rdp_nan
+
+
+  subroutine test_rdp_abs_expected_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, ieee_value(0.0_dp, ieee_quiet_nan), thr=0.1_dp)
+
+  end subroutine test_rdp_abs_expected_nan
+
+
+  subroutine test_rdp_abs_thr_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, 2.0_dp, thr=ieee_value(0.0_dp, ieee_quiet_nan))
+
+  end subroutine test_rdp_abs_thr_nan
+
+
+  subroutine test_rdp_abs_thr_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, 2.0_dp, thr=ieee_value(0.0_dp, ieee_positive_inf))
+
+  end subroutine test_rdp_abs_thr_inf
+
+
+  subroutine test_rdp_abs_thr_inf_actual_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, ieee_value(0.0_dp, ieee_positive_inf), 1.0_dp, &
+      & thr=ieee_value(0.0_dp, ieee_positive_inf))
+
+  end subroutine test_rdp_abs_thr_inf_actual_inf
+
+
+  subroutine test_rdp_abs_thr_neginf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, 2.0_dp, thr=ieee_value(0.0_dp, ieee_negative_inf))
+
+  end subroutine test_rdp_abs_thr_neginf
+
+
+  subroutine test_rdp_abs_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, ieee_value(0.0_dp, ieee_positive_inf), thr=0.1_dp)
+
+  end subroutine test_rdp_abs_expected_inf
+
+
+  subroutine test_rdp_rel_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, ieee_value(0.0_dp, ieee_positive_inf), thr=0.1_dp, rel=.true.)
+
+  end subroutine test_rdp_rel_expected_inf
+
+
+  subroutine test_rdp_abs_huge_diff(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, huge(1.0_dp) / 2, 0.0_dp)
+
+  end subroutine test_rdp_abs_huge_diff
+
+
+  subroutine test_rdp_rel_huge_diff(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, huge(1.0_dp) / 2, 1.0_dp, rel=.true.)
+
+  end subroutine test_rdp_rel_huge_diff
+
+
+  subroutine test_rdp_rel_zero(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 0.0_dp, 0.0_dp, rel=.true.)
+
+  end subroutine test_rdp_rel_zero
+
+
+  subroutine test_rdp_rel_equal_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, ieee_value(0.0_dp, ieee_positive_inf), &
+      & ieee_value(0.0_dp, ieee_positive_inf), rel=.true.)
+
+  end subroutine test_rdp_rel_equal_inf
+
+
+  subroutine test_rdp_rel_equal_thr_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, 1.0_dp, thr=ieee_value(0.0_dp, ieee_quiet_nan), rel=.true.)
+
+  end subroutine test_rdp_rel_equal_thr_nan
 
 
   subroutine test_rdp_abs_fail(error)
@@ -869,6 +1043,92 @@ contains
     call check(error, val, cmplx(3.3_dp, 1.0_dp, dp), rel=.true.)
 
   end subroutine test_cdp_nan
+
+
+  subroutine test_cdp_abs_expected_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), &
+      & cmplx(ieee_value(0.0_dp, ieee_quiet_nan), 0.0_dp, dp), thr=0.1_dp)
+
+  end subroutine test_cdp_abs_expected_nan
+
+
+  subroutine test_cdp_abs_expected_imag_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), &
+      & cmplx(0.0_dp, ieee_value(0.0_dp, ieee_quiet_nan), dp), thr=0.1_dp)
+
+  end subroutine test_cdp_abs_expected_imag_nan
+
+
+  subroutine test_cdp_abs_thr_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), cmplx(2.0_dp, 0.0_dp, dp), &
+      & thr=ieee_value(0.0_dp, ieee_quiet_nan))
+
+  end subroutine test_cdp_abs_thr_nan
+
+
+  subroutine test_cdp_rel_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), &
+      & cmplx(ieee_value(0.0_dp, ieee_positive_inf), 0.0_dp, dp), thr=0.1_dp, rel=.true.)
+
+  end subroutine test_cdp_rel_expected_inf
+
+
+  subroutine test_cdp_abs_huge_diff(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(huge(1.0_dp) / 2, 0.0_dp, dp), cmplx(0.0_dp, 0.0_dp, dp))
+
+  end subroutine test_cdp_abs_huge_diff
+
+
+  subroutine test_cdp_abs_thr_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), cmplx(2.0_dp, 0.0_dp, dp), &
+      & thr=ieee_value(0.0_dp, ieee_positive_inf))
+
+  end subroutine test_cdp_abs_thr_inf
+
+
+  subroutine test_cdp_rel_zero(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(0.0_dp, 0.0_dp, dp), cmplx(0.0_dp, 0.0_dp, dp), rel=.true.)
+
+  end subroutine test_cdp_rel_zero
+
+
+  subroutine test_cdp_rel_equal_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(ieee_value(0.0_dp, ieee_positive_inf), 0.0_dp, dp), &
+      & cmplx(ieee_value(0.0_dp, ieee_positive_inf), 0.0_dp, dp), rel=.true.)
+
+  end subroutine test_cdp_rel_equal_inf
 
 
   subroutine test_cdp_abs_fail(error)
@@ -1587,6 +1847,17 @@ contains
   end subroutine test_rsp_absrel_fail
 
 
+  subroutine test_rsp_absrel_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_sp, ieee_value(0.0_sp, ieee_positive_inf), &
+      & thr_abs=1.0e-4_sp, thr_rel=1.0e-2_sp)
+
+  end subroutine test_rsp_absrel_expected_inf
+
+
   subroutine test_rdp_absrel_relpass_absfail(error)
 
     !> Error handling
@@ -1627,6 +1898,61 @@ contains
     call check(error, val, 1.0_dp, thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
 
   end subroutine test_rdp_absrel_fail
+
+
+  subroutine test_rdp_absrel_expected_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, ieee_value(0.0_dp, ieee_quiet_nan), &
+      & thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_expected_nan
+
+
+  subroutine test_rdp_absrel_thr_abs_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, 1.0_dp, &
+      & thr_abs=ieee_value(0.0_dp, ieee_quiet_nan), thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_thr_abs_nan
+
+
+  subroutine test_rdp_absrel_thr_rel_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, 1.0_dp, &
+      & thr_abs=1.0e-8_dp, thr_rel=ieee_value(0.0_dp, ieee_quiet_nan))
+
+  end subroutine test_rdp_absrel_thr_rel_nan
+
+
+  subroutine test_rdp_absrel_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, 1.0_dp, ieee_value(0.0_dp, ieee_positive_inf), &
+      & thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_expected_inf
+
+
+  subroutine test_rdp_absrel_equal_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, ieee_value(0.0_dp, ieee_positive_inf), &
+      & ieee_value(0.0_dp, ieee_positive_inf), thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_rdp_absrel_equal_inf
 
 
   subroutine test_csp_absrel_relpass_absfail(error)
@@ -1711,6 +2037,42 @@ contains
     call check(error, val, cmplx(1.0_dp, 1.0_dp, dp), thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
 
   end subroutine test_cdp_absrel_fail
+
+
+  subroutine test_cdp_absrel_expected_nan(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), &
+      & cmplx(0.0_dp, ieee_value(0.0_dp, ieee_quiet_nan), dp), &
+      & thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_cdp_absrel_expected_nan
+
+
+  subroutine test_cdp_absrel_expected_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(1.0_dp, 0.0_dp, dp), &
+      & cmplx(ieee_value(0.0_dp, ieee_positive_inf), 0.0_dp, dp), &
+      & thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_cdp_absrel_expected_inf
+
+
+  subroutine test_cdp_absrel_equal_inf(error)
+
+    !> Error handling
+    type(error_type), allocatable, intent(out) :: error
+
+    call check(error, cmplx(ieee_value(0.0_dp, ieee_positive_inf), 0.0_dp, dp), &
+      & cmplx(ieee_value(0.0_dp, ieee_positive_inf), 0.0_dp, dp), &
+      & thr_abs=1.0e-8_dp, thr_rel=1.0e-2_dp)
+
+  end subroutine test_cdp_absrel_equal_inf
 
 
   subroutine test_rxdp_absrel_relpass_absfail(error)

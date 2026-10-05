@@ -1038,11 +1038,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(expected)
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_dp) return
 
     if (present(rel)) then
       relative = rel
@@ -1056,11 +1064,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, dp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1133,11 +1141,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(expected)
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_sp) return
 
     if (present(rel)) then
       relative = rel
@@ -1151,11 +1167,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, sp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1229,11 +1245,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(expected)
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_xdp) return
 
     if (present(rel)) then
       relative = rel
@@ -1247,11 +1271,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, xdp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1326,11 +1350,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(expected)
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_qp) return
 
     if (present(rel)) then
       relative = rel
@@ -1344,11 +1376,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, qp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1422,11 +1454,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(abs(expected))
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_dp) return
 
     if (present(rel)) then
       relative = rel
@@ -1440,11 +1480,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, dp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1517,11 +1557,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(abs(expected))
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_sp) return
 
     if (present(rel)) then
       relative = rel
@@ -1535,11 +1583,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, sp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1613,11 +1661,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(abs(expected))
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_xdp) return
 
     if (present(rel)) then
       relative = rel
@@ -1631,11 +1687,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, xdp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1710,11 +1766,19 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
     if (present(thr)) then
       threshold = thr
     else
       threshold = epsilon(abs(expected))
     end if
+
+    call check(error, threshold, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. threshold >= 0.0_qp) return
 
     if (present(rel)) then
       relative = rel
@@ -1728,11 +1792,11 @@ contains
       diff = abs(actual - expected)
     end if
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
-        if (relative) then
+        if (relative .and. diff < real(huge(1) / 100, qp)) then
           call test_failed(error, &
             "Floating point value mismatch", &
             "expected "//to_string(expected)//" but got "//to_string(actual)//" "//&
@@ -1805,10 +1869,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_dp .and. thr_rel >= 0.0_dp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -1851,10 +1926,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_sp .and. thr_rel >= 0.0_sp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -1898,10 +1984,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_xdp .and. thr_rel >= 0.0_xdp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -1946,10 +2043,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_qp .and. thr_rel >= 0.0_qp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -1993,10 +2101,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_dp .and. thr_rel >= 0.0_dp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -2039,10 +2158,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_sp .and. thr_rel >= 0.0_sp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -2086,10 +2216,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_xdp .and. thr_rel >= 0.0_xdp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
@@ -2134,10 +2275,21 @@ contains
     call check(error, actual, message, more)
     if (allocated(error)) return
 
+    call check(error, expected, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_abs, message, more)
+    if (allocated(error)) return
+
+    call check(error, thr_rel, message, more)
+    if (allocated(error)) return
+
+    if (actual == expected .and. thr_abs >= 0.0_qp .and. thr_rel >= 0.0_qp) return
+
     diff = abs(actual - expected)
     threshold = max(thr_abs, abs(thr_rel * expected))
 
-    if (diff > threshold) then
+    if (.not. (diff <= threshold) .or. diff > huge(diff)) then
       if (present(message)) then
         call test_failed(error, message, more)
       else
